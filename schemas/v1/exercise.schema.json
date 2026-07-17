@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.synaploom.dev/v1/exercise.schema.json",
+  "title": "ExerciseManifest",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "title",
+    "runtime",
+    "workspace",
+    "actions",
+    "checks",
+    "completion"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "runtime": {
+      "type": "object"
+    },
+    "workspace": {
+      "type": "object"
+    },
+    "actions": {
+      "type": "object"
+    },
+    "checks": {
+      "type": "array"
+    },
+    "completion": {
+      "type": "object"
+    }
+  },
+  "unevaluatedProperties": false
+}

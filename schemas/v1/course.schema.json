@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.synaploom.dev/v1/course.schema.json",
+  "title": "CourseManifest",
+  "type": "object",
+  "required": ["schemaVersion", "id", "title", "description", "version", "language"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "enum": ["1.0", "1.1.0"] },
+    "id": { "$ref": "#/$defs/id" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "language": { "type": "string", "minLength": 2 },
+    "author": { "type": "string", "minLength": 1 },
+    "lessons": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/linearLessonReference" }
+    },
+    "chapters": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/chapter" }
+    }
+  },
+  "oneOf": [
+    {
+      "properties": { "schemaVersion": { "const": "1.0" } },
+      "required": ["lessons"],
+      "not": { "required": ["chapters"] }
+    },
+    {
+      "properties": { "schemaVersion": { "const": "1.1.0" } },
+      "required": ["chapters"],
+      "not": { "required": ["lessons"] }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "safePath": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+    },
+    "linearLessonReference": {
+      "type": "object",
+      "required": ["id", "position", "path"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "position": { "type": "integer", "minimum": 1 },
+        "path": { "$ref": "#/$defs/safePath" }
+      },
+      "additionalProperties": false
+    },
+    "chapterLessonReference": {
+      "type": "object",
+      "required": ["id", "required"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "completionRule": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": { "const": "all-required-checks" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "threshold"],
+          "properties": {
+            "type": { "const": "minimum-score" },
+            "threshold": { "type": "number", "minimum": 0, "maximum": 1 }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "chapterAssessment": {
+      "type": "object",
+      "required": ["id", "title", "required", "path", "requiresLessons", "completion"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1 },
+        "required": { "type": "boolean" },
+        "path": { "$ref": "#/$defs/safePath" },
+        "requiresLessons": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "completion": { "$ref": "#/$defs/completionRule" }
+      },
+      "additionalProperties": false
+    },
+    "chapter": {
+      "type": "object",
+      "required": ["id", "title", "required", "lessons", "assessments"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1 },
+        "required": { "type": "boolean" },
+        "lessons": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/chapterLessonReference" }
+        },
+        "assessments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/chapterAssessment" }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

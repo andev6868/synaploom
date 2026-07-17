@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "runtime-course",
+  "title": "Runtime Course",
+  "description": "A course organized into chapters.",
+  "version": "1.0.0",
+  "language": "vi",
+  "chapters": [
+    {
+      "id": "runtime",
+      "title": "Runtime",
+      "required": true,
+      "lessons": [
+        { "id": "call-stack", "required": true },
+        { "id": "deep-dive", "required": false }
+      ],
+      "assessments": [
+        {
+          "id": "runtime-capstone",
+          "title": "Runtime Capstone",
+          "required": true,
+          "path": "assessments/runtime-capstone",
+          "requiresLessons": ["call-stack"],
+          "completion": { "type": "all-required-checks" }
+        }
+      ]
+    }
+  ]
+}

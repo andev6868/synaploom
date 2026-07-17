@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.synaploom.dev/v1/lesson-document.schema.json",
+  "title": "LessonDocument",
+  "type": "object",
+  "required": ["id", "courseId", "position", "title", "type", "blocks"],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "courseId": {
+      "type": "string"
+    },
+    "position": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "title": {
+      "type": "string"
+    },
+    "type": {
+      "enum": ["theory", "practice", "mixed"]
+    },
+    "blocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "unevaluatedProperties": false
+}

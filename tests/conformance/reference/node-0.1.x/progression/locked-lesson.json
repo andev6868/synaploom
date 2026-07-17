@@ -1,0 +1,8 @@
+{
+  "status": 409,
+  "body": {
+    "code": "LESSON_LOCKED",
+    "message": "Lesson is locked.",
+    "currentLessonId": "main-thread"
+  }
+}

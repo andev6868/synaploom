@@ -1,0 +1,17 @@
+{
+  "name": "@synaploom/eslint-config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./index.mjs",
+  "dependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "typescript-eslint": "8.64.0"
+  },
+  "peerDependencies": {
+    "eslint": "10.7.0",
+    "typescript": ">=4.8.4 <6.1.0"
+  }
+}

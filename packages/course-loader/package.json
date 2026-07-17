@@ -1,0 +1,34 @@
+{
+  "name": "@synaploom/course-loader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "imports": {
+    "#src/*": {
+      "development": "./src/*.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "@synaploom/contracts": "workspace:*",
+    "@synaploom/course-schema": "workspace:*",
+    "@synaploom/course-validator": "workspace:*",
+    "@synaploom/lesson-renderer": "workspace:*",
+    "@synaploom/security": "workspace:*"
+  },
+  "devDependencies": {
+    "@synaploom/typescript-config": "workspace:*",
+    "typescript": "6.0.3"
+  }
+}

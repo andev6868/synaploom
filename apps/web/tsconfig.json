@@ -1,0 +1,12 @@
+{
+  "extends": "../../tooling/typescript-config/react.json",
+  "compilerOptions": {
+    "outDir": "dist-types",
+    "tsBuildInfoFile": "dist-types/web.tsbuildinfo",
+    "noEmit": true,
+    "paths": {
+      "#src/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"]
+}

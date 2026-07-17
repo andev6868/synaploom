@@ -1,0 +1,41 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "apps/web"
+    },
+    {
+      "path": "generated/typescript"
+    },
+    {
+      "path": "packages/ai-contracts"
+    },
+    {
+      "path": "packages/contracts"
+    },
+    {
+      "path": "packages/course-loader"
+    },
+    {
+      "path": "packages/course-schema"
+    },
+    {
+      "path": "packages/course-validator"
+    },
+    {
+      "path": "packages/lesson-renderer"
+    },
+    {
+      "path": "packages/protocol"
+    },
+    {
+      "path": "packages/security"
+    },
+    {
+      "path": "packages/ui"
+    },
+    {
+      "path": "packages/web-client"
+    }
+  ]
+}

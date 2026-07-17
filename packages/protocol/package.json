@@ -1,0 +1,31 @@
+{
+  "name": "@synaploom/protocol",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "imports": {
+    "#src/*": {
+      "development": "./src/*.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "@synaploom/contracts": "workspace:*",
+    "@synaploom/generated-contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@synaploom/typescript-config": "workspace:*",
+    "typescript": "6.0.3"
+  }
+}

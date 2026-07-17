@@ -1,0 +1,30 @@
+{
+  "extends": "./tooling/typescript-config/base.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "noEmit": true,
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client", "vitest/globals", "@testing-library/jest-dom"],
+    "customConditions": ["development"],
+    "paths": {
+      "#src/*": ["./apps/web/src/*"]
+    }
+  },
+  "include": [
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "tests/**/*.ts",
+    "tooling/**/*.ts",
+    "*.ts"
+  ],
+  "exclude": ["**/dist/**", "**/dist-types/**", "**/node_modules/**", "artifacts/**"]
+}

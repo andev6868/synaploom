@@ -1,0 +1,15 @@
+{
+  "$id": "https://synaploom.dev/schemas/exercise-v1.json",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "title",
+    "runtime",
+    "workspace",
+    "actions",
+    "checks",
+    "completion"
+  ],
+  "additionalProperties": false
+}

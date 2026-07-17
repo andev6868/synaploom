@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0",
+  "id": "path-traversal-course",
+  "title": "Traversal",
+  "description": "Fixture",
+  "version": "1.0.0",
+  "language": "vi",
+  "lessons": [{ "id": "intro", "position": 1, "path": "../outside" }]
+}

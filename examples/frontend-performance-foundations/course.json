@@ -1,0 +1,14 @@
+{
+  "$schema": "https://synaploom.local/schemas/course-v1.json",
+  "schemaVersion": "1.0",
+  "id": "frontend-performance-foundations",
+  "title": "Frontend Performance Foundations",
+  "description": "Nền tảng về main thread, Event Loop và khả năng phản hồi của giao diện.",
+  "version": "1.0.0",
+  "language": "vi",
+  "author": "Synaploom Contributors",
+  "lessons": [
+    { "id": "main-thread", "position": 1, "path": "lessons/01-main-thread" },
+    { "id": "event-loop", "position": 2, "path": "lessons/02-event-loop" }
+  ]
+}

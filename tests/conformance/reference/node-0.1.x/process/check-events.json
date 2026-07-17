@@ -1,0 +1,25 @@
+{
+  "events": [
+    {
+      "type": "process.started",
+      "sessionId": "<sessionId>",
+      "lessonId": "event-loop",
+      "timestamp": "<timestamp>"
+    },
+    {
+      "type": "process.stderr",
+      "sessionId": "<sessionId>",
+      "lessonId": "event-loop",
+      "timestamp": "<timestamp>",
+      "chunk": "Expected: start -> end -> promise -> timeout\nReceived: start -> end -> timeout\n"
+    },
+    {
+      "type": "process.exited",
+      "sessionId": "<sessionId>",
+      "lessonId": "event-loop",
+      "timestamp": "<timestamp>",
+      "exitCode": 1,
+      "outputTruncated": false
+    }
+  ]
+}

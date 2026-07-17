@@ -1,0 +1,759 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.synaploom.dev/v1/api.schema.json",
+  "title": "ApiContracts",
+  "$defs": {
+    "apiError": {
+      "title": "ApiErrorPayload",
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "requestId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "processSession": {
+      "type": "object",
+      "required": ["sessionId", "eventsUrl"],
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "eventsUrl": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "title": "ProcessSessionPayload"
+    },
+    "courseLessonSummary": {
+      "title": "CourseLessonSummary",
+      "type": "object",
+      "required": ["id", "position", "title", "type", "estimatedMinutes", "status"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "enum": ["theory", "practice", "mixed"]
+        },
+        "estimatedMinutes": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "status": {
+          "enum": ["LOCKED", "AVAILABLE", "IN_PROGRESS", "COMPLETED"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "coursePayload": {
+      "title": "CoursePayload",
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "description",
+        "version",
+        "currentLessonId",
+        "completedAt",
+        "lessons"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "currentLessonId": {
+          "type": ["string", "null"]
+        },
+        "completedAt": {
+          "type": ["string", "null"]
+        },
+        "lessons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/courseLessonSummary"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "lessonBlock": {
+      "title": "LessonBlock",
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "checkResult": {
+      "title": "CheckResult",
+      "type": "object",
+      "required": ["id", "passed", "message"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "lessonExercise": {
+      "title": "LessonExercise",
+      "type": "object",
+      "required": ["id", "title", "editable", "actions", "checks"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "editable": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "label"],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "required"],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "required": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "lessonPayload": {
+      "title": "LessonPayload",
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "position",
+        "type",
+        "estimatedMinutes",
+        "blocks",
+        "status",
+        "readingAcknowledged",
+        "latestCheck",
+        "exercise"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "type": {
+          "enum": ["theory", "practice", "mixed"]
+        },
+        "estimatedMinutes": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/lessonBlock"
+          }
+        },
+        "status": {
+          "enum": ["LOCKED", "AVAILABLE", "IN_PROGRESS", "COMPLETED"]
+        },
+        "readingAcknowledged": {
+          "type": "boolean"
+        },
+        "latestCheck": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "required": ["checks"],
+              "properties": {
+                "checks": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/checkResult"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "exercise": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/lessonExercise"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "requirementView": {
+      "title": "RequirementView",
+      "type": "object",
+      "required": ["id", "kind", "required", "satisfied", "attempted", "latestPassed"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": ["reading", "practice", "lesson", "assessment"]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "satisfied": {
+          "type": "boolean"
+        },
+        "attempted": {
+          "type": "boolean"
+        },
+        "latestPassed": {
+          "type": ["boolean", "null"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "navigationTarget": {
+      "title": "NavigationTarget",
+      "type": "object",
+      "required": ["type", "id", "chapterId", "label"],
+      "properties": {
+        "type": {
+          "enum": ["LESSON", "CHAPTER_ASSESSMENT", "CHAPTER", "COURSE"]
+        },
+        "id": {
+          "type": "string"
+        },
+        "chapterId": {
+          "type": ["string", "null"]
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "nextActionPayload": {
+      "title": "NextActionPayload",
+      "oneOf": [
+        {
+          "title": "ReturnToCurrentLessonAction",
+          "type": "object",
+          "required": ["type", "chapterId", "lessonId"],
+          "properties": {
+            "type": {
+              "const": "RETURN_TO_CURRENT_LESSON"
+            },
+            "chapterId": {
+              "type": "string"
+            },
+            "lessonId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "AcknowledgeReadingAction",
+          "type": "object",
+          "required": ["type", "chapterId", "lessonId"],
+          "properties": {
+            "type": {
+              "const": "ACKNOWLEDGE_READING"
+            },
+            "chapterId": {
+              "type": "string"
+            },
+            "lessonId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "StartRequiredPracticeAction",
+          "type": "object",
+          "required": ["type", "chapterId", "lessonId", "practiceId"],
+          "properties": {
+            "type": {
+              "const": "START_REQUIRED_PRACTICE"
+            },
+            "chapterId": {
+              "type": "string"
+            },
+            "lessonId": {
+              "type": "string"
+            },
+            "practiceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "RetryRequiredPracticeAction",
+          "type": "object",
+          "required": ["type", "chapterId", "lessonId", "practiceId"],
+          "properties": {
+            "type": {
+              "const": "RETRY_REQUIRED_PRACTICE"
+            },
+            "chapterId": {
+              "type": "string"
+            },
+            "lessonId": {
+              "type": "string"
+            },
+            "practiceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "ContinueToLessonAction",
+          "type": "object",
+          "required": ["type", "chapterId", "lessonId"],
+          "properties": {
+            "type": {
+              "const": "CONTINUE_TO_LESSON"
+            },
+            "chapterId": {
+              "type": "string"
+            },
+            "lessonId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "StartChapterAssessmentAction",
+          "type": "object",
+          "required": ["type", "chapterId", "assessmentId"],
+          "properties": {
+            "type": {
+              "const": "START_CHAPTER_ASSESSMENT"
+            },
+            "chapterId": {
+              "type": "string"
+            },
+            "assessmentId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "RetryChapterAssessmentAction",
+          "type": "object",
+          "required": ["type", "chapterId", "assessmentId"],
+          "properties": {
+            "type": {
+              "const": "RETRY_CHAPTER_ASSESSMENT"
+            },
+            "chapterId": {
+              "type": "string"
+            },
+            "assessmentId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "ContinueToChapterAction",
+          "type": "object",
+          "required": ["type", "chapterId"],
+          "properties": {
+            "type": {
+              "const": "CONTINUE_TO_CHAPTER"
+            },
+            "chapterId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "ViewCourseSummaryAction",
+          "type": "object",
+          "required": ["type", "courseId"],
+          "properties": {
+            "type": {
+              "const": "VIEW_COURSE_SUMMARY"
+            },
+            "courseId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "NoNextAction",
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "const": "NONE"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "lessonNavigationItem": {
+      "title": "LessonNavigationItem",
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "status",
+        "required",
+        "current",
+        "viewed",
+        "blockingRequirements"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "enum": ["LOCKED", "AVAILABLE", "IN_PROGRESS", "ASSESSMENT_REQUIRED", "COMPLETED"]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "current": {
+          "type": "boolean"
+        },
+        "viewed": {
+          "type": "boolean"
+        },
+        "blockingRequirements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/requirementView"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "assessmentNavigationItem": {
+      "title": "AssessmentNavigationItem",
+      "type": "object",
+      "required": ["id", "title", "status", "required", "viewed", "blockingRequirements"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "enum": ["LOCKED", "AVAILABLE", "IN_PROGRESS", "ASSESSMENT_REQUIRED", "COMPLETED"]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "viewed": {
+          "type": "boolean"
+        },
+        "blockingRequirements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/requirementView"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "chapterNavigationItem": {
+      "title": "ChapterNavigationItem",
+      "type": "object",
+      "required": ["id", "title", "status", "required", "lessons", "assessments"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "enum": ["LOCKED", "AVAILABLE", "IN_PROGRESS", "ASSESSMENT_REQUIRED", "COMPLETED"]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "lessons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/lessonNavigationItem"
+          }
+        },
+        "assessments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assessmentNavigationItem"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "courseNavigationPayload": {
+      "title": "CourseNavigationPayload",
+      "type": "object",
+      "required": [
+        "courseId",
+        "currentLessonId",
+        "viewedItemId",
+        "viewMode",
+        "chapters",
+        "returnTarget",
+        "nextAction"
+      ],
+      "properties": {
+        "courseId": {
+          "type": "string"
+        },
+        "currentLessonId": {
+          "type": ["string", "null"]
+        },
+        "viewedItemId": {
+          "type": "string"
+        },
+        "viewMode": {
+          "enum": ["LEARNING", "REVIEW"]
+        },
+        "chapters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/chapterNavigationItem"
+          }
+        },
+        "returnTarget": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/navigationTarget"
+            }
+          ]
+        },
+        "nextAction": {
+          "$ref": "#/$defs/nextActionPayload"
+        }
+      },
+      "additionalProperties": false
+    },
+    "lessonViewContext": {
+      "title": "LessonViewContext",
+      "type": "object",
+      "required": [
+        "chapterId",
+        "status",
+        "required",
+        "readingCompleted",
+        "requirements",
+        "viewMode",
+        "currentLessonId",
+        "returnTarget",
+        "nextAction"
+      ],
+      "properties": {
+        "chapterId": {
+          "type": "string"
+        },
+        "status": {
+          "enum": ["LOCKED", "AVAILABLE", "IN_PROGRESS", "ASSESSMENT_REQUIRED", "COMPLETED"]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "readingCompleted": {
+          "type": "boolean"
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/requirementView"
+          }
+        },
+        "viewMode": {
+          "enum": ["LEARNING", "REVIEW"]
+        },
+        "currentLessonId": {
+          "type": ["string", "null"]
+        },
+        "returnTarget": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/navigationTarget"
+            }
+          ]
+        },
+        "nextAction": {
+          "$ref": "#/$defs/nextActionPayload"
+        }
+      },
+      "additionalProperties": false
+    },
+    "chapterAssessmentPayload": {
+      "title": "ChapterAssessmentPayload",
+      "type": "object",
+      "required": [
+        "id",
+        "chapterId",
+        "title",
+        "required",
+        "status",
+        "requirements",
+        "latestResult",
+        "bestResult",
+        "actions",
+        "editable"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "chapterId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": ["LOCKED", "AVAILABLE", "IN_PROGRESS", "ASSESSMENT_REQUIRED", "COMPLETED"]
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/requirementView"
+          }
+        },
+        "latestResult": {
+          "type": ["object", "null"],
+          "additionalProperties": true
+        },
+        "bestResult": {
+          "type": ["object", "null"],
+          "additionalProperties": true
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "label"],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "editable": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

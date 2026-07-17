@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0",
+  "id": "minimal-course",
+  "title": "Minimal",
+  "description": "Minimal course",
+  "version": "1.0.0",
+  "language": "en",
+  "lessons": [
+    {
+      "id": "intro",
+      "position": 1,
+      "path": "../outside"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "runtime-course",
+  "title": "Runtime Course",
+  "description": "A course with an invalid cross-chapter prerequisite.",
+  "version": "1.0.0",
+  "language": "vi",
+  "chapters": [
+    {
+      "id": "runtime",
+      "title": "Runtime",
+      "required": true,
+      "lessons": [{ "id": "call-stack", "required": true }],
+      "assessments": [
+        {
+          "id": "runtime-capstone",
+          "title": "Runtime Capstone",
+          "required": true,
+          "path": "assessments/runtime-capstone",
+          "requiresLessons": ["rendering"],
+          "completion": { "type": "all-required-checks" }
+        }
+      ]
+    }
+  ]
+}

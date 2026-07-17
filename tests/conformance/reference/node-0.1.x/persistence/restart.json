@@ -1,0 +1,54 @@
+{
+  "beforeRestart": {
+    "id": "frontend-performance-foundations",
+    "title": "Frontend Performance Foundations",
+    "description": "Nền tảng về main thread, Event Loop và khả năng phản hồi của giao diện.",
+    "version": "1.0.0",
+    "currentLessonId": "event-loop",
+    "completedAt": "<completedAt>",
+    "lessons": [
+      {
+        "id": "main-thread",
+        "position": 1,
+        "title": "Main Thread",
+        "type": "theory",
+        "estimatedMinutes": 12,
+        "status": "COMPLETED"
+      },
+      {
+        "id": "event-loop",
+        "position": 2,
+        "title": "Event Loop",
+        "type": "mixed",
+        "estimatedMinutes": 20,
+        "status": "IN_PROGRESS"
+      }
+    ]
+  },
+  "afterRestart": {
+    "id": "frontend-performance-foundations",
+    "title": "Frontend Performance Foundations",
+    "description": "Nền tảng về main thread, Event Loop và khả năng phản hồi của giao diện.",
+    "version": "1.0.0",
+    "currentLessonId": "event-loop",
+    "completedAt": "<completedAt>",
+    "lessons": [
+      {
+        "id": "main-thread",
+        "position": 1,
+        "title": "Main Thread",
+        "type": "theory",
+        "estimatedMinutes": 12,
+        "status": "COMPLETED"
+      },
+      {
+        "id": "event-loop",
+        "position": 2,
+        "title": "Event Loop",
+        "type": "mixed",
+        "estimatedMinutes": 20,
+        "status": "IN_PROGRESS"
+      }
+    ]
+  }
+}

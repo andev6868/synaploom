@@ -1,0 +1,25 @@
+{
+  "events": [
+    {
+      "type": "process.started",
+      "sessionId": "<sessionId>",
+      "lessonId": "event-loop",
+      "timestamp": "<timestamp>"
+    },
+    {
+      "type": "process.stdout",
+      "sessionId": "<sessionId>",
+      "lessonId": "event-loop",
+      "timestamp": "<timestamp>",
+      "chunk": "start\nend\ntimeout\n"
+    },
+    {
+      "type": "process.exited",
+      "sessionId": "<sessionId>",
+      "lessonId": "event-loop",
+      "timestamp": "<timestamp>",
+      "exitCode": 0,
+      "outputTruncated": false
+    }
+  ]
+}

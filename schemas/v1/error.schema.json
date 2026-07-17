@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.synaploom.dev/v1/error.schema.json",
+  "title": "ApiErrorPayload",
+  "type": "object",
+  "required": ["code", "message"],
+  "properties": {
+    "code": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "details": {
+      "type": "object"
+    },
+    "requestId": {
+      "type": "string"
+    }
+  },
+  "unevaluatedProperties": false
+}

@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.synaploom.dev/v1/process-event.schema.json",
+  "title": "ProcessEvent",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/started"
+    },
+    {
+      "$ref": "#/$defs/stdout"
+    },
+    {
+      "$ref": "#/$defs/stderr"
+    },
+    {
+      "$ref": "#/$defs/exited"
+    },
+    {
+      "$ref": "#/$defs/timedOut"
+    },
+    {
+      "$ref": "#/$defs/killed"
+    },
+    {
+      "$ref": "#/$defs/failedToStart"
+    }
+  ],
+  "$defs": {
+    "started": {
+      "type": "object",
+      "required": ["type", "sessionId", "lessonId", "timestamp"],
+      "properties": {
+        "type": {
+          "const": "process.started"
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lessonId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp": {
+          "type": "string"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "stdout": {
+      "type": "object",
+      "required": ["type", "sessionId", "lessonId", "timestamp", "chunk"],
+      "properties": {
+        "type": {
+          "const": "process.stdout"
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lessonId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "chunk": {
+          "type": "string"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "stderr": {
+      "type": "object",
+      "required": ["type", "sessionId", "lessonId", "timestamp", "chunk"],
+      "properties": {
+        "type": {
+          "const": "process.stderr"
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lessonId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "chunk": {
+          "type": "string"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "exited": {
+      "type": "object",
+      "required": ["type", "sessionId", "lessonId", "timestamp", "exitCode", "outputTruncated"],
+      "properties": {
+        "type": {
+          "const": "process.exited"
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lessonId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "exitCode": {
+          "type": ["integer", "null"]
+        },
+        "outputTruncated": {
+          "type": "boolean"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "timedOut": {
+      "type": "object",
+      "required": ["type", "sessionId", "lessonId", "timestamp", "exitCode", "outputTruncated"],
+      "properties": {
+        "type": {
+          "const": "process.timed_out"
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lessonId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "exitCode": {
+          "type": ["integer", "null"]
+        },
+        "outputTruncated": {
+          "type": "boolean"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "killed": {
+      "type": "object",
+      "required": ["type", "sessionId", "lessonId", "timestamp", "exitCode", "outputTruncated"],
+      "properties": {
+        "type": {
+          "const": "process.killed"
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lessonId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "exitCode": {
+          "type": ["integer", "null"]
+        },
+        "outputTruncated": {
+          "type": "boolean"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "failedToStart": {
+      "type": "object",
+      "required": ["type", "sessionId", "lessonId", "timestamp", "message"],
+      "properties": {
+        "type": {
+          "const": "process.failed_to_start"
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lessonId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  }
+}

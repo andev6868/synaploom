@@ -1,0 +1,8 @@
+{
+  "actionId": "run",
+  "program": "node",
+  "args": ["main.js"],
+  "workingDirectory": ".",
+  "timeoutMs": 10000,
+  "maxOutputBytes": 262144
+}

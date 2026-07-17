@@ -1,0 +1,13 @@
+{
+  "name": "@synaploom/test-config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./setup-dom": "./setup-dom.ts"
+  },
+  "dependencies": {
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2"
+  }
+}

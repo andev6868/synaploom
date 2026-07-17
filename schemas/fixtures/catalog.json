@@ -1,0 +1,22 @@
+{
+  "valid": [
+    {
+      "schema": "course",
+      "path": "course/minimal.json"
+    },
+    {
+      "schema": "process-event",
+      "path": "process/started.json"
+    }
+  ],
+  "invalid": [
+    {
+      "schema": "course",
+      "path": "course/path-traversal.json"
+    },
+    {
+      "schema": "process-event",
+      "path": "process/unknown.json"
+    }
+  ]
+}

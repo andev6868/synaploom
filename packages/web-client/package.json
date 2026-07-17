@@ -1,0 +1,24 @@
+{
+  "name": "@synaploom/web-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "@synaploom/generated-contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@synaploom/typescript-config": "workspace:*",
+    "typescript": "6.0.3"
+  }
+}

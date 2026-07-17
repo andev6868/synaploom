@@ -1,0 +1,16 @@
+name: Native Preview Release
+on: { workflow_dispatch: {} }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: '1.26.5' }
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm go:stage-web
+      - run: pnpm go:release
+      - run: pnpm go:verify-release

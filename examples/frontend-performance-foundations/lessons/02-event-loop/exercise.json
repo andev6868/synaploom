@@ -1,0 +1,40 @@
+{
+  "$schema": "https://synaploom.local/schemas/exercise-v1.json",
+  "schemaVersion": "1.0",
+  "id": "event-loop-order",
+  "title": "Quan sát thứ tự Event Loop",
+  "runtime": {
+    "kind": "local",
+    "requires": ["node"]
+  },
+  "workspace": {
+    "starter": "starter",
+    "editable": ["event-loop-demo.js"]
+  },
+  "actions": {
+    "run": {
+      "label": "Chạy chương trình",
+      "executable": "node",
+      "args": ["event-loop-demo.js"],
+      "timeoutMs": 3000,
+      "maxOutputBytes": 100000
+    },
+    "check": {
+      "label": "Kiểm tra kết quả",
+      "executable": "node",
+      "args": [".synaploom/checks/event-loop.test.js"],
+      "timeoutMs": 5000,
+      "maxOutputBytes": 100000
+    }
+  },
+  "checks": [
+    {
+      "id": "event-loop-output-order",
+      "title": "Output theo thứ tự start, end, promise, timeout",
+      "required": true
+    }
+  ],
+  "completion": {
+    "requireAllRequiredChecks": true
+  }
+}

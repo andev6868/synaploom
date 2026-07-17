@@ -1,0 +1,9 @@
+packages:
+  - apps/*
+  - packages/*
+  - tooling/*
+  - generated/*
+allowBuilds:
+  esbuild: true
+
+trustLockfile: true

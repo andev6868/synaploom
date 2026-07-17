@@ -1,0 +1,25 @@
+node_modules/
+dist/
+artifacts/
+playwright-report/
+test-results/
+.pnpm-store/
+*.tgz
+*.log
+.DS_Store
+dist-types/
+
+# Generated only when source archives are exported.
+FILE-MANIFEST.sha256
+
+# Native Go build outputs and Superpowers execution ledger.
+bin/
+.superpowers/
+
+# The native Go binary must build directly from a source checkout.
+# Keep the verified production Web bundle embedded by go:embed under version control.
+!internal/webassets/dist/
+!internal/webassets/dist/**
+
+# Isolated Superpowers feature worktrees.
+.worktrees/

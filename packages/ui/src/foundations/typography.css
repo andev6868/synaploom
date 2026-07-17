@@ -1,0 +1,38 @@
+.syn-prose {
+  color: var(--syn-color-text);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+.syn-prose h1,
+.syn-prose h2,
+.syn-prose h3,
+.syn-prose h4,
+.syn-prose h5,
+.syn-prose h6 {
+  margin: 1.6em 0 0.65em;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.syn-prose h1 {
+  font-size: clamp(1.75rem, 2.5vw, 2.4rem);
+}
+.syn-prose h2 {
+  font-size: 1.35rem;
+}
+.syn-prose p,
+.syn-prose ul,
+.syn-prose ol,
+.syn-prose pre {
+  margin: 0 0 1.1rem;
+}
+.syn-prose code {
+  font-family: var(--syn-font-mono);
+  font-size: 0.92em;
+}
+.syn-prose pre {
+  overflow: auto;
+  padding: 1rem;
+  border: 1px solid var(--syn-color-border);
+  border-radius: var(--syn-radius-md);
+  background: var(--syn-color-surface-muted);
+}
