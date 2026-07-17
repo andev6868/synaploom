@@ -50,7 +50,7 @@ func Import(ctx context.Context, sourcePath, destinationRoot string) (InstalledC
 		return InstalledCourse{}, err
 	}
 	for _, lesson := range manifest.Lessons {
-		if err := validateRelativePath(lesson.Path); err != nil {
+		if err := validateRelativePath(string(lesson.Path)); err != nil {
 			return InstalledCourse{}, err
 		}
 	}
@@ -61,7 +61,7 @@ func Import(ctx context.Context, sourcePath, destinationRoot string) (InstalledC
 	if err != nil {
 		return InstalledCourse{}, err
 	}
-	install := filepath.Join(destinationRoot, manifest.Id, manifest.Version)
+	install := filepath.Join(destinationRoot, string(manifest.Id), manifest.Version)
 	if err := os.MkdirAll(filepath.Dir(install), 0o700); err != nil {
 		return InstalledCourse{}, err
 	}

@@ -75,6 +75,11 @@ export interface SynaploomApiClient {
     lessonId: string,
   ): Promise<CanonicalLessonPayload>;
   getChapterAssessment(chapterId: string, assessmentId: string): Promise<ChapterAssessmentPayload>;
+  recordChapterAssessment(
+    chapterId: string,
+    assessmentId: string,
+    result: { readonly passed: boolean; readonly score?: number; readonly summary?: string },
+  ): Promise<{ readonly navigation: CourseNavigationPayload }>;
   getCurrentLesson(): Promise<LessonPayload>;
   getLesson(lessonId: string): Promise<LessonPayload>;
   startLesson(lessonId: string): Promise<void>;
@@ -116,6 +121,12 @@ export function createApiClient(
         api(
           `/chapters/${encodeURIComponent(chapterId)}/assessments/${encodeURIComponent(assessmentId)}`,
         ),
+      ),
+    recordChapterAssessment: (chapterId, assessmentId, result) =>
+      request<{ readonly navigation: CourseNavigationPayload }>(
+        fetchImpl,
+        api(`/chapters/${encodeURIComponent(chapterId)}/assessments/${encodeURIComponent(assessmentId)}/actions/check`),
+        { method: 'POST', body: JSON.stringify(result) },
       ),
     getCurrentLesson: () => request<LessonPayload>(fetchImpl, api('/lessons/current')),
     getLesson: (lessonId) =>
