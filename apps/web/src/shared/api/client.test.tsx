@@ -62,10 +62,13 @@ describe('openProcessEvents', () => {
 
 describe('hierarchical API client', () => {
   it('requests canonical navigation, lesson, and assessment endpoints', async () => {
-    const fetchImpl = vi.fn(
-      async (input: RequestInfo | URL) =>
-        new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } }),
-    );
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      void input;
+      return new Response('{}', {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
     const client = createApiClient(fetchImpl as typeof fetch);
 
     await client.getNavigation('perf');

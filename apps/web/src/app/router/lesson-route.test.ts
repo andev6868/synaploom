@@ -36,7 +36,12 @@ describe('canonical navigation', () => {
     const pushState = vi.fn();
     vi.stubGlobal('history', { pushState, replaceState: vi.fn() });
     vi.stubGlobal('window', { dispatchEvent: vi.fn() });
-    vi.stubGlobal('PopStateEvent', class {});
+    vi.stubGlobal(
+      'PopStateEvent',
+      class {
+        constructor(readonly type: string) {}
+      },
+    );
 
     navigateToLesson('perf course', 'runtime', 'event loop');
     navigateToAssessment('perf course', 'runtime', 'capstone');

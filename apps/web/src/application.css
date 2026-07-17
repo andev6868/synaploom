@@ -242,3 +242,82 @@ body,
     border-top: 1px solid rgb(148 163 184 / 0.18);
   }
 }
+
+.syn-lesson-progress {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid var(--color-border, #d7dde5);
+  border-radius: 0.75rem;
+  background: var(--color-surface, #fff);
+  padding: 0.875rem;
+}
+
+.syn-lesson-progress__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.syn-lesson-progress__header p,
+.syn-lesson-progress__current {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted-foreground, #596273);
+  font-size: 0.8125rem;
+}
+
+.syn-lesson-progress__toggle {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.syn-lesson-progress__chapters,
+.syn-lesson-progress__items {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.syn-lesson-progress__chapter h2 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 0.875rem;
+}
+
+.syn-lesson-progress__item {
+  display: grid;
+  width: 100%;
+  gap: 0.2rem;
+  border: 1px solid var(--color-border, #d7dde5);
+  border-radius: 0.625rem;
+  background: transparent;
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.syn-lesson-progress__item[aria-current='step'] {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+.syn-lesson-progress__item[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
+.syn-lesson-progress__item--assessment {
+  border-style: dashed;
+}
+
+.syn-lesson-progress__item-kicker,
+.syn-lesson-progress__item-meta {
+  color: var(--color-muted-foreground, #596273);
+  font-size: 0.75rem;
+}
+
+.syn-lesson-progress__item-title {
+  font-weight: 650;
+}
