@@ -20,7 +20,11 @@ test('pins the Go toolchain and exposes native verification scripts', async () =
   const s = (await readJson('package.json')).scripts as Record<string, string>;
   assert.match(m, /go 1\.26/);
   assert.match(m, /toolchain go1\.26\.5/);
-  assert.equal(s['go:staticcheck'], 'go tool staticcheck ./...');
+  assert.equal(
+    s['go:staticcheck'],
+    'bash scripts/go/with-internal-toolchain.sh tool staticcheck ./...',
+  );
+  await readFile('scripts/go/with-internal-toolchain.sh', 'utf8');
 });
 test('documents and builds the native synaploom executable as default', async () => {
   const r = await readFile('README.md', 'utf8');

@@ -137,8 +137,8 @@ The runtime normalizes course structure into requirements:
 ```ts
 type Requirement = {
   id: string;
-  scope: "lesson" | "chapter" | "course";
-  kind: "reading" | "lesson_practice" | "chapter_assessment" | "course_assessment";
+  scope: 'lesson' | 'chapter' | 'course';
+  kind: 'reading' | 'lesson_practice' | 'chapter_assessment' | 'course_assessment';
   ownerId: string;
   targetId: string;
   required: boolean;
@@ -161,8 +161,7 @@ type PracticeDefinition = {
 };
 
 type CompletionRule =
-  | { type: "ALL_REQUIRED_CHECKS" }
-  | { type: "MINIMUM_SCORE"; threshold: number };
+  { type: 'ALL_REQUIRED_CHECKS' } | { type: 'MINIMUM_SCORE'; threshold: number };
 ```
 
 V1 execution may initially implement only `ALL_REQUIRED_CHECKS`, but the schema and domain types reserve `MINIMUM_SCORE` so the evaluator boundary does not have to be redesigned.
@@ -196,7 +195,7 @@ A chapter may have:
 ```ts
 type LessonProgress = {
   lessonId: string;
-  status: "LOCKED" | "AVAILABLE" | "IN_PROGRESS" | "COMPLETED";
+  status: 'LOCKED' | 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED';
   readingCompleted: boolean;
   startedAt?: string;
   completedAt?: string;
@@ -205,7 +204,7 @@ type LessonProgress = {
 
 type PracticeProgress = {
   practiceId: string;
-  status: "NOT_STARTED" | "IN_PROGRESS" | "PASSED" | "FAILED";
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'PASSED' | 'FAILED';
   attempts: number;
   bestResult: AttemptResult | null;
   latestResult: AttemptResult | null;
@@ -220,7 +219,7 @@ type AttemptResult = {
 
 type ChapterProgress = {
   chapterId: string;
-  status: "LOCKED" | "AVAILABLE" | "IN_PROGRESS" | "ASSESSMENT_REQUIRED" | "COMPLETED";
+  status: 'LOCKED' | 'AVAILABLE' | 'IN_PROGRESS' | 'ASSESSMENT_REQUIRED' | 'COMPLETED';
   startedAt?: string;
   completedAt?: string;
   assessments: readonly PracticeProgress[];
@@ -228,7 +227,7 @@ type ChapterProgress = {
 
 type CourseProgress = {
   courseId: string;
-  status: "AVAILABLE" | "IN_PROGRESS" | "COMPLETED";
+  status: 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED';
   currentChapterId: string | null;
   currentLessonId: string | null;
   completedAt?: string;
@@ -250,12 +249,12 @@ AND every required lesson practice has bestResult.passed = true
 
 Rules by lesson shape:
 
-| Lesson shape | Reading mutation | Completion behavior |
-|---|---|---|
-| Reading only | User confirms reading | Lesson completes immediately |
-| Reading + required practices | User confirms reading | Lesson remains in progress until required practices pass |
-| Reading + optional practices only | User confirms reading | Lesson completes; optional practices remain available |
-| Practice only | No reading requirement | Completes after required practices pass |
+| Lesson shape                      | Reading mutation       | Completion behavior                                      |
+| --------------------------------- | ---------------------- | -------------------------------------------------------- |
+| Reading only                      | User confirms reading  | Lesson completes immediately                             |
+| Reading + required practices      | User confirms reading  | Lesson remains in progress until required practices pass |
+| Reading + optional practices only | User confirms reading  | Lesson completes; optional practices remain available    |
+| Practice only                     | No reading requirement | Completes after required practices pass                  |
 
 ### 6.2 Chapter completion
 
@@ -316,7 +315,7 @@ type LearningNavigation = {
   currentLessonId: string | null;
   viewedChapterId: string;
   viewedItemId: string;
-  viewMode: "LEARNING" | "REVIEW";
+  viewMode: 'LEARNING' | 'REVIEW';
   returnTarget?: NavigationTarget;
 };
 ```
@@ -367,16 +366,16 @@ Every learner-facing progress response includes a single next action:
 
 ```ts
 type NextAction =
-  | { type: "ACKNOWLEDGE_READING"; lessonId: string }
-  | { type: "START_REQUIRED_PRACTICE"; lessonId: string; practiceId: string }
-  | { type: "RETRY_REQUIRED_PRACTICE"; lessonId: string; practiceId: string }
-  | { type: "CONTINUE_TO_LESSON"; chapterId: string; lessonId: string }
-  | { type: "START_CHAPTER_ASSESSMENT"; chapterId: string; assessmentId: string }
-  | { type: "RETRY_CHAPTER_ASSESSMENT"; chapterId: string; assessmentId: string }
-  | { type: "CONTINUE_TO_CHAPTER"; chapterId: string }
-  | { type: "RETURN_TO_CURRENT_LESSON"; chapterId: string; lessonId: string }
-  | { type: "VIEW_COURSE_SUMMARY" }
-  | { type: "NONE" };
+  | { type: 'ACKNOWLEDGE_READING'; lessonId: string }
+  | { type: 'START_REQUIRED_PRACTICE'; lessonId: string; practiceId: string }
+  | { type: 'RETRY_REQUIRED_PRACTICE'; lessonId: string; practiceId: string }
+  | { type: 'CONTINUE_TO_LESSON'; chapterId: string; lessonId: string }
+  | { type: 'START_CHAPTER_ASSESSMENT'; chapterId: string; assessmentId: string }
+  | { type: 'RETRY_CHAPTER_ASSESSMENT'; chapterId: string; assessmentId: string }
+  | { type: 'CONTINUE_TO_CHAPTER'; chapterId: string }
+  | { type: 'RETURN_TO_CURRENT_LESSON'; chapterId: string; lessonId: string }
+  | { type: 'VIEW_COURSE_SUMMARY' }
+  | { type: 'NONE' };
 ```
 
 React maps this value to one primary CTA. It must not duplicate the requirement evaluation logic.
@@ -441,7 +440,7 @@ type LessonViewContext = {
   required: boolean;
   readingCompleted: boolean;
   requirements: readonly RequirementView[];
-  viewMode: "LEARNING" | "REVIEW";
+  viewMode: 'LEARNING' | 'REVIEW';
   currentLessonId: string | null;
   returnTarget?: NavigationTarget;
   nextAction: NextAction;
@@ -520,13 +519,13 @@ Color alone must not carry meaning. Labels, icons, and accessible text are requi
 
 ### 11.3 Click behavior
 
-| Item state | Clickable | Result |
-|---|---:|---|
-| `LOCKED` | No | Show blocking requirement explanation |
-| `AVAILABLE` | Yes | Navigate and start/continue item |
-| `IN_PROGRESS` | Yes | Navigate to active item |
-| `COMPLETED` | Yes | Navigate in review mode |
-| Optional item in available chapter | Yes | Navigate without changing required sequence |
+| Item state                         | Clickable | Result                                      |
+| ---------------------------------- | --------: | ------------------------------------------- |
+| `LOCKED`                           |        No | Show blocking requirement explanation       |
+| `AVAILABLE`                        |       Yes | Navigate and start/continue item            |
+| `IN_PROGRESS`                      |       Yes | Navigate to active item                     |
+| `COMPLETED`                        |       Yes | Navigate in review mode                     |
+| Optional item in available chapter |       Yes | Navigate without changing required sequence |
 
 Opening a completed item is a GET/navigation operation and cannot mutate progression.
 

@@ -1,0 +1,21 @@
+{
+  "id": "runtime-capstone",
+  "title": "Runtime Performance Diagnosis",
+  "workspace": { "starter": "starter", "editable": ["performance-report.md"] },
+  "actions": {
+    "check": {
+      "label": "Kiểm tra báo cáo",
+      "executable": "node",
+      "args": [".synaploom/checks/check-report.mjs"],
+      "timeoutMs": 5000,
+      "maxOutputBytes": 100000
+    }
+  },
+  "checks": [
+    {
+      "id": "diagnosis-sections",
+      "title": "Báo cáo có đủ chẩn đoán và kế hoạch xác minh",
+      "required": true
+    }
+  ]
+}

@@ -21,7 +21,14 @@ const labels: Record<NextActionPayload['type'], string | null> = {
 };
 
 function requirementLabel(requirement: RequirementView): string {
-  const kind = requirement.kind === 'reading' ? 'Phần đọc' : requirement.kind === 'practice' ? 'Bài thực hành' : requirement.kind === 'assessment' ? 'Thực hành chương' : 'Bài học';
+  const kind =
+    requirement.kind === 'reading'
+      ? 'Phần đọc'
+      : requirement.kind === 'practice'
+        ? 'Bài thực hành'
+        : requirement.kind === 'assessment'
+          ? 'Thực hành chương'
+          : 'Bài học';
   return `${requirement.satisfied ? '✓' : '○'} ${kind}: ${requirement.id}${requirement.required ? ' · Bắt buộc' : ' · Tùy chọn'}`;
 }
 
@@ -39,7 +46,11 @@ export function LessonRequirementFooter({ context, busy = false, onAction }: Pro
           ))}
         </ul>
       </section>
-      {label ? <button type="button" disabled={busy} onClick={() => onAction(context.nextAction)}>{label}</button> : null}
+      {label ? (
+        <button type="button" disabled={busy} onClick={() => onAction(context.nextAction)}>
+          {label}
+        </button>
+      ) : null}
     </footer>
   );
 }

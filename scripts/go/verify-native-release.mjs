@@ -19,4 +19,7 @@ const host = path.join(out, `synaploom-${p}-${a}${p === 'windows' ? '.exe' : ''}
 if (!execFileSync(host, ['version'], { encoding: 'utf8' }).includes('schema='))
   throw new Error('version smoke failed');
 JSON.parse(execFileSync(host, ['doctor', '--json'], { encoding: 'utf8' }));
+execFileSync(host, ['course', 'validate', 'examples/frontend-performance-foundations'], {
+  encoding: 'utf8',
+});
 console.log(`verified ${lines.length} native artifacts`);

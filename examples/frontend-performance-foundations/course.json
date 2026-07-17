@@ -1,14 +1,32 @@
 {
   "$schema": "https://synaploom.local/schemas/course-v1.json",
-  "schemaVersion": "1.0",
+  "schemaVersion": "1.1.0",
   "id": "frontend-performance-foundations",
   "title": "Frontend Performance Foundations",
   "description": "Nền tảng về main thread, Event Loop và khả năng phản hồi của giao diện.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "language": "vi",
   "author": "Synaploom Contributors",
-  "lessons": [
-    { "id": "main-thread", "position": 1, "path": "lessons/01-main-thread" },
-    { "id": "event-loop", "position": 2, "path": "lessons/02-event-loop" }
+  "chapters": [
+    {
+      "id": "javascript-runtime",
+      "title": "JavaScript Runtime",
+      "required": true,
+      "lessons": [
+        { "id": "main-thread", "required": true },
+        { "id": "event-loop", "required": true },
+        { "id": "rendering-pipeline", "required": false }
+      ],
+      "assessments": [
+        {
+          "id": "runtime-capstone",
+          "title": "Runtime Performance Diagnosis",
+          "required": true,
+          "path": "assessments/runtime-capstone",
+          "requiresLessons": ["main-thread", "event-loop"],
+          "completion": { "type": "all-required-checks" }
+        }
+      ]
+    }
   ]
 }

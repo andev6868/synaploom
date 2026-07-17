@@ -35,3 +35,9 @@ pnpm go:archive-source
 ```
 
 Exact compiler versions, commit, schema version, binary sizes, checksums, Web inventory hash, database fixture hash, and test counts are captured in the final release artifact inventory generated from a clean commit.
+
+## Hierarchical progression acceptance
+
+The release gate validates Course Schema `1.1.0`, the migrated example course, restart persistence, chapter assessment completion, review navigation, and the invariant that a failed later attempt does not revoke `bestResult`. Native verification runs both `doctor --json` and `course validate examples/frontend-performance-foundations` on the host artifact.
+
+In restricted build environments, `scripts/go/with-internal-toolchain.sh` installs Go 1.26.5 from the configured internal Artifactory and runs with `GOTOOLCHAIN=local`; normal CI continues to use the toolchain installed by `actions/setup-go`.

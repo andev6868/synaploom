@@ -13,3 +13,7 @@ The browser sends trusted action identifiers rather than command strings. Go res
 ## Runtime lifecycle
 
 Application shutdown cancels runner sessions, stops HTTP listeners, closes storage, and flushes bounded logs. Process streams emit exactly one terminal event and close without replay loops.
+
+## Requirement engine and learner navigation
+
+The Go progression engine owns completion, unlocks, review navigation, and backend-authored next actions. It stores `bestResult and latestResult` independently. The browser never infers unlock state. `currentLessonId and viewedLessonId` remain separate, and review mode does not rollback progression.

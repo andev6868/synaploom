@@ -125,7 +125,9 @@ export function createApiClient(
     recordChapterAssessment: (chapterId, assessmentId, result) =>
       request<{ readonly navigation: CourseNavigationPayload }>(
         fetchImpl,
-        api(`/chapters/${encodeURIComponent(chapterId)}/assessments/${encodeURIComponent(assessmentId)}/actions/check`),
+        api(
+          `/chapters/${encodeURIComponent(chapterId)}/assessments/${encodeURIComponent(assessmentId)}/actions/check`,
+        ),
         { method: 'POST', body: JSON.stringify(result) },
       ),
     getCurrentLesson: () => request<LessonPayload>(fetchImpl, api('/lessons/current')),

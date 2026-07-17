@@ -7,7 +7,25 @@ import type { ReactNode } from 'react';
 /** Root application component for the local course player. */
 export function App(): ReactNode {
   const route = parseLearningRoute(useLocationPath());
-  if (route.kind === 'assessment') return <ChapterAssessmentPage courseId={route.courseId} chapterId={route.chapterId} assessmentId={route.assessmentId} />;
-  if (route.kind === 'lesson') return <LearningWorkspacePage requestedLessonId={route.lessonId} requestedCourseId={route.courseId} requestedChapterId={route.chapterId} />;
-  return <LearningWorkspacePage requestedLessonId={route.kind === 'legacy-lesson' ? route.lessonId : null} />;
+  if (route.kind === 'assessment')
+    return (
+      <ChapterAssessmentPage
+        courseId={route.courseId}
+        chapterId={route.chapterId}
+        assessmentId={route.assessmentId}
+      />
+    );
+  if (route.kind === 'lesson')
+    return (
+      <LearningWorkspacePage
+        requestedLessonId={route.lessonId}
+        requestedCourseId={route.courseId}
+        requestedChapterId={route.chapterId}
+      />
+    );
+  return (
+    <LearningWorkspacePage
+      requestedLessonId={route.kind === 'legacy-lesson' ? route.lessonId : null}
+    />
+  );
 }

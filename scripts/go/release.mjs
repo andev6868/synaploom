@@ -52,18 +52,20 @@ await writeFile(
       version,
       commit,
       schema,
-      artifacts: await Promise.all(sums.map(async (line) => {
-        const [sha256, filename] = line.split(/\s+/);
-        return {
-          target: filename
-            .replace(/^synaploom-/, '')
-            .replace(/\.exe$/, '')
-            .replace('-', '/'),
-          filename,
-          sha256,
-          sizeBytes: (await stat(path.join(out, filename))).size,
-        };
-      })),
+      artifacts: await Promise.all(
+        sums.map(async (line) => {
+          const [sha256, filename] = line.split(/\s+/);
+          return {
+            target: filename
+              .replace(/^synaploom-/, '')
+              .replace(/\.exe$/, '')
+              .replace('-', '/'),
+            filename,
+            sha256,
+            sizeBytes: (await stat(path.join(out, filename))).size,
+          };
+        }),
+      ),
     },
     null,
     2,

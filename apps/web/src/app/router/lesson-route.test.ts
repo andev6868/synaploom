@@ -39,7 +39,10 @@ describe('canonical navigation', () => {
     vi.stubGlobal(
       'PopStateEvent',
       class {
-        constructor(readonly type: string) {}
+        readonly type: string;
+        constructor(type: string) {
+          this.type = type;
+        }
       },
     );
 

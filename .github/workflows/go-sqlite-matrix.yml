@@ -24,6 +24,7 @@ jobs:
           go-version: '1.26.5'
           cache: true
       - run: go test ./internal/storage -run SQLiteDriver
+      - run: go test ./tests/go-integration -run HierarchicalProgression -count=1
 
   cross-build:
     runs-on: ubuntu-latest

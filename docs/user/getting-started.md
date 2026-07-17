@@ -67,3 +67,7 @@ The current MVP validates before startup; restart `dev` after changing course st
 ## Reset and uninstall
 
 The web workspace can reset the current exercise to its starter files. Removing the global package does not delete `~/.synaploom`. Delete that directory separately only when you intentionally want to remove installed courses, progress, and learner work.
+
+## Chapters, assessments, and review
+
+The navigator marks required and optional lessons explicitly. After all required lesson requirements are satisfied, chapter assessments become available. Opening a completed lesson enters review mode; review mode does not rollback progression. Use the return action to go back to the current learning target.

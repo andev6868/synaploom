@@ -81,3 +81,9 @@ The learner can still inspect or modify local files outside Synaploom because th
 ## Native runtime compatibility
 
 Course format version 1 remains backward-compatible across the Node 0.1.x reference runtime and the native Go core. Existing manifests and Markdown lessons require no modification.
+
+## Course Schema 1.1 hierarchical progression
+
+Use `schemaVersion 1.1.0` with `chapters`. Each chapter declares required and optional lessons and zero or more chapter assessments. A required assessment may reference only lessons in its own chapter. Reading-only lessons use lesson Markdown without an exercise; mixed lessons declare required and optional checks in their exercise manifest.
+
+Course Schema 1.0 implicit chapter migration remains supported: a linear `lessons` course is normalized into the internal `default` chapter without changing its authored files.

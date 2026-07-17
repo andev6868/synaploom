@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"net/url"
 
@@ -218,10 +217,4 @@ func nullableString(value string) any {
 		return nil
 	}
 	return value
-}
-
-func isProgressionError(err error) bool {
-	var locked *progression.ItemLockedError
-	var unknown *progression.UnknownItemError
-	return errors.As(err, &locked) || errors.As(err, &unknown) || errors.Is(err, progression.ErrRequirementUnsatisfied)
 }

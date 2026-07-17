@@ -80,6 +80,7 @@
 ### Task 1: Add Course Schema 1.1 Chapters and Assessments
 
 **Files:**
+
 - Modify: `packages/course-schema/schemas/course-v1.schema.json`
 - Modify: `packages/course-schema/src/index.ts`
 - Modify: `packages/course-schema/src/index.test.ts`
@@ -88,6 +89,7 @@
 - Create: `tests/fixtures/invalid-chapter-course/course.json`
 
 **Interfaces:**
+
 - Consumes: existing Course Schema 1.0 `lessons` array and exercise schema.
 - Produces: validated `chapters[]`, `ChapterLessonReference`, `ChapterAssessmentDefinition`, `CompletionRule`, while preserving schema 1.0 input.
 
@@ -236,12 +238,14 @@ git commit -m "feat: add hierarchical course schema"
 ### Task 2: Normalize Linear and Hierarchical Courses into a Runtime Graph
 
 **Files:**
+
 - Create: `internal/progression/model.go`
 - Create: `internal/progression/normalize.go`
 - Create: `internal/progression/normalize_test.go`
 - Modify: `internal/course/lesson_source.go`
 
 **Interfaces:**
+
 - Consumes: generated `contracts.CourseManifest` and lesson exercise metadata.
 - Produces:
 
@@ -343,11 +347,13 @@ git commit -m "feat: normalize hierarchical course graph"
 ### Task 3: Implement the Pure Requirement Evaluator
 
 **Files:**
+
 - Create: `internal/progression/evaluator.go`
 - Create: `internal/progression/evaluator_test.go`
 - Create: `internal/progression/errors.go`
 
 **Interfaces:**
+
 - Consumes: `CourseGraph`, immutable `ProgressSnapshot`, and an optional viewed item.
 - Produces:
 
@@ -479,6 +485,7 @@ git commit -m "feat: evaluate hierarchical requirements"
 ### Task 4: Add Hierarchical Progress Persistence and Migration
 
 **Files:**
+
 - Create: `internal/storage/migrations/003_hierarchical_progress.sql`
 - Create: `internal/progression/store.go`
 - Create: `internal/storage/hierarchical_progress_repository.go`
@@ -486,6 +493,7 @@ git commit -m "feat: evaluate hierarchical requirements"
 - Modify: `internal/storage/migrate_test.go`
 
 **Interfaces:**
+
 - Consumes: `CourseGraph`, evaluator snapshots, mutation transaction callbacks.
 - Produces:
 
@@ -586,6 +594,7 @@ git commit -m "feat: persist hierarchical progress"
 ### Task 5: Replace Linear Progression Mutations with Transactional Requirement Evaluation
 
 **Files:**
+
 - Modify: `internal/progression/service.go`
 - Modify: `internal/progression/service_test.go`
 - Modify: `internal/course/service.go`
@@ -593,6 +602,7 @@ git commit -m "feat: persist hierarchical progress"
 - Modify: `internal/course/filesystem_progress_test.go`
 
 **Interfaces:**
+
 - Consumes: `progression.Store`, `CourseGraph`, `Evaluate`.
 - Produces:
 
@@ -673,11 +683,13 @@ git commit -m "refactor: make requirements authoritative"
 ### Task 6: Build Navigation, Review Mode, and Backend-authored Next Actions
 
 **Files:**
+
 - Create: `internal/progression/navigation.go`
 - Create: `internal/progression/navigation_test.go`
 - Modify: `internal/progression/model.go`
 
 **Interfaces:**
+
 - Consumes: evaluated graph + `viewed ItemRef`.
 - Produces:
 
@@ -750,6 +762,7 @@ git commit -m "feat: add review-aware learning navigation"
 ### Task 7: Expose Navigation and Lesson View Context through Typed Protocols
 
 **Files:**
+
 - Modify: `packages/protocol/src/index.ts`
 - Modify: `packages/protocol/src/index.test.ts`
 - Modify: `packages/web-client/src/client.ts`
@@ -758,6 +771,7 @@ git commit -m "feat: add review-aware learning navigation"
 - Regenerate: `generated/go/contracts/*`
 
 **Interfaces:**
+
 - Consumes: domain navigation types.
 - Produces: `CourseNavigationPayload`, `LessonViewContext`, `RequirementView`, `NextActionPayload`, and assessment payloads in both TypeScript and Go.
 
@@ -765,17 +779,24 @@ git commit -m "feat: add review-aware learning navigation"
 
 ```ts
 it('accepts a review lesson context with a return target', () => {
-  expect(parseLessonViewContext({
-    chapterId: 'runtime',
-    status: 'COMPLETED',
-    required: true,
-    readingCompleted: true,
-    requirements: [],
-    viewMode: 'REVIEW',
-    currentLessonId: 'rendering',
-    returnTarget: { type: 'LESSON', chapterId: 'runtime', id: 'rendering', label: 'Quay lại bài đang học' },
-    nextAction: { type: 'RETURN_TO_CURRENT_LESSON', chapterId: 'runtime', lessonId: 'rendering' },
-  })).toMatchObject({ viewMode: 'REVIEW' });
+  expect(
+    parseLessonViewContext({
+      chapterId: 'runtime',
+      status: 'COMPLETED',
+      required: true,
+      readingCompleted: true,
+      requirements: [],
+      viewMode: 'REVIEW',
+      currentLessonId: 'rendering',
+      returnTarget: {
+        type: 'LESSON',
+        chapterId: 'runtime',
+        id: 'rendering',
+        label: 'Quay lại bài đang học',
+      },
+      nextAction: { type: 'RETURN_TO_CURRENT_LESSON', chapterId: 'runtime', lessonId: 'rendering' },
+    }),
+  ).toMatchObject({ viewMode: 'REVIEW' });
 });
 ```
 
@@ -814,6 +835,7 @@ git commit -m "feat: add progression navigation protocol"
 ### Task 8: Add Navigation, Canonical Lesson, and Chapter Assessment HTTP APIs
 
 **Files:**
+
 - Create: `internal/server/navigation_handlers.go`
 - Create: `internal/server/navigation_handlers_test.go`
 - Create: `internal/server/chapter_assessment_handlers.go`
@@ -824,6 +846,7 @@ git commit -m "feat: add progression navigation protocol"
 - Modify: `internal/server/course_handlers_test.go`
 
 **Interfaces:**
+
 - Consumes: `progression.Service` and protocol contracts.
 - Produces:
 
@@ -892,6 +915,7 @@ git commit -m "feat: expose hierarchical progression api"
 ### Task 9: Implement Browser API Client and Canonical Routing
 
 **Files:**
+
 - Modify: `apps/web/src/shared/api/client.ts`
 - Modify: `apps/web/src/shared/api/client.test.tsx`
 - Modify: `apps/web/src/app/router/lesson-route.ts`
@@ -899,6 +923,7 @@ git commit -m "feat: expose hierarchical progression api"
 - Modify: `apps/web/src/app/App.tsx`
 
 **Interfaces:**
+
 - Consumes: typed protocol payloads and canonical URLs.
 - Produces:
 
@@ -913,10 +938,16 @@ navigateToLesson(courseId: string, chapterId: string, lessonId: string, replace?
 
 ```ts
 expect(parseLearningRoute('/courses/perf/chapters/runtime/lessons/event-loop')).toEqual({
-  kind: 'lesson', courseId: 'perf', chapterId: 'runtime', lessonId: 'event-loop',
+  kind: 'lesson',
+  courseId: 'perf',
+  chapterId: 'runtime',
+  lessonId: 'event-loop',
 });
 expect(parseLearningRoute('/courses/perf/chapters/runtime/assessments/capstone')).toEqual({
-  kind: 'assessment', courseId: 'perf', chapterId: 'runtime', assessmentId: 'capstone',
+  kind: 'assessment',
+  courseId: 'perf',
+  chapterId: 'runtime',
+  assessmentId: 'capstone',
 });
 ```
 
@@ -966,6 +997,7 @@ git commit -m "feat: add canonical learning routes"
 ### Task 10: Build `syn-lesson-progress` as a Hierarchical Navigator
 
 **Files:**
+
 - Create: `apps/web/src/features/learning-progress/types.ts`
 - Create: `apps/web/src/features/learning-progress/SynLessonProgress.tsx`
 - Create: `apps/web/src/features/learning-progress/SynLessonProgress.test.tsx`
@@ -973,6 +1005,7 @@ git commit -m "feat: add canonical learning routes"
 - Modify: `packages/ui/src/index.ts`
 
 **Interfaces:**
+
 - Consumes: `CourseNavigationPayload`, `viewedItemId`, callbacks for lesson/assessment navigation.
 - Produces:
 
@@ -1053,6 +1086,7 @@ git commit -m "feat: add hierarchical lesson navigator"
 ### Task 11: Replace Completion Buttons with a Requirement-aware Footer
 
 **Files:**
+
 - Create: `apps/web/src/features/lesson-progress/LessonRequirementFooter.tsx`
 - Create: `apps/web/src/features/lesson-progress/LessonRequirementFooter.test.tsx`
 - Create: `apps/web/src/features/review-mode/ReviewBanner.tsx`
@@ -1061,6 +1095,7 @@ git commit -m "feat: add hierarchical lesson navigator"
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
+
 - Consumes: `LessonViewContext`, `nextAction`, mutation callbacks, navigation callbacks.
 - Produces: one primary CTA and optional secondary action; no manual chapter/course completion controls.
 
@@ -1131,6 +1166,7 @@ git commit -m "feat: add requirement-aware lesson footer"
 ### Task 12: Integrate Navigation, Review, and Assessment Views into the Workspace
 
 **Files:**
+
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx`
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.test.tsx`
 - Modify: `apps/web/src/app/App.tsx`
@@ -1139,6 +1175,7 @@ git commit -m "feat: add requirement-aware lesson footer"
 - Create: `apps/web/src/features/chapter-assessment/ChapterAssessmentPage.test.tsx`
 
 **Interfaces:**
+
 - Consumes: browser API client, canonical route, `SynLessonProgress`, footer, and assessment APIs.
 - Produces: independent loading of persisted current progression and URL-selected viewed item.
 
@@ -1146,14 +1183,24 @@ git commit -m "feat: add requirement-aware lesson footer"
 
 ```tsx
 it('keeps the current lesson while reviewing a completed lesson', async () => {
-  renderWorkspace({ routeLessonId: 'event-loop', currentLessonId: 'rendering', eventLoopStatus: 'COMPLETED' });
+  renderWorkspace({
+    routeLessonId: 'event-loop',
+    currentLessonId: 'rendering',
+    eventLoopStatus: 'COMPLETED',
+  });
   expect(await screen.findByText('Đang xem lại')).toBeVisible();
   expect(screen.getByText('Rendering Pipeline')).toHaveAccessibleName(/Bài đang học/);
   expect(api.startLesson).not.toHaveBeenCalled();
 });
 
 it('navigates to the chapter assessment after the final required lesson', async () => {
-  renderWorkspace({ nextAction: { type: 'START_CHAPTER_ASSESSMENT', chapterId: 'runtime', assessmentId: 'capstone' } });
+  renderWorkspace({
+    nextAction: {
+      type: 'START_CHAPTER_ASSESSMENT',
+      chapterId: 'runtime',
+      assessmentId: 'capstone',
+    },
+  });
   await user.click(screen.getByRole('button', { name: 'Bắt đầu thực hành của chương' }));
   expect(location.pathname).toBe('/courses/perf/chapters/runtime/assessments/capstone');
 });
@@ -1172,9 +1219,9 @@ Expected: FAIL.
 Use query keys:
 
 ```ts
-['course-navigation', courseId]
-['lesson-view', courseId, chapterId, lessonId]
-['chapter-assessment', courseId, chapterId, assessmentId]
+['course-navigation', courseId][('lesson-view', courseId, chapterId, lessonId)][
+  ('chapter-assessment', courseId, chapterId, assessmentId)
+];
 ```
 
 A lesson GET must never call `startLesson` for a completed item.
@@ -1214,6 +1261,7 @@ git commit -m "feat: integrate review and chapter assessments"
 ### Task 13: Migrate the Example Course and Add a Real Chapter Assessment
 
 **Files:**
+
 - Modify: `examples/frontend-performance-foundations/course.json`
 - Create: `examples/frontend-performance-foundations/assessments/runtime-capstone/assessment.json`
 - Create: `examples/frontend-performance-foundations/assessments/runtime-capstone/starter/performance-report.md`
@@ -1222,6 +1270,7 @@ git commit -m "feat: integrate review and chapter assessments"
 - Modify: `tests/e2e/go-runtime.spec.ts`
 
 **Interfaces:**
+
 - Consumes: Course Schema 1.1, chapter assessment workspace/action runtime.
 - Produces: a real end-to-end fixture covering required lessons, optional work, chapter assessment, review, and chapter unlock.
 
@@ -1289,6 +1338,7 @@ git commit -m "feat: add chapter progression example"
 ### Task 14: Document Authoring, Architecture, and Migration Semantics
 
 **Files:**
+
 - Modify: `docs/course-authoring/course-format-v1.md`
 - Modify: `docs/architecture/go-core.md`
 - Create: `docs/architecture/decisions/0003-hierarchical-progression.md`
@@ -1297,6 +1347,7 @@ git commit -m "feat: add chapter progression example"
 - Create: `tests/hierarchical-progression-docs.spec.ts`
 
 **Interfaces:**
+
 - Consumes: implemented schema, APIs, UX semantics.
 - Produces: normative authoring and migration documentation plus executable documentation checks.
 
@@ -1356,6 +1407,7 @@ git commit -m "docs: document hierarchical progression"
 ### Task 15: Run Full Migration Acceptance and Release Gates
 
 **Files:**
+
 - Modify: `.github/workflows/go-release.yml`
 - Modify: `.github/workflows/go-sqlite-matrix.yml`
 - Modify: `scripts/verify-go-release.mjs`
@@ -1363,6 +1415,7 @@ git commit -m "docs: document hierarchical progression"
 - Modify: `docs/releases/go-core-migration-verification.md`
 
 **Interfaces:**
+
 - Consumes: all earlier tasks.
 - Produces: repeatable release evidence proving hierarchy, persistence, review invariants, browser UX, and cross-platform build compatibility.
 

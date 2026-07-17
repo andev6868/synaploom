@@ -237,3 +237,7 @@ AI support is provider-neutral and optional. The runtime can assemble selected c
 ## License
 
 A license has not yet been selected. Add an OSI-approved license before public distribution.
+
+## Hierarchical learning progression
+
+Synaploom supports `schemaVersion 1.1.0`, required and optional lessons, chapter assessments, and Course Schema 1.0 implicit chapter migration. The daemon distinguishes `currentLessonId and viewedLessonId`; review mode does not rollback progression. Persistence keeps `bestResult and latestResult` separately so a failed review does not revoke previously earned completion.

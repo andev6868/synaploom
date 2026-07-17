@@ -12,5 +12,6 @@ jobs:
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm go:stage-web
+      - run: go test ./tests/go-integration -run HierarchicalProgression -count=1
       - run: pnpm go:release
       - run: pnpm go:verify-release
