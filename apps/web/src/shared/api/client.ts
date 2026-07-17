@@ -1,9 +1,14 @@
 import type { AiGenerateCommand, AiResponse } from '@synaploom/ai-contracts';
 import type { ProcessEvent } from '@synaploom/contracts';
 import type {
+  CanonicalLessonPayload,
+  ChapterAssessmentPayload,
   CompletionPayload,
+  CourseNavigationPayload,
   CoursePayload,
   LessonPayload,
+  NavigationTarget,
+  RequirementView,
   ProcessSessionPayload,
   WorkspaceFilePayload,
 } from '@synaploom/protocol';
@@ -13,12 +18,22 @@ import { isApiErrorPayload } from '@synaploom/protocol';
 export class SynaploomApiError extends Error {
   readonly code: string;
   readonly currentLessonId: string | undefined;
+  readonly blockingRequirements: readonly RequirementView[] | undefined;
+  readonly currentTarget: NavigationTarget | undefined;
 
-  constructor(code: string, message: string, currentLessonId?: string) {
+  constructor(
+    code: string,
+    message: string,
+    currentLessonId?: string,
+    blockingRequirements?: readonly RequirementView[],
+    currentTarget?: NavigationTarget,
+  ) {
     super(message);
     this.name = 'SynaploomApiError';
     this.code = code;
     this.currentLessonId = currentLessonId;
+    this.blockingRequirements = blockingRequirements;
+    this.currentTarget = currentTarget;
   }
 }
 
@@ -26,7 +41,13 @@ async function parseResponse<T>(response: Response): Promise<T> {
   const value: unknown = await response.json();
   if (!response.ok) {
     if (isApiErrorPayload(value)) {
-      throw new SynaploomApiError(value.code, value.message, value.currentLessonId);
+      throw new SynaploomApiError(
+        value.code,
+        value.message,
+        value.currentLessonId,
+        value.blockingRequirements,
+        value.currentTarget,
+      );
     }
     throw new SynaploomApiError('INVALID_RESPONSE', `Daemon returned HTTP ${response.status}.`);
   }
@@ -47,6 +68,13 @@ async function request<T>(fetchImpl: typeof fetch, url: string, init?: RequestIn
 /** Typed client for the loopback-only Synaploom daemon. */
 export interface SynaploomApiClient {
   getCourse(): Promise<CoursePayload>;
+  getNavigation(courseId: string): Promise<CourseNavigationPayload>;
+  getLessonView(
+    courseId: string,
+    chapterId: string,
+    lessonId: string,
+  ): Promise<CanonicalLessonPayload>;
+  getChapterAssessment(chapterId: string, assessmentId: string): Promise<ChapterAssessmentPayload>;
   getCurrentLesson(): Promise<LessonPayload>;
   getLesson(lessonId: string): Promise<LessonPayload>;
   startLesson(lessonId: string): Promise<void>;
@@ -70,6 +98,25 @@ export function createApiClient(
   const api = (path: string): string => `${apiBasePath}${path}`;
   return {
     getCourse: () => request<CoursePayload>(fetchImpl, api('/course')),
+    getNavigation: (courseId) =>
+      request<CourseNavigationPayload>(
+        fetchImpl,
+        api(`/courses/${encodeURIComponent(courseId)}/navigation`),
+      ),
+    getLessonView: (courseId, chapterId, lessonId) =>
+      request<CanonicalLessonPayload>(
+        fetchImpl,
+        api(
+          `/courses/${encodeURIComponent(courseId)}/chapters/${encodeURIComponent(chapterId)}/lessons/${encodeURIComponent(lessonId)}`,
+        ),
+      ),
+    getChapterAssessment: (chapterId, assessmentId) =>
+      request<ChapterAssessmentPayload>(
+        fetchImpl,
+        api(
+          `/chapters/${encodeURIComponent(chapterId)}/assessments/${encodeURIComponent(assessmentId)}`,
+        ),
+      ),
     getCurrentLesson: () => request<LessonPayload>(fetchImpl, api('/lessons/current')),
     getLesson: (lessonId) =>
       request<LessonPayload>(fetchImpl, api(`/lessons/${encodeURIComponent(lessonId)}`)),

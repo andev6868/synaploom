@@ -69,6 +69,8 @@ export interface ApiErrorPayload {
   readonly code: string;
   readonly message: string;
   readonly currentLessonId?: string;
+  readonly blockingRequirements?: readonly RequirementView[];
+  readonly currentTarget?: NavigationTarget;
 }
 
 /** Process-session response used to connect to server-sent events. */
@@ -190,6 +192,11 @@ export interface LessonViewContext {
   readonly currentLessonId: string | null;
   readonly returnTarget: NavigationTarget | null;
   readonly nextAction: NextActionPayload;
+}
+
+export interface CanonicalLessonPayload {
+  readonly lesson: LessonPayload;
+  readonly context: LessonViewContext;
 }
 
 export interface ChapterAssessmentPayload {

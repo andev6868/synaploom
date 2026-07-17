@@ -1,6 +1,6 @@
 import type { ProcessEvent } from '@synaploom/contracts';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { openProcessEvents } from '#src/shared/api/client';
+import { createApiClient, openProcessEvents, SynaploomApiError } from '#src/shared/api/client';
 
 class FakeEventSource {
   static instances: FakeEventSource[] = [];
@@ -57,5 +57,63 @@ describe('openProcessEvents', () => {
     expect(events).toEqual([terminalEvent]);
     expect(source?.close).toHaveBeenCalledTimes(1);
     expect(disconnect).not.toHaveBeenCalled();
+  });
+});
+
+describe('hierarchical API client', () => {
+  it('requests canonical navigation, lesson, and assessment endpoints', async () => {
+    const fetchImpl = vi.fn(
+      async (input: RequestInfo | URL) =>
+        new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } }),
+    );
+    const client = createApiClient(fetchImpl as typeof fetch);
+
+    await client.getNavigation('perf');
+    await client.getLessonView('perf', 'runtime', 'event-loop');
+    await client.getChapterAssessment('runtime', 'capstone');
+
+    expect(fetchImpl.mock.calls.map(([url]) => url)).toEqual([
+      '/api/v1/courses/perf/navigation',
+      '/api/v1/courses/perf/chapters/runtime/lessons/event-loop',
+      '/api/v1/chapters/runtime/assessments/capstone',
+    ]);
+  });
+
+  it('preserves locked-item metadata on typed errors', async () => {
+    const blockingRequirements = [
+      {
+        id: 'reading',
+        kind: 'reading',
+        required: true,
+        satisfied: false,
+        attempted: false,
+        latestPassed: null,
+      },
+    ] as const;
+    const currentTarget = {
+      type: 'LESSON',
+      id: 'event-loop',
+      chapterId: 'runtime',
+      label: 'Event Loop',
+    } as const;
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            code: 'ITEM_LOCKED',
+            message: 'Item is locked.',
+            blockingRequirements,
+            currentTarget,
+          }),
+          { status: 409, headers: { 'content-type': 'application/json' } },
+        ),
+    );
+
+    const error = await createApiClient(fetchImpl as typeof fetch)
+      .getNavigation('perf')
+      .catch((value: unknown) => value);
+
+    expect(error).toBeInstanceOf(SynaploomApiError);
+    expect(error).toMatchObject({ code: 'ITEM_LOCKED', blockingRequirements, currentTarget });
   });
 });
