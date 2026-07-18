@@ -41,7 +41,7 @@ function itemStateLabels(
 ): readonly string[] {
   const labels: string[] = [statusLabel[item.status]];
   if ('current' in item && item.current) labels.push('Tiến trình hiện tại');
-  if (item.id === viewedItemId && !('current' in item && item.current)) labels.push('Đang xem');
+  if (item.id === viewedItemId && !('current' in item && item.current)) labels.push('Đang xem lại');
   return labels;
 }
 
