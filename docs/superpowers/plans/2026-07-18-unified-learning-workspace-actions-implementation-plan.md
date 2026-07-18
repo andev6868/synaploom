@@ -1,6 +1,6 @@
 # Unified Learning Workspace and Progression Actions Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Render lesson and chapter assessment items inside one stable learning workspace, remove redundant in-content navigation, and ensure the footer communicates only real forward progression actions.
 
@@ -32,7 +32,7 @@
 - Produces: `resolveProgressionAction(action, navigation): ProgressionActionPresentation`.
 - Produces: `LessonRequirementFooter` accepting `navigation?: CourseNavigationPayload` and rendering either a real button, a course-complete status, or no action.
 
-- [ ] **Step 1: Write failing resolver tests**
+- [x] **Step 1: Write failing resolver tests**
 
 Cover:
 
@@ -50,7 +50,7 @@ expect(resolveProgressionAction(
 
 Also verify missing target titles use `Tiếp tục bài học`, not the lesson ID.
 
-- [ ] **Step 2: Run the resolver test and confirm RED**
+- [x] **Step 2: Run the resolver test and confirm RED**
 
 Run:
 
@@ -60,7 +60,7 @@ pnpm exec vitest run --project dom apps/web/src/features/lesson-progress/progres
 
 Expected: fail because `resolveProgressionAction` does not exist.
 
-- [ ] **Step 3: Implement the pure resolver**
+- [x] **Step 3: Implement the pure resolver**
 
 Use a discriminated result:
 
@@ -73,7 +73,7 @@ export type ProgressionActionPresentation =
 
 Resolve lesson/chapter/assessment titles by searching navigation chapters. Map both `RETURN_TO_CURRENT_LESSON` and `CONTINUE_TO_LESSON` to forward language.
 
-- [ ] **Step 4: Refactor the footer to use the resolver**
+- [x] **Step 4: Refactor the footer to use the resolver**
 
 Replace local label maps and `window.location.hash` assumptions. Render:
 
@@ -86,7 +86,7 @@ Replace local label maps and `window.location.hash` assumptions. Render:
 ) : null}
 ```
 
-- [ ] **Step 5: Update footer DOM tests and run GREEN**
+- [x] **Step 5: Update footer DOM tests and run GREEN**
 
 Verify:
 - `RETURN_TO_CURRENT_LESSON` → `Tiếp tục bài Event Loop`.
@@ -94,7 +94,7 @@ Verify:
 - `VIEW_COURSE_SUMMARY` → no button, completion status text.
 - requirement labels remain learner-facing.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add apps/web/src/features/lesson-progress
@@ -116,7 +116,7 @@ git commit -m "fix: resolve progression actions from navigation"
 - Consumes: existing lesson context and navigation payload.
 - Produces: lesson body with one `<h1>`, status badge `Đang xem lại` for review mode, no breadcrumb/banner, and footer receiving navigation data.
 
-- [ ] **Step 1: Add failing workspace DOM assertions**
+- [x] **Step 1: Add failing workspace DOM assertions**
 
 For a review lesson, assert:
 
@@ -126,7 +126,7 @@ expect(screen.queryByLabelText('Chế độ xem lại')).not.toBeInTheDocument()
 expect(screen.getByText('Đang xem lại')).toBeVisible();
 ```
 
-- [ ] **Step 2: Run the workspace test and confirm RED**
+- [x] **Step 2: Run the workspace test and confirm RED**
 
 Run:
 
@@ -136,7 +136,7 @@ pnpm exec vitest run --project dom apps/web/src/features/workspace-layout/Learni
 
 Expected: fail because breadcrumb and review banner are still rendered.
 
-- [ ] **Step 3: Remove components and obsolete styles**
+- [x] **Step 3: Remove components and obsolete styles**
 
 Remove `ReviewBanner` import/render and breadcrumb markup. Set the status copy from `context.viewMode`:
 
@@ -151,7 +151,7 @@ const lessonStatusLabel =
 
 Delete `.syn-breadcrumb` and `.syn-review-banner` rules.
 
-- [ ] **Step 4: Pass navigation into the footer and run GREEN**
+- [x] **Step 4: Pass navigation into the footer and run GREEN**
 
 Use:
 
@@ -164,7 +164,7 @@ Use:
 />
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add apps/web/src/features/workspace-layout apps/web/src/features/review-mode apps/web/src/application.css
@@ -196,7 +196,7 @@ export type LearningWorkspaceRoute =
 - `LearningWorkspacePage` accepts `route: LearningWorkspaceRoute`.
 - `AssessmentWorkspaceContent` consumes `courseId`, `chapterId`, `assessmentId`, `navigation`, and shared navigation/action callbacks.
 
-- [ ] **Step 1: Add failing App/workspace route tests**
+- [x] **Step 1: Add failing App/workspace route tests**
 
 Verify an assessment route renders `LearningWorkspacePage` semantics including:
 - top navigation (`Điều hướng khóa học`),
@@ -204,7 +204,7 @@ Verify an assessment route renders `LearningWorkspacePage` semantics including:
 - assessment `<h1>`,
 - no standalone `.syn-assessment-page`.
 
-- [ ] **Step 2: Run route/workspace tests and confirm RED**
+- [x] **Step 2: Run route/workspace tests and confirm RED**
 
 Run:
 
@@ -212,7 +212,7 @@ Run:
 pnpm exec vitest run --project dom apps/web/src/features/workspace-layout/LearningWorkspacePage.test.tsx
 ```
 
-- [ ] **Step 3: Change App to pass a route descriptor**
+- [x] **Step 3: Change App to pass a route descriptor**
 
 Map parsed routes:
 
@@ -222,7 +222,7 @@ return <LearningWorkspacePage route={{ kind: 'assessment', ...route }} />;
 
 Legacy/current lesson routes become `kind: 'lesson'` descriptors.
 
-- [ ] **Step 4: Extract assessment content**
+- [x] **Step 4: Extract assessment content**
 
 Move query/mutation behavior from `ChapterAssessmentPage` into `AssessmentWorkspaceContent`. Render a full-width article with:
 - status/title,
@@ -239,7 +239,7 @@ After check success invalidate:
 ['course']
 ```
 
-- [ ] **Step 5: Make LearningWorkspacePage own common shell queries and navigation**
+- [x] **Step 5: Make LearningWorkspacePage own common shell queries and navigation**
 
 For both route kinds:
 - load course and course navigation,
@@ -249,11 +249,11 @@ For both route kinds:
 
 Lesson routes retain current lesson/practice behavior. Assessment routes render `AssessmentWorkspaceContent` inside a full-width workspace body.
 
-- [ ] **Step 6: Remove standalone page and CSS**
+- [x] **Step 6: Remove standalone page and CSS**
 
 Delete `ChapterAssessmentPage.tsx` and `.syn-assessment-page`. Add `.syn-assessment-workspace` styles matching reading lesson width/spacing/scroll ownership.
 
-- [ ] **Step 7: Run focused DOM tests and typecheck**
+- [x] **Step 7: Run focused DOM tests and typecheck**
 
 ```bash
 pnpm exec vitest run --project dom \
@@ -262,7 +262,7 @@ pnpm exec vitest run --project dom \
 pnpm typecheck
 ```
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add apps/web/src/app apps/web/src/features/chapter-assessment apps/web/src/features/workspace-layout apps/web/src/application.css
@@ -282,7 +282,7 @@ git commit -m "feat: render assessments in the learning workspace"
 - `NextActionViewCourseSummary` remains declared for protocol compatibility.
 - `NextActionFor` returns `NextActionNone` when course status is completed.
 
-- [ ] **Step 1: Add a failing Go test**
+- [x] **Step 1: Add a failing Go test**
 
 ```go
 func TestCompletedCourseHasNoSyntheticSummaryAction(t *testing.T) {
@@ -293,7 +293,7 @@ func TestCompletedCourseHasNoSyntheticSummaryAction(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run the focused Go test and confirm RED**
+- [x] **Step 2: Run the focused Go test and confirm RED**
 
 ```bash
 bash scripts/go/with-internal-toolchain.sh test ./internal/progression -run TestCompletedCourseHasNoSyntheticSummaryAction -count=1
@@ -301,7 +301,7 @@ bash scripts/go/with-internal-toolchain.sh test ./internal/progression -run Test
 
 Expected: current implementation returns `VIEW_COURSE_SUMMARY`.
 
-- [ ] **Step 3: Return `NextActionNone` for completed course**
+- [x] **Step 3: Return `NextActionNone` for completed course**
 
 Replace the terminal branch with:
 
@@ -311,13 +311,13 @@ if evaluation.CourseStatus == StatusCompleted {
 }
 ```
 
-- [ ] **Step 4: Run progression and server tests**
+- [x] **Step 4: Run progression and server tests**
 
 ```bash
 bash scripts/go/with-internal-toolchain.sh test ./internal/progression ./internal/server
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add internal/progression internal/server
@@ -335,7 +335,7 @@ git commit -m "fix: stop emitting synthetic course summary actions"
 **Interfaces:**
 - Produces a manual verification sequence for lesson, review, assessment, and course-complete flows.
 
-- [ ] **Step 1: Run focused automated gates**
+- [x] **Step 1: Run focused automated gates**
 
 ```bash
 pnpm exec vitest run --project dom \
@@ -348,7 +348,7 @@ pnpm lint
 bash scripts/go/with-internal-toolchain.sh test ./internal/progression ./internal/server
 ```
 
-- [ ] **Step 2: Write manual verification guide**
+- [x] **Step 2: Write manual verification guide**
 
 Include:
 1. lesson 1 CTA reads `Tiếp tục bài Event Loop` after completion,
@@ -357,7 +357,7 @@ Include:
 4. assessment completion refreshes navigation and footer,
 5. course completion shows status text with no fake button.
 
-- [ ] **Step 3: Commit documentation**
+- [x] **Step 3: Commit documentation**
 
 ```bash
 git add docs/testing docs/superpowers/plans
