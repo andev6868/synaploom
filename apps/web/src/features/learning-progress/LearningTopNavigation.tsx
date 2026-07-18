@@ -58,16 +58,21 @@ export function LearningTopNavigation(props: LearningTopNavigationProps): ReactN
   const [lockedRequirements, setLockedRequirements] = useState<readonly RequirementView[] | null>(
     null,
   );
-  const items = useMemo(() => flattenNavigation(navigation), [navigation]);
+  const courseItems = useMemo(() => flattenNavigation(navigation), [navigation]);
   const viewedIndex = Math.max(
     0,
-    items.findIndex((entry) => entry.item.id === viewedItemId),
+    courseItems.findIndex((entry) => entry.item.id === viewedItemId),
   );
-  const viewed = items[viewedIndex];
+  const viewed = courseItems[viewedIndex];
   const chapter = navigation.chapters.find((entry) => entry.id === viewed?.chapterId);
-  const previous = items[viewedIndex - 1];
-  const next = items[viewedIndex + 1];
-  const completed = items.filter((entry) => entry.item.status === 'COMPLETED').length;
+  const chapterItems = useMemo(
+    () => courseItems.filter((entry) => entry.chapterId === chapter?.id),
+    [chapter?.id, courseItems],
+  );
+  const previous = courseItems[viewedIndex - 1];
+  const next = courseItems[viewedIndex + 1];
+  const completed = courseItems.filter((entry) => entry.item.status === 'COMPLETED').length;
+  const chapterCompleted = chapterItems.filter((entry) => entry.item.status === 'COMPLETED').length;
 
   const activate = (entry: FlatLearningItem): void => {
     if (entry.item.status === 'LOCKED') {
@@ -85,12 +90,13 @@ export function LearningTopNavigation(props: LearningTopNavigationProps): ReactN
     <nav className="syn-learning-top-nav" aria-label="Điều hướng khóa học">
       <div
         className="syn-learning-top-nav__steps"
-        aria-label={`${completed}/${items.length} mục đã hoàn thành`}
+        aria-label={`${chapterCompleted}/${chapterItems.length} mục trong chương đã hoàn thành`}
       >
-        {items.map((entry) => (
+        {chapterItems.map((entry) => (
           <span
             key={`${entry.kind}:${entry.item.id}`}
             className="syn-learning-top-nav__step"
+            data-testid="chapter-step"
             data-status={entry.item.status.toLowerCase()}
             data-current={entry.item.id === viewedItemId || undefined}
             title={itemLabel(entry)}
@@ -104,7 +110,7 @@ export function LearningTopNavigation(props: LearningTopNavigationProps): ReactN
           aria-label="Chọn chương"
           value={chapter?.id ?? ''}
           onChange={(event) => {
-            const target = items.find(
+            const target = courseItems.find(
               (entry) => entry.chapterId === event.target.value && entry.item.status !== 'LOCKED',
             );
             if (target) activate(target);
@@ -124,21 +130,19 @@ export function LearningTopNavigation(props: LearningTopNavigationProps): ReactN
           aria-label="Chọn bài học hoặc đánh giá"
           value={viewed?.item.id ?? ''}
           onChange={(event) => {
-            const target = items.find((entry) => entry.item.id === event.target.value);
+            const target = courseItems.find((entry) => entry.item.id === event.target.value);
             if (target) activate(target);
           }}
         >
-          {items
-            .filter((entry) => entry.chapterId === chapter?.id)
-            .map((entry) => (
-              <option
-                key={`${entry.kind}:${entry.item.id}`}
-                value={entry.item.id}
-                disabled={entry.item.status === 'LOCKED'}
-              >
-                {itemLabel(entry)}
-              </option>
-            ))}
+          {chapterItems.map((entry) => (
+            <option
+              key={`${entry.kind}:${entry.item.id}`}
+              value={entry.item.id}
+              disabled={entry.item.status === 'LOCKED'}
+            >
+              {itemLabel(entry)}
+            </option>
+          ))}
         </select>
       </label>
 
@@ -180,7 +184,7 @@ export function LearningTopNavigation(props: LearningTopNavigationProps): ReactN
           <header>
             <strong>Nội dung khóa học</strong>
             <span>
-              {completed}/{items.length} mục đã hoàn thành
+              {completed}/{courseItems.length} mục đã hoàn thành
             </span>
           </header>
           <div className="syn-learning-curriculum-popover__body">
@@ -189,7 +193,7 @@ export function LearningTopNavigation(props: LearningTopNavigationProps): ReactN
                 <h2>
                   Chương {chapterIndex + 1} · {chapterEntry.title}
                 </h2>
-                {items
+                {courseItems
                   .filter((entry) => entry.chapterId === chapterEntry.id)
                   .map((entry) => (
                     <button

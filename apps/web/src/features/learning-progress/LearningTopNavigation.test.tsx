@@ -58,7 +58,48 @@ const navigation = {
   ],
 };
 
+const navigationWithTwoChapters = {
+  ...navigation,
+  chapters: [
+    ...navigation.chapters,
+    {
+      id: 'chapter-2',
+      title: 'Rendering Fundamentals',
+      status: 'AVAILABLE' as const,
+      required: true,
+      lessons: [
+        {
+          id: 'lesson-3',
+          title: 'Rendering Fundamentals',
+          status: 'AVAILABLE' as const,
+          required: true,
+          current: false,
+          viewed: false,
+          blockingRequirements: [],
+        },
+      ],
+      assessments: [],
+    },
+  ],
+};
+
 describe('LearningTopNavigation', () => {
+  it('renders step markers only for the viewed chapter while previous and next stay course-wide', () => {
+    render(
+      <LearningTopNavigation
+        navigation={navigationWithTwoChapters}
+        viewedItemId="lesson-1"
+        onOpenLesson={vi.fn()}
+        onOpenAssessment={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText('1/3 mục trong chương đã hoàn thành')).toBeInTheDocument();
+    expect(screen.getAllByTestId('chapter-step')).toHaveLength(3);
+    expect(screen.queryByTitle('Rendering Fundamentals')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mục học tiếp theo' })).toBeEnabled();
+  });
+
   it('keeps curriculum navigation in the header and explains locked items', () => {
     const openLesson = vi.fn();
     render(
