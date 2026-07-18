@@ -40,7 +40,7 @@ func TestServiceRunsDraftSubmissionEvaluationLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if draft.Status != AttemptStatusDraft || draft.Revision != 1 || draft.RandomSeed != 91 {
+	if draft.Status != AttemptStatusDraft || draft.Revision != 1 || draft.RandomSeed != "91" {
 		t.Fatalf("unexpected draft: %+v", draft)
 	}
 	if _, err := service.SaveDraft(ctx, SaveDraftCommand{Identity: identity, Answer: json.RawMessage(`{"kind":"single-choice","optionId":"a"}`), Revision: 0, Seed: 91, At: time.Unix(2, 0)}); !errors.Is(err, ErrRevisionConflict) {
@@ -51,7 +51,7 @@ func TestServiceRunsDraftSubmissionEvaluationLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if evaluated.Status != AttemptStatusEvaluated || evaluated.Passed == nil || !*evaluated.Passed || evaluated.RandomSeed != 91 || evaluator.calls != 1 {
+	if evaluated.Status != AttemptStatusEvaluated || evaluated.Passed == nil || !*evaluated.Passed || evaluated.RandomSeed != "91" || evaluator.calls != 1 {
 		t.Fatalf("unexpected evaluated attempt: %+v evaluator calls=%d", evaluated, evaluator.calls)
 	}
 	duplicate, err := service.Submit(ctx, SubmitCommand{Identity: identity, Answer: json.RawMessage(`{"kind":"single-choice","optionId":"wrong"}`), IdempotencyKey: "submit-1", Seed: 1, At: time.Unix(4, 0)})

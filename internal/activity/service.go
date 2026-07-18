@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/synaploom/synaploom/internal/storage"
 )
@@ -199,12 +200,12 @@ func countSubmitted(records []storage.ActivityAttemptRecord, activityID string) 
 
 func attemptFromRecord(record storage.ActivityAttemptRecord) (ActivityAttempt, error) {
 	attempt := ActivityAttempt{
-		ID:         record.ID,
-		Owner:      OwnerIdentity{CourseID: record.CourseID, CourseVersion: record.CourseVersion, Kind: OwnerKind(record.OwnerKind), ID: record.OwnerID},
+		ID: record.ID, CourseID: record.CourseID, CourseVersion: record.CourseVersion,
+		OwnerKind: OwnerKind(record.OwnerKind), OwnerID: record.OwnerID,
 		ActivityID: record.ActivityID, AttemptNumber: record.AttemptNumber,
 		Status: AttemptStatus(record.Status), Answer: append(json.RawMessage(nil), record.AnswerJSON...),
 		Score: record.Score, MaxScore: record.MaxScore, Passed: record.Passed,
-		RandomSeed: record.Seed, Revision: record.Revision, StartedAt: record.StartedAt,
+		RandomSeed: strconv.FormatInt(record.Seed, 10), Revision: record.Revision, StartedAt: record.StartedAt,
 		SubmittedAt: record.SubmittedAt, EvaluatedAt: record.EvaluatedAt,
 	}
 	if len(record.FeedbackJSON) > 0 && string(record.FeedbackJSON) != "{}" {

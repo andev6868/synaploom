@@ -140,7 +140,10 @@ type ActivityFeedback struct {
 
 type ActivityAttempt struct {
 	ID            string            `json:"id"`
-	Owner         OwnerIdentity     `json:"owner"`
+	CourseID      string            `json:"courseId"`
+	CourseVersion string            `json:"courseVersion"`
+	OwnerKind     OwnerKind         `json:"ownerKind"`
+	OwnerID       string            `json:"ownerId"`
 	ActivityID    string            `json:"activityId"`
 	AttemptNumber int               `json:"attemptNumber"`
 	Status        AttemptStatus     `json:"status"`
@@ -149,7 +152,7 @@ type ActivityAttempt struct {
 	Score         *float64          `json:"score"`
 	MaxScore      *float64          `json:"maxScore"`
 	Passed        *bool             `json:"passed"`
-	RandomSeed    int64             `json:"randomSeed"`
+	RandomSeed    string            `json:"randomSeed,omitempty"`
 	Revision      int64             `json:"revision"`
 	StartedAt     string            `json:"startedAt"`
 	SubmittedAt   *string           `json:"submittedAt"`
