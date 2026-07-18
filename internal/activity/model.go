@@ -191,6 +191,15 @@ type SubmitCommand struct {
 	At             time.Time
 }
 
+// RecordCodingEvaluationCommand records a result produced by the trusted local runner.
+type RecordCodingEvaluationCommand struct {
+	Identity       AttemptIdentity
+	Passed         bool
+	Summary        string
+	IdempotencyKey string
+	At             time.Time
+}
+
 type EvaluationResult struct {
 	Score         *float64
 	MaxScore      *float64

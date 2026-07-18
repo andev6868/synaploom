@@ -97,6 +97,69 @@ func (h courseHandlers) resetWorkspace(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]any{})
 }
 
+func (h courseHandlers) activityWorkspaceFiles(w http.ResponseWriter, r *http.Request) {
+	practice, ok := h.service.(course.ActivityPracticeService)
+	if !ok {
+		writeError(w, http.StatusNotImplemented, "WORKSPACE_UNAVAILABLE", "Workspace is unavailable.", requestID(r), nil)
+		return
+	}
+	files, err := practice.WorkspaceFilesForActivity(r.Context(), r.PathValue("lessonId"), r.PathValue("activityId"))
+	if err != nil {
+		h.writeWorkspaceError(w, r, err)
+		return
+	}
+	writeJSON(w, map[string]any{"files": files})
+}
+
+func (h courseHandlers) readActivityWorkspaceFile(w http.ResponseWriter, r *http.Request) {
+	practice, ok := h.service.(course.ActivityPracticeService)
+	if !ok {
+		writeError(w, http.StatusNotImplemented, "WORKSPACE_UNAVAILABLE", "Workspace is unavailable.", requestID(r), nil)
+		return
+	}
+	path := r.URL.Query().Get("path")
+	data, err := practice.ReadWorkspaceFileForActivity(r.Context(), r.PathValue("lessonId"), r.PathValue("activityId"), path)
+	if err != nil {
+		h.writeWorkspaceError(w, r, err)
+		return
+	}
+	writeJSON(w, map[string]any{"path": path, "content": string(data)})
+}
+
+func (h courseHandlers) writeActivityWorkspaceFile(w http.ResponseWriter, r *http.Request) {
+	practice, ok := h.service.(course.ActivityPracticeService)
+	if !ok {
+		writeError(w, http.StatusNotImplemented, "WORKSPACE_UNAVAILABLE", "Workspace is unavailable.", requestID(r), nil)
+		return
+	}
+	var payload struct {
+		Content string `json:"content"`
+	}
+	data, err := io.ReadAll(io.LimitReader(r.Body, 2<<20))
+	if err != nil || json.Unmarshal(data, &payload) != nil {
+		writeError(w, http.StatusBadRequest, "INVALID_REQUEST", "Invalid workspace payload.", requestID(r), nil)
+		return
+	}
+	if err := practice.WriteWorkspaceFileForActivity(r.Context(), r.PathValue("lessonId"), r.PathValue("activityId"), r.URL.Query().Get("path"), []byte(payload.Content)); err != nil {
+		h.writeWorkspaceError(w, r, err)
+		return
+	}
+	writeJSON(w, map[string]any{})
+}
+
+func (h courseHandlers) resetActivityWorkspace(w http.ResponseWriter, r *http.Request) {
+	practice, ok := h.service.(course.ActivityPracticeService)
+	if !ok {
+		writeError(w, http.StatusNotImplemented, "WORKSPACE_UNAVAILABLE", "Workspace is unavailable.", requestID(r), nil)
+		return
+	}
+	if err := practice.ResetWorkspaceForActivity(r.Context(), r.PathValue("lessonId"), r.PathValue("activityId")); err != nil {
+		h.writeWorkspaceError(w, r, err)
+		return
+	}
+	writeJSON(w, map[string]any{})
+}
+
 func (h courseHandlers) writeWorkspaceError(w http.ResponseWriter, r *http.Request, err error) {
 	switch {
 	case errors.Is(err, course.ErrLessonNotFound):

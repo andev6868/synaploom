@@ -80,6 +80,12 @@ func NewRouter(service course.Service, sessions *SessionManager, options ...Rout
 	api.HandleFunc("GET /api/v1/lessons/{lessonId}/workspace/file", handlers.readWorkspaceFile)
 	api.HandleFunc("PUT /api/v1/lessons/{lessonId}/workspace/file", handlers.writeWorkspaceFile)
 	api.HandleFunc("POST /api/v1/lessons/{lessonId}/workspace/reset", handlers.resetWorkspace)
+	if _, ok := service.(course.ActivityPracticeService); ok {
+		api.HandleFunc("GET /api/v1/courses/{courseId}/lessons/{lessonId}/activities/{activityId}/workspace/files", handlers.activityWorkspaceFiles)
+		api.HandleFunc("GET /api/v1/courses/{courseId}/lessons/{lessonId}/activities/{activityId}/workspace/file", handlers.readActivityWorkspaceFile)
+		api.HandleFunc("PUT /api/v1/courses/{courseId}/lessons/{lessonId}/activities/{activityId}/workspace/file", handlers.writeActivityWorkspaceFile)
+		api.HandleFunc("POST /api/v1/courses/{courseId}/lessons/{lessonId}/activities/{activityId}/workspace/reset", handlers.resetActivityWorkspace)
+	}
 	api.HandleFunc("GET /api/v1/preferences/pane-ratio", handlers.getPaneRatio)
 	api.HandleFunc("PUT /api/v1/preferences/pane-ratio", handlers.setPaneRatio)
 	if configuration.activities != nil {
@@ -98,6 +104,11 @@ func NewRouter(service course.Service, sessions *SessionManager, options ...Rout
 		h := aiHandlers{provider: configuration.aiProvider, local: configuration.aiLocal}
 		api.HandleFunc("POST /api/v1/ai/disclosure", h.disclosure)
 		api.HandleFunc("POST /api/v1/ai/stream", h.stream)
+	}
+	if activityPractice, ok := service.(course.ActivityPracticeService); ok {
+		activityExecutions := activityPracticeExecutionHandlers(activityPractice)
+		api.HandleFunc("POST /api/v1/courses/{courseId}/lessons/{lessonId}/activities/{activityId}/actions/{actionId}", activityExecutions.start)
+		api.HandleFunc("GET /api/v1/activity-executions/{executionId}/events", activityExecutions.events)
 	}
 	if practice, ok := service.(course.PracticeService); ok {
 		executions := practiceExecutionHandlers(practice)

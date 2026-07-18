@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/synaploom/synaploom/internal/storage"
 )
@@ -159,6 +160,68 @@ func (s *ServiceImpl) Submit(ctx context.Context, command SubmitCommand) (Activi
 	evaluated, err := s.repository.UpdateEvaluation(ctx, storage.EvaluationWrite{
 		AttemptID: record.ID, FeedbackJSON: feedback, Score: result.Score,
 		MaxScore: result.MaxScore, Passed: result.Passed, At: command.At,
+	})
+	if err != nil {
+		return ActivityAttempt{}, mapStorageError(err)
+	}
+	return attemptFromRecord(evaluated)
+}
+
+// RecordCodingEvaluation persists a terminal result from the trusted coding runner.
+// Generic activity submissions cannot invoke this path.
+func (s *ServiceImpl) RecordCodingEvaluation(ctx context.Context, command RecordCodingEvaluationCommand) (ActivityAttempt, error) {
+	definition, policy, err := s.catalog.Activity(ctx, command.Identity.Owner, command.Identity.ActivityID)
+	if err != nil {
+		return ActivityAttempt{}, err
+	}
+	if definition.Kind != ActivityKindCoding || definition.Evaluation.Mode != EvaluationModeCoding {
+		return ActivityAttempt{}, fmt.Errorf("%w: activity %q is not a trusted coding activity", ErrEvaluatorConfigInvalid, definition.ID)
+	}
+	attempts, err := s.repository.ListOwnerAttempts(ctx, storageOwner(command.Identity.Owner))
+	if err != nil {
+		return ActivityAttempt{}, mapStorageError(err)
+	}
+	if existing := findIdempotentAttempt(attempts, command.Identity.ActivityID, command.IdempotencyKey); existing != nil {
+		return attemptFromRecord(*existing)
+	}
+	if policy.MaxAttempts != nil && countSubmitted(attempts, command.Identity.ActivityID) >= *policy.MaxAttempts {
+		return ActivityAttempt{}, ErrMaxAttemptsReached
+	}
+	if command.At.IsZero() {
+		command.At = time.Now().UTC()
+	}
+	answer, err := json.Marshal(map[string]any{
+		"kind":              string(ActivityKindCoding),
+		"workspaceRevision": command.IdempotencyKey,
+	})
+	if err != nil {
+		return ActivityAttempt{}, fmt.Errorf("marshal coding answer: %w", err)
+	}
+	record, _, err := s.repository.CreateSubmission(ctx, storage.SubmissionWrite{
+		Identity: storageIdentity(command.Identity), AnswerJSON: answer,
+		IdempotencyKey: command.IdempotencyKey, At: command.At,
+	})
+	if err != nil {
+		return ActivityAttempt{}, mapStorageError(err)
+	}
+	maxScore := definition.Evaluation.Points
+	score := 0.0
+	if command.Passed {
+		score = maxScore
+	}
+	nextAction := "retry"
+	if command.Passed {
+		nextAction = "continue"
+	}
+	feedback, err := json.Marshal(ActivityFeedback{
+		Summary: command.Summary, Details: []ActivityFeedbackItem{}, NextAction: nextAction,
+	})
+	if err != nil {
+		return ActivityAttempt{}, fmt.Errorf("marshal coding feedback: %w", err)
+	}
+	evaluated, err := s.repository.UpdateEvaluation(ctx, storage.EvaluationWrite{
+		AttemptID: record.ID, FeedbackJSON: feedback, Score: &score,
+		MaxScore: &maxScore, Passed: &command.Passed, At: command.At,
 	})
 	if err != nil {
 		return ActivityAttempt{}, mapStorageError(err)

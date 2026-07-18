@@ -53,3 +53,21 @@ type PracticeService interface {
 type ActionResultRecorder interface {
 	RecordActionResult(context.Context, string, string, runner.Result) error
 }
+
+// ActivityPracticeService exposes a coding workspace scoped to one authored activity.
+// The activity identifier prevents multiple coding activities in the same lesson from
+// sharing files or actions accidentally.
+type ActivityPracticeService interface {
+	Service
+	WorkspaceFilesForActivity(context.Context, string, string) ([]string, error)
+	ReadWorkspaceFileForActivity(context.Context, string, string, string) ([]byte, error)
+	WriteWorkspaceFileForActivity(context.Context, string, string, string, []byte) error
+	ResetWorkspaceForActivity(context.Context, string, string) error
+	ResolveActivityAction(context.Context, string, string, string) (runner.Action, error)
+}
+
+// ActivityActionResultRecorder persists the authoritative outcome for one coding
+// activity action. executionID is the idempotency key for terminal events.
+type ActivityActionResultRecorder interface {
+	RecordActivityActionResult(context.Context, string, string, string, string, runner.Result) error
+}

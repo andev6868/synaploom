@@ -13,6 +13,7 @@ import (
 	"time"
 
 	contracts "github.com/synaploom/synaploom/generated/go/contracts"
+	"github.com/synaploom/synaploom/internal/activity"
 	contractvalidator "github.com/synaploom/synaploom/internal/contracts"
 	"github.com/synaploom/synaploom/internal/runner"
 	"github.com/synaploom/synaploom/internal/workspace"
@@ -222,11 +223,54 @@ func (s *FilesystemService) CompleteLesson(_ context.Context, lessonID string) (
 }
 
 type lessonExerciseRuntime struct {
-	lessonDir string
-	manifest  *exerciseManifest
+	lessonDir   string
+	manifest    *exerciseManifest
+	activityID  string
+	workspaceID string
+}
+
+func exerciseManifestFromCoding(config activity.CodingWorkspaceDefinition) *exerciseManifest {
+	manifest := &exerciseManifest{ID: config.ID, Title: config.Title}
+	manifest.Workspace.Starter = config.Workspace.Starter
+	manifest.Workspace.Editable = append([]string(nil), config.Workspace.Editable...)
+	manifest.Actions = make(map[string]struct {
+		Label          string   `json:"label"`
+		Executable     string   `json:"executable"`
+		Args           []string `json:"args"`
+		TimeoutMs      int      `json:"timeoutMs"`
+		MaxOutputBytes int64    `json:"maxOutputBytes"`
+	}, len(config.Actions))
+	for id, action := range config.Actions {
+		manifest.Actions[id] = struct {
+			Label          string   `json:"label"`
+			Executable     string   `json:"executable"`
+			Args           []string `json:"args"`
+			TimeoutMs      int      `json:"timeoutMs"`
+			MaxOutputBytes int64    `json:"maxOutputBytes"`
+		}{Label: action.Label, Executable: action.Executable, Args: append([]string(nil), action.Args...), TimeoutMs: action.TimeoutMs, MaxOutputBytes: action.MaxOutputBytes}
+	}
+	for _, check := range config.Checks {
+		manifest.Checks = append(manifest.Checks, struct {
+			ID       string `json:"id"`
+			Title    string `json:"title"`
+			Required bool   `json:"required"`
+		}{ID: check.ID, Title: check.Title, Required: check.Required})
+	}
+	return manifest
+}
+
+func activityWorkspaceID(lessonID, activityID string) string {
+	if activityID == "" {
+		return lessonID
+	}
+	return lessonID + "--" + activityID
 }
 
 func (s *FilesystemService) exerciseRuntime(lessonID string) (lessonExerciseRuntime, error) {
+	return s.exerciseRuntimeForActivity(context.Background(), lessonID, "")
+}
+
+func (s *FilesystemService) exerciseRuntimeForActivity(ctx context.Context, lessonID, activityID string) (lessonExerciseRuntime, error) {
 	for _, lesson := range s.lessons {
 		if lesson.ID != lessonID {
 			continue
@@ -250,24 +294,59 @@ func (s *FilesystemService) exerciseRuntime(lessonID string) (lessonExerciseRunt
 		if err != nil {
 			return lessonExerciseRuntime{}, err
 		}
-		if frontMatter.Exercise == "" {
-			return lessonExerciseRuntime{}, ErrExerciseNotFound
+		if frontMatter.Exercise != "" {
+			clean := filepath.Clean(filepath.FromSlash(frontMatter.Exercise))
+			if filepath.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, ".."+string(filepath.Separator)) {
+				return lessonExerciseRuntime{}, ErrExerciseNotFound
+			}
+			manifest, err := readExerciseManifest(filepath.Join(lessonDir, clean))
+			if err != nil {
+				return lessonExerciseRuntime{}, err
+			}
+			if activityID != "" && activityID != manifest.ID {
+				return lessonExerciseRuntime{}, ErrExerciseNotFound
+			}
+			return lessonExerciseRuntime{
+				lessonDir: lessonDir, manifest: manifest, activityID: manifest.ID,
+				workspaceID: activityWorkspaceID(lessonID, activityID),
+			}, nil
 		}
-		clean := filepath.Clean(filepath.FromSlash(frontMatter.Exercise))
-		if filepath.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, ".."+string(filepath.Separator)) {
-			return lessonExerciseRuntime{}, ErrExerciseNotFound
-		}
-		manifest, err := readExerciseManifest(filepath.Join(lessonDir, clean))
+
+		sets, err := loadLessonActivitySets(ctx, lessonDir, frontMatter)
 		if err != nil {
 			return lessonExerciseRuntime{}, err
 		}
-		return lessonExerciseRuntime{lessonDir: lessonDir, manifest: manifest}, nil
+		for _, set := range sets {
+			for _, source := range set.Activities {
+				if source.Kind != string(activity.ActivityKindCoding) || (activityID != "" && source.ID != activityID) {
+					continue
+				}
+				definition, err := activity.DefinitionFromMap(source.Definition)
+				if err != nil {
+					return lessonExerciseRuntime{}, err
+				}
+				coding, err := activity.DecodeCodingActivity(definition)
+				if err != nil {
+					return lessonExerciseRuntime{}, err
+				}
+				manifest := exerciseManifestFromCoding(coding)
+				return lessonExerciseRuntime{
+					lessonDir: lessonDir, manifest: manifest, activityID: coding.ID,
+					workspaceID: activityWorkspaceID(lessonID, coding.ID),
+				}, nil
+			}
+		}
+		return lessonExerciseRuntime{}, ErrExerciseNotFound
 	}
 	return lessonExerciseRuntime{}, ErrLessonNotFound
 }
 
 func (s *FilesystemService) prepareWorkspace(ctx context.Context, lessonID string) (lessonExerciseRuntime, string, error) {
-	runtime, err := s.exerciseRuntime(lessonID)
+	return s.prepareWorkspaceForActivity(ctx, lessonID, "")
+}
+
+func (s *FilesystemService) prepareWorkspaceForActivity(ctx context.Context, lessonID, activityID string) (lessonExerciseRuntime, string, error) {
+	runtime, err := s.exerciseRuntimeForActivity(ctx, lessonID, activityID)
 	if err != nil {
 		return lessonExerciseRuntime{}, "", err
 	}
@@ -281,12 +360,16 @@ func (s *FilesystemService) prepareWorkspace(ctx context.Context, lessonID strin
 	} else if err != nil {
 		return lessonExerciseRuntime{}, "", err
 	}
-	root, err := s.workspaces.Prepare(ctx, string(s.manifest.Id), lessonID, starter, checks)
+	root, err := s.workspaces.Prepare(ctx, string(s.manifest.Id), runtime.workspaceID, starter, checks)
 	return runtime, root, err
 }
 
 func (s *FilesystemService) WorkspaceFiles(ctx context.Context, lessonID string) ([]string, error) {
-	runtime, _, err := s.prepareWorkspace(ctx, lessonID)
+	return s.WorkspaceFilesForActivity(ctx, lessonID, "")
+}
+
+func (s *FilesystemService) WorkspaceFilesForActivity(ctx context.Context, lessonID, activityID string) ([]string, error) {
+	runtime, _, err := s.prepareWorkspaceForActivity(ctx, lessonID, activityID)
 	if err != nil {
 		return nil, err
 	}
@@ -296,14 +379,18 @@ func (s *FilesystemService) WorkspaceFiles(ctx context.Context, lessonID string)
 }
 
 func (s *FilesystemService) ReadWorkspaceFile(ctx context.Context, lessonID, relative string) ([]byte, error) {
-	runtime, _, err := s.prepareWorkspace(ctx, lessonID)
+	return s.ReadWorkspaceFileForActivity(ctx, lessonID, "", relative)
+}
+
+func (s *FilesystemService) ReadWorkspaceFileForActivity(ctx context.Context, lessonID, activityID, relative string) ([]byte, error) {
+	runtime, _, err := s.prepareWorkspaceForActivity(ctx, lessonID, activityID)
 	if err != nil {
 		return nil, err
 	}
 	if !editableFile(runtime.manifest.Workspace.Editable, relative) {
 		return nil, ErrWorkspaceFileNotFound
 	}
-	data, err := s.workspaces.ReadFile(ctx, string(s.manifest.Id), lessonID, relative)
+	data, err := s.workspaces.ReadFile(ctx, string(s.manifest.Id), runtime.workspaceID, relative)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, ErrWorkspaceFileNotFound
 	}
@@ -311,18 +398,26 @@ func (s *FilesystemService) ReadWorkspaceFile(ctx context.Context, lessonID, rel
 }
 
 func (s *FilesystemService) WriteWorkspaceFile(ctx context.Context, lessonID, relative string, data []byte) error {
-	runtime, _, err := s.prepareWorkspace(ctx, lessonID)
+	return s.WriteWorkspaceFileForActivity(ctx, lessonID, "", relative, data)
+}
+
+func (s *FilesystemService) WriteWorkspaceFileForActivity(ctx context.Context, lessonID, activityID, relative string, data []byte) error {
+	runtime, _, err := s.prepareWorkspaceForActivity(ctx, lessonID, activityID)
 	if err != nil {
 		return err
 	}
 	if !editableFile(runtime.manifest.Workspace.Editable, relative) {
 		return ErrWorkspaceFileNotFound
 	}
-	return s.workspaces.WriteFile(ctx, string(s.manifest.Id), lessonID, relative, data)
+	return s.workspaces.WriteFile(ctx, string(s.manifest.Id), runtime.workspaceID, relative, data)
 }
 
 func (s *FilesystemService) ResetWorkspace(ctx context.Context, lessonID string) error {
-	runtime, _, err := s.prepareWorkspace(ctx, lessonID)
+	return s.ResetWorkspaceForActivity(ctx, lessonID, "")
+}
+
+func (s *FilesystemService) ResetWorkspaceForActivity(ctx context.Context, lessonID, activityID string) error {
+	runtime, _, err := s.prepareWorkspaceForActivity(ctx, lessonID, activityID)
 	if err != nil {
 		return err
 	}
@@ -333,11 +428,15 @@ func (s *FilesystemService) ResetWorkspace(ctx context.Context, lessonID string)
 	} else if err != nil {
 		return err
 	}
-	return s.workspaces.Reset(ctx, string(s.manifest.Id), lessonID, starter, checks)
+	return s.workspaces.Reset(ctx, string(s.manifest.Id), runtime.workspaceID, starter, checks)
 }
 
 func (s *FilesystemService) ResolveAction(ctx context.Context, lessonID, actionID string) (runner.Action, error) {
-	runtime, root, err := s.prepareWorkspace(ctx, lessonID)
+	return s.ResolveActivityAction(ctx, lessonID, "", actionID)
+}
+
+func (s *FilesystemService) ResolveActivityAction(ctx context.Context, lessonID, activityID, actionID string) (runner.Action, error) {
+	runtime, root, err := s.prepareWorkspaceForActivity(ctx, lessonID, activityID)
 	if err != nil {
 		return runner.Action{}, err
 	}
@@ -363,11 +462,19 @@ func editableFile(editable []string, relative string) bool {
 }
 
 // RecordActionResult stores check outcomes so the learner UI can refresh after the SSE terminal event.
-func (s *FilesystemService) RecordActionResult(_ context.Context, lessonID, actionID string, result runner.Result) error {
+func (s *FilesystemService) RecordActionResult(ctx context.Context, lessonID, actionID string, result runner.Result) error {
+	return s.RecordActivityActionResult(ctx, lessonID, "", actionID, "", result)
+}
+
+// RecordActivityActionResult stores check outcomes for the exact authored coding activity.
+// executionID is accepted for interface symmetry; persistent attempt idempotency is owned
+// by the activity service at the application composition boundary.
+func (s *FilesystemService) RecordActivityActionResult(ctx context.Context, lessonID, activityID, actionID, executionID string, result runner.Result) error {
+	_ = executionID
 	if actionID != "check" {
 		return nil
 	}
-	runtime, err := s.exerciseRuntime(lessonID)
+	runtime, err := s.exerciseRuntimeForActivity(ctx, lessonID, activityID)
 	if err != nil {
 		return err
 	}
@@ -392,7 +499,7 @@ func (s *FilesystemService) RecordActionResult(_ context.Context, lessonID, acti
 	if !ok {
 		return ErrLessonNotFound
 	}
-	state.latestCheck = map[string]any{"checks": checks}
+	state.latestCheck = map[string]any{"activityId": runtime.activityID, "checks": checks}
 	return nil
 }
 

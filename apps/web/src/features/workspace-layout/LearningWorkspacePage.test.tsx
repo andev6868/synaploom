@@ -296,6 +296,11 @@ describe('LearningWorkspacePage', () => {
   it('selects the split coding layout for a coding activity', async () => {
     const api: SynaploomApiClient = {
       ...fakeApi(),
+      listActivityFiles: () => Promise.resolve(['index.js']),
+      readActivityFile: () => Promise.resolve({ path: 'index.js', content: 'console.log("ok")' }),
+      writeActivityFile: () => Promise.resolve(),
+      resetActivityWorkspace: () => Promise.resolve(),
+      runActivityAction: () => Promise.resolve({ sessionId: 'session', eventsUrl: '/events' }),
       getActivitySets: () =>
         Promise.resolve([
           {
@@ -348,9 +353,9 @@ describe('LearningWorkspacePage', () => {
       </AppProviders>,
     );
 
-    expect(
-      await screen.findByText('Không gian lập trình sẽ mở trong workspace thực hành.'),
-    ).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Main Thread Lab' })).toBeVisible();
+    expect(await screen.findByRole('tab', { name: 'index.js' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Chạy' })).toBeVisible();
     expect(document.querySelector('.syn-workspace-shell')).toBeInTheDocument();
   });
 });

@@ -7,6 +7,7 @@ import type {
   ActivitySetProgress,
   CanonicalLessonPayload,
   ChapterAssessmentPayload,
+  CodingWorkspaceTarget,
   CompletionPayload,
   CourseNavigationPayload,
   CoursePayload,
@@ -121,6 +122,14 @@ export interface SynaploomApiClient {
   writeFile(lessonId: string, path: string, content: string): Promise<void>;
   resetWorkspace(lessonId: string): Promise<void>;
   runAction(lessonId: string, actionId: string): Promise<ProcessSessionPayload>;
+  listActivityFiles?(target: CodingWorkspaceTarget): Promise<readonly string[]>;
+  readActivityFile?(target: CodingWorkspaceTarget, path: string): Promise<WorkspaceFilePayload>;
+  writeActivityFile?(target: CodingWorkspaceTarget, path: string, content: string): Promise<void>;
+  resetActivityWorkspace?(target: CodingWorkspaceTarget): Promise<void>;
+  runActivityAction?(
+    target: CodingWorkspaceTarget,
+    actionId: string,
+  ): Promise<ProcessSessionPayload>;
   requestAi(command: AiGenerateCommand): Promise<AiResponse>;
   getPaneRatio(): Promise<number>;
   setPaneRatio(ratio: number): Promise<number>;
@@ -128,6 +137,10 @@ export interface SynaploomApiClient {
 
 function activityOwnerPath(owner: ActivityOwner): string {
   return `/courses/${encodeURIComponent(owner.courseId)}/${owner.ownerKind}/${encodeURIComponent(owner.ownerId)}`;
+}
+
+function codingWorkspacePath(target: CodingWorkspaceTarget): string {
+  return `/courses/${encodeURIComponent(target.courseId)}/lessons/${encodeURIComponent(target.lessonId)}/activities/${encodeURIComponent(target.activityId)}`;
 }
 
 /** Creates a client that can be substituted with a test double. */
@@ -260,6 +273,36 @@ export function createApiClient(
       request<ProcessSessionPayload>(
         fetchImpl,
         api(`/lessons/${encodeURIComponent(lessonId)}/actions/${encodeURIComponent(actionId)}`),
+        { method: 'POST' },
+      ),
+    listActivityFiles: async (target) => {
+      const payload = await request<{ readonly files: readonly string[] }>(
+        fetchImpl,
+        api(`${codingWorkspacePath(target)}/workspace/files`),
+      );
+      return payload.files;
+    },
+    readActivityFile: (target, filePath) =>
+      request<WorkspaceFilePayload>(
+        fetchImpl,
+        api(`${codingWorkspacePath(target)}/workspace/file?path=${encodeURIComponent(filePath)}`),
+      ),
+    writeActivityFile: async (target, filePath, content) => {
+      await request(
+        fetchImpl,
+        api(`${codingWorkspacePath(target)}/workspace/file?path=${encodeURIComponent(filePath)}`),
+        { method: 'PUT', body: JSON.stringify({ content }) },
+      );
+    },
+    resetActivityWorkspace: async (target) => {
+      await request(fetchImpl, api(`${codingWorkspacePath(target)}/workspace/reset`), {
+        method: 'POST',
+      });
+    },
+    runActivityAction: (target, actionId) =>
+      request<ProcessSessionPayload>(
+        fetchImpl,
+        api(`${codingWorkspacePath(target)}/actions/${encodeURIComponent(actionId)}`),
         { method: 'POST' },
       ),
     requestAi: (command) =>

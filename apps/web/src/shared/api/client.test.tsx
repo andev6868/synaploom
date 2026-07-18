@@ -186,4 +186,47 @@ describe('activity API client', () => {
     expect(fetchImpl.mock.calls[3]?.[1]).toMatchObject({ method: 'PUT' });
     expect(fetchImpl.mock.calls[4]?.[1]).toMatchObject({ method: 'POST' });
   });
+
+  it('builds owner-qualified coding workspace URLs', async () => {
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      void input;
+      void init;
+      return new Response(
+        JSON.stringify({
+          files: ['index.js'],
+          path: 'index.js',
+          content: 'code',
+          sessionId: 's',
+          eventsUrl: '/events',
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        },
+      );
+    });
+    const client = createApiClient(fetchImpl as typeof fetch);
+    const target = {
+      courseId: 'coding course',
+      lessonId: 'intro lesson',
+      activityId: 'coding lab',
+    };
+
+    await client.listActivityFiles?.(target);
+    await client.readActivityFile?.(target, 'index.js');
+    await client.writeActivityFile?.(target, 'index.js', 'next');
+    await client.resetActivityWorkspace?.(target);
+    await client.runActivityAction?.(target, 'check');
+
+    expect(fetchImpl.mock.calls.map(([url]) => url)).toEqual([
+      '/api/v1/courses/coding%20course/lessons/intro%20lesson/activities/coding%20lab/workspace/files',
+      '/api/v1/courses/coding%20course/lessons/intro%20lesson/activities/coding%20lab/workspace/file?path=index.js',
+      '/api/v1/courses/coding%20course/lessons/intro%20lesson/activities/coding%20lab/workspace/file?path=index.js',
+      '/api/v1/courses/coding%20course/lessons/intro%20lesson/activities/coding%20lab/workspace/reset',
+      '/api/v1/courses/coding%20course/lessons/intro%20lesson/activities/coding%20lab/actions/check',
+    ]);
+    expect(fetchImpl.mock.calls[2]?.[1]).toMatchObject({ method: 'PUT' });
+    expect(fetchImpl.mock.calls[3]?.[1]).toMatchObject({ method: 'POST' });
+    expect(fetchImpl.mock.calls[4]?.[1]).toMatchObject({ method: 'POST' });
+  });
 });

@@ -1,4 +1,4 @@
-import type { LessonPayload } from '@synaploom/protocol';
+import type { CodingWorkspaceTarget, LessonPayload } from '@synaploom/protocol';
 import { ActionBar, Button, StatusBadge, TerminalShell } from '@synaploom/ui';
 import { RotateCcw, Save } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
@@ -8,9 +8,11 @@ import { useProcessEvents } from '#src/features/practice-runner/useProcessEvents
 /** Practice pane for declared actions and editable course workspace files. */
 export function PracticePanel({
   lesson,
+  workspaceTarget,
   onActionComplete,
 }: {
   readonly lesson: LessonPayload;
+  readonly workspaceTarget?: CodingWorkspaceTarget;
   readonly onActionComplete: () => void;
 }): ReactNode {
   const api = useApi();
@@ -26,7 +28,11 @@ export function PracticePanel({
   useEffect(() => {
     if (!lesson.exercise) return undefined;
     let cancelled = false;
-    void api.listFiles(lesson.id).then((items) => {
+    const request =
+      workspaceTarget && api.listActivityFiles
+        ? api.listActivityFiles(workspaceTarget)
+        : api.listFiles(lesson.id);
+    void request.then((items) => {
       if (cancelled) return;
       setFiles(items);
       setSelectedFile(items[0] ?? null);
@@ -34,18 +40,22 @@ export function PracticePanel({
     return () => {
       cancelled = true;
     };
-  }, [api, lesson.exercise, lesson.id]);
+  }, [api, lesson.exercise, lesson.id, workspaceTarget]);
 
   useEffect(() => {
     if (!selectedFile) return undefined;
     let cancelled = false;
-    void api.readFile(lesson.id, selectedFile).then((file) => {
+    const request =
+      workspaceTarget && api.readActivityFile
+        ? api.readActivityFile(workspaceTarget, selectedFile)
+        : api.readFile(lesson.id, selectedFile);
+    void request.then((file) => {
       if (!cancelled) setContent(file.content);
     });
     return () => {
       cancelled = true;
     };
-  }, [api, lesson.id, selectedFile]);
+  }, [api, lesson.id, selectedFile, workspaceTarget]);
 
   useEffect(() => {
     onActionCompleteRef.current = onActionComplete;
@@ -69,7 +79,11 @@ export function PracticePanel({
     if (!selectedFile) return;
     setBusy(true);
     try {
-      await api.writeFile(lesson.id, selectedFile, content);
+      if (workspaceTarget && api.writeActivityFile) {
+        await api.writeActivityFile(workspaceTarget, selectedFile, content);
+      } else {
+        await api.writeFile(lesson.id, selectedFile, content);
+      }
     } finally {
       setBusy(false);
     }
@@ -78,8 +92,17 @@ export function PracticePanel({
   const run = async (actionId: string): Promise<void> => {
     setBusy(true);
     try {
-      if (selectedFile) await api.writeFile(lesson.id, selectedFile, content);
-      const session = await api.runAction(lesson.id, actionId);
+      if (selectedFile) {
+        if (workspaceTarget && api.writeActivityFile) {
+          await api.writeActivityFile(workspaceTarget, selectedFile, content);
+        } else {
+          await api.writeFile(lesson.id, selectedFile, content);
+        }
+      }
+      const session =
+        workspaceTarget && api.runActivityAction
+          ? await api.runActivityAction(workspaceTarget, actionId)
+          : await api.runAction(lesson.id, actionId);
       setEventsUrl(session.eventsUrl);
     } finally {
       setBusy(false);
@@ -89,8 +112,18 @@ export function PracticePanel({
   const reset = async (): Promise<void> => {
     setBusy(true);
     try {
-      await api.resetWorkspace(lesson.id);
-      if (selectedFile) setContent((await api.readFile(lesson.id, selectedFile)).content);
+      if (workspaceTarget && api.resetActivityWorkspace) {
+        await api.resetActivityWorkspace(workspaceTarget);
+      } else {
+        await api.resetWorkspace(lesson.id);
+      }
+      if (selectedFile) {
+        const file =
+          workspaceTarget && api.readActivityFile
+            ? await api.readActivityFile(workspaceTarget, selectedFile)
+            : await api.readFile(lesson.id, selectedFile);
+        setContent(file.content);
+      }
     } finally {
       setBusy(false);
     }

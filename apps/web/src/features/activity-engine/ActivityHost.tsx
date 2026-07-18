@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ActivityFeedback } from '#src/features/activity-engine/ActivityFeedback';
 import { ChoiceActivity } from '#src/features/activity-engine/renderers/ChoiceActivity';
+import { CodingActivity } from '#src/features/activity-engine/renderers/CodingActivity';
 import { FillBlanksActivity } from '#src/features/activity-engine/renderers/FillBlanksActivity';
 import { MatchingActivity } from '#src/features/activity-engine/renderers/MatchingActivity';
 import { NumericActivity } from '#src/features/activity-engine/renderers/NumericActivity';
@@ -11,14 +12,6 @@ import { WritingActivity } from '#src/features/activity-engine/renderers/Writing
 import type { ActivityHostProps, ActivityRendererProps } from '#src/features/activity-engine/types';
 import { useActivityAttempt } from '#src/features/activity-engine/useActivityAttempt';
 import { LessonContent } from '#src/features/lesson-content/LessonContent';
-
-function CodingActivityPending(): ReactNode {
-  return (
-    <div className="syn-activity-host__placeholder" data-activity-kind="coding">
-      <p>Không gian lập trình sẽ mở trong workspace thực hành.</p>
-    </div>
-  );
-}
 
 function renderKnownActivity(props: ActivityRendererProps): ReactNode {
   switch (props.activity.kind) {
@@ -40,13 +33,13 @@ function renderKnownActivity(props: ActivityRendererProps): ReactNode {
     case 'writing':
       return <WritingActivity {...props} />;
     case 'coding':
-      return <CodingActivityPending />;
+      return <div role="alert">Không gian lập trình không thể render trong activity form.</div>;
     default:
       return <div role="alert">Loại hoạt động này chưa được hỗ trợ.</div>;
   }
 }
 
-export function ActivityHost({
+function AttemptActivityHost({
   owner,
   activity,
   policy,
@@ -111,4 +104,17 @@ export function ActivityHost({
       ) : null}
     </section>
   );
+}
+
+export function ActivityHost(props: ActivityHostProps): ReactNode {
+  if (props.activity.kind === 'coding') {
+    return (
+      <CodingActivity
+        owner={props.owner}
+        activity={props.activity}
+        onProgressChanged={props.onProgressChanged}
+      />
+    );
+  }
+  return <AttemptActivityHost {...props} />;
 }

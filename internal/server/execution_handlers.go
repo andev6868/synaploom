@@ -13,14 +13,16 @@ import (
 )
 
 type executionHandlers struct {
-	resolve  func(context.Context, string, string) (runner.Action, error)
-	record   func(context.Context, string, string, runner.Result) error
-	executor runner.Executor
-	store    *executionStore
+	resolve          func(context.Context, string, string, string) (runner.Action, error)
+	record           func(context.Context, string, string, string, string, runner.Result) error
+	executor         runner.Executor
+	store            *executionStore
+	eventsPathPrefix string
 }
 
 func (h executionHandlers) start(w http.ResponseWriter, r *http.Request) {
-	action, err := h.resolve(r.Context(), r.PathValue("lessonId"), r.PathValue("actionId"))
+	activityID := r.PathValue("activityId")
+	action, err := h.resolve(r.Context(), r.PathValue("lessonId"), activityID, r.PathValue("actionId"))
 	if errors.Is(err, runner.ErrActionNotFound) {
 		writeError(w, http.StatusNotFound, "ACTION_NOT_FOUND", "Action not found.", requestID(r), nil)
 		return
@@ -48,7 +50,7 @@ func (h executionHandlers) start(w http.ResponseWriter, r *http.Request) {
 					if event.Type != runner.EventExited {
 						result.Err = errors.New(event.Type)
 					}
-					_ = h.record(context.Background(), lessonID, actionID, result)
+					_ = h.record(context.Background(), lessonID, activityID, actionID, request.ExecutionID, result)
 				},
 			}
 		}
@@ -58,7 +60,7 @@ func (h executionHandlers) start(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 	_ = json.NewEncoder(w).Encode(contracts.ProcessSessionPayload{
 		SessionId: request.ExecutionID,
-		EventsUrl: "/api/v1/executions/" + request.ExecutionID + "/events",
+		EventsUrl: h.eventsPathPrefix + request.ExecutionID + "/events",
 	})
 }
 
@@ -109,26 +111,45 @@ func (s recordingSink) Emit(event runner.Event) {
 
 func defaultExecutionHandlers(actions map[string]runner.Action) executionHandlers {
 	return executionHandlers{
-		resolve: func(_ context.Context, _ string, actionID string) (runner.Action, error) {
+		resolve: func(_ context.Context, _ string, _ string, actionID string) (runner.Action, error) {
 			action, ok := actions[actionID]
 			if !ok {
 				return runner.Action{}, runner.ErrActionNotFound
 			}
 			return action, nil
 		},
-		executor: runner.Executor{},
-		store:    newExecutionStore(30 * time.Second),
+		executor:         runner.Executor{},
+		store:            newExecutionStore(30 * time.Second),
+		eventsPathPrefix: "/api/v1/executions/",
 	}
 }
 
 func practiceExecutionHandlers(service course.PracticeService) executionHandlers {
 	handlers := executionHandlers{
-		resolve:  service.ResolveAction,
-		executor: runner.Executor{},
-		store:    newExecutionStore(30 * time.Second),
+		resolve: func(ctx context.Context, lessonID, _ string, actionID string) (runner.Action, error) {
+			return service.ResolveAction(ctx, lessonID, actionID)
+		},
+		executor:         runner.Executor{},
+		store:            newExecutionStore(30 * time.Second),
+		eventsPathPrefix: "/api/v1/executions/",
 	}
 	if recorder, ok := service.(course.ActionResultRecorder); ok {
-		handlers.record = recorder.RecordActionResult
+		handlers.record = func(ctx context.Context, lessonID, _ string, actionID, _ string, result runner.Result) error {
+			return recorder.RecordActionResult(ctx, lessonID, actionID, result)
+		}
+	}
+	return handlers
+}
+
+func activityPracticeExecutionHandlers(service course.ActivityPracticeService) executionHandlers {
+	handlers := executionHandlers{
+		resolve:          service.ResolveActivityAction,
+		executor:         runner.Executor{},
+		store:            newExecutionStore(30 * time.Second),
+		eventsPathPrefix: "/api/v1/activity-executions/",
+	}
+	if recorder, ok := service.(course.ActivityActionResultRecorder); ok {
+		handlers.record = recorder.RecordActivityActionResult
 	}
 	return handlers
 }

@@ -17,6 +17,13 @@ export interface ActivityOwner {
   readonly ownerId: string;
 }
 
+/** Identifies one coding activity workspace inside a lesson. */
+export interface CodingWorkspaceTarget {
+  readonly courseId: string;
+  readonly lessonId: string;
+  readonly activityId: string;
+}
+
 export interface PublicActivityReferencePayload {
   readonly required: boolean;
   readonly activity: ActivityPublicView;

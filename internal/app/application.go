@@ -139,7 +139,8 @@ func configureRouter(ctx context.Context, service course.Service, sessions *serv
 	content := service
 	options := []server.RouterOption{server.WithProgression(progress)}
 	if filesystem, ok := service.(*course.FilesystemService); ok {
-		content = &progressionAwareFilesystemService{FilesystemService: filesystem, progression: progress, graph: graph}
+		aware := &progressionAwareFilesystemService{FilesystemService: filesystem, progression: progress, graph: graph}
+		content = aware
 		sources, err := filesystem.ActivitySetSources(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("load activity catalog: %w", err)
@@ -149,6 +150,7 @@ func configureRouter(ctx context.Context, service course.Service, sessions *serv
 			return nil, fmt.Errorf("configure activity catalog: %w", err)
 		}
 		activities := activity.NewService(catalog, storage.NewActivityRepository(database.SQL), activity.DefaultRegistry())
+		aware.activities = activities
 		progress.SetActivityProgressProvider(activityProgressAdapter{service: activities, courseID: graph.ID, courseVersion: graph.Version})
 		options = append(options, server.WithActivities(activities))
 	}
@@ -158,6 +160,7 @@ func configureRouter(ctx context.Context, service course.Service, sessions *serv
 type progressionAwareFilesystemService struct {
 	*course.FilesystemService
 	progression *progression.ServiceImpl
+	activities  *activity.ServiceImpl
 	graph       progression.CourseGraph
 }
 
@@ -175,6 +178,27 @@ func (s *progressionAwareFilesystemService) RecordActionResult(ctx context.Conte
 	passed := result.ExitCode != nil && *result.ExitCode == 0 && result.Err == nil
 	_, err := s.progression.RecordLessonPracticeResult(ctx, lessonID, lesson.Practices[0].ID, progression.AttemptResult{
 		Passed: passed, CompletedAt: time.Now().UTC(), Summary: resultSummary(result),
+	})
+	return err
+}
+
+func (s *progressionAwareFilesystemService) RecordActivityActionResult(ctx context.Context, lessonID, activityID, actionID, executionID string, result runner.Result) error {
+	if err := s.FilesystemService.RecordActivityActionResult(ctx, lessonID, activityID, actionID, executionID, result); err != nil {
+		return err
+	}
+	if actionID != "check" || s.activities == nil {
+		return nil
+	}
+	passed := result.ExitCode != nil && *result.ExitCode == 0 && result.Err == nil
+	_, err := s.activities.RecordCodingEvaluation(ctx, activity.RecordCodingEvaluationCommand{
+		Identity: activity.AttemptIdentity{
+			Owner: activity.OwnerIdentity{
+				CourseID: s.graph.ID, CourseVersion: s.graph.Version,
+				Kind: activity.OwnerKindLesson, ID: lessonID,
+			},
+			ActivityID: activityID,
+		},
+		Passed: passed, Summary: resultSummary(result), IdempotencyKey: executionID, At: time.Now().UTC(),
 	})
 	return err
 }

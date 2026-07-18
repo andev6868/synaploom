@@ -56,4 +56,14 @@ func TestConfigureRouterRegistersProgressionRoutesForFilesystemCourse(t *testing
 	if activityResponse.Code != http.StatusOK {
 		t.Fatalf("activity status=%d body=%s", activityResponse.Code, activityResponse.Body.String())
 	}
+
+	workspaceRequest := httptest.NewRequest(http.MethodGet, "http://127.0.0.1/api/v1/courses/frontend-performance-foundations/lessons/event-loop/activities/event-loop-order/workspace/files", nil)
+	workspaceRequest.Host = "127.0.0.1:3210"
+	workspaceRequest.AddCookie(cookies[0])
+	workspaceResponse := httptest.NewRecorder()
+	handler.ServeHTTP(workspaceResponse, workspaceRequest)
+	if workspaceResponse.Code != http.StatusOK {
+		t.Fatalf("workspace status=%d body=%s", workspaceResponse.Code, workspaceResponse.Body.String())
+	}
+
 }

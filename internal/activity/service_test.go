@@ -143,3 +143,48 @@ func TestServiceAppliesActivitySetRevealPolicyBeforePersistingFeedback(t *testin
 		t.Fatalf("persisted feedback correctAnswer = %#v, want a", attempt.Feedback)
 	}
 }
+
+func TestServiceRecordsTrustedCodingEvaluationWithoutGenericEvaluator(t *testing.T) {
+	ctx := context.Background()
+	db, err := storage.Open(ctx, filepath.Join(t.TempDir(), "activity.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	definition := activityDefinition("coding-lab", ActivityKindCoding, map[string]any{
+		"schemaVersion": "1.0", "id": "coding-lab", "title": "Coding Lab",
+		"runtime":   map[string]any{"kind": "local", "requires": []any{"node"}},
+		"workspace": map[string]any{"starter": "starter", "editable": []any{"index.js"}},
+		"actions":   map[string]any{"check": map[string]any{"label": "Check", "executable": "node", "args": []any{"check.js"}, "timeoutMs": float64(1000)}},
+		"checks":    []any{}, "completion": map[string]any{"requireAllRequiredChecks": true},
+	}, EvaluationModeCoding)
+	set := ActivitySetDefinition{ID: "practice", Policy: ActivitySetPolicy{Purpose: ActivityPurposePractice}, Activities: []ActivityReference{{ID: "coding-lab", Required: true}}}
+	service := NewService(testCatalog{definitions: map[string]ActivityDefinition{"coding-lab": definition}, sets: map[string]ActivitySetDefinition{"practice": set}}, storage.NewActivityRepository(db.SQL), nil)
+	identity := AttemptIdentity{Owner: OwnerIdentity{CourseID: "course", CourseVersion: "1", Kind: OwnerKindLesson, ID: "lesson"}, ActivityID: "coding-lab"}
+
+	attempt, err := service.RecordCodingEvaluation(ctx, RecordCodingEvaluationCommand{
+		Identity: identity, Passed: true, Summary: "All checks passed", IdempotencyKey: "execution-1", At: time.Unix(10, 0),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if attempt.Status != AttemptStatusEvaluated || attempt.Passed == nil || !*attempt.Passed || attempt.Score == nil || *attempt.Score != 1 {
+		t.Fatalf("attempt=%+v", attempt)
+	}
+	progress, err := service.SetProgress(ctx, identity.Owner, "practice")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if progress.Status != "COMPLETED" || progress.Passed == nil || !*progress.Passed {
+		t.Fatalf("progress=%+v", progress)
+	}
+	duplicate, err := service.RecordCodingEvaluation(ctx, RecordCodingEvaluationCommand{
+		Identity: identity, Passed: false, Summary: "must not overwrite", IdempotencyKey: "execution-1", At: time.Unix(11, 0),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if duplicate.ID != attempt.ID || duplicate.Passed == nil || !*duplicate.Passed {
+		t.Fatalf("duplicate=%+v", duplicate)
+	}
+}
