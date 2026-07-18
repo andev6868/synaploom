@@ -18,7 +18,7 @@ const version = process.env.SYNAPLOOM_VERSION ?? '0.2.0';
 const commit =
   process.env.SYNAPLOOM_COMMIT ??
   execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], { encoding: 'utf8' }).trim();
-const schema = process.env.SYNAPLOOM_SCHEMA_VERSION ?? '1.0.0';
+const schema = process.env.SYNAPLOOM_SCHEMA_VERSION ?? '1.1.0';
 const sums = [];
 for (const target of targets) {
   const [goos, goarch] = target.split('/');

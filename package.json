@@ -36,7 +36,8 @@
     "go:release": "node scripts/go/release.mjs",
     "go:verify-release": "node scripts/go/verify-native-release.mjs",
     "go:build": "node scripts/go/build-native.mjs",
-    "go:archive-source": "node scripts/go/archive-source.mjs"
+    "go:archive-source": "node scripts/go/archive-source.mjs",
+    "go:write-release-evidence": "node scripts/go/write-release-evidence.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
