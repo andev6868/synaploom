@@ -105,18 +105,18 @@ describe('SynLessonProgress', () => {
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: /Thực hành chương.*Runtime Capstone.*Bắt buộc.*Có thể học/i,
+        name: /Đánh giá chương.*Runtime Capstone.*Bắt buộc.*Có thể học/i,
       }),
     );
 
     expect(onOpenAssessment).toHaveBeenCalledWith('runtime', 'runtime-capstone');
   });
 
-  it('collapses to a compact progress summary', () => {
+  it('renders chapter status and optionality inside the controlled drawer body', () => {
     renderNavigator();
-    fireEvent.click(screen.getByRole('button', { name: /Thu gọn tiến độ/i }));
 
-    expect(screen.getByText(/1\/2 bài bắt buộc đã hoàn thành/i)).toBeVisible();
-    expect(screen.queryByRole('button', { name: /Runtime Capstone/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Runtime' })).toBeVisible();
+    expect(screen.getByText('Đang học')).toBeVisible();
+    expect(screen.getByRole('button', { name: /Event Loop.*Bắt buộc/i })).toBeVisible();
   });
 });

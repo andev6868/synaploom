@@ -3,8 +3,9 @@ import type {
   CompletionPayload,
   LessonPayload,
   NextActionPayload,
+  RequirementView,
 } from '@synaploom/protocol';
-import { AppHeader, LessonProgress, ScrollArea, StatusBadge, WorkspaceShell } from '@synaploom/ui';
+import { AppHeader, ScrollArea, StatusBadge, WorkspaceShell } from '@synaploom/ui';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState, type ReactNode } from 'react';
 import { useApi } from '#src/app/providers/AppProviders';
@@ -12,7 +13,11 @@ import { navigateToAssessment, navigateToLesson } from '#src/app/router/lesson-r
 import { AssistantPanel } from '#src/features/ai-assistant/AssistantPanel';
 import { LessonContent } from '#src/features/lesson-content/LessonContent';
 import { LessonRequirementFooter } from '#src/features/lesson-progress/LessonRequirementFooter';
-import { SynLessonProgress } from '#src/features/learning-progress/SynLessonProgress';
+import {
+  requirementLabel,
+  SynLessonProgress,
+} from '#src/features/learning-progress/SynLessonProgress';
+import { buildLearningProgressSummary } from '#src/features/learning-progress/progress-summary';
 import { PracticePanel } from '#src/features/practice-runner/PracticePanel';
 import { CompletionBar } from '#src/features/progression/CompletionBar';
 import { ReviewBanner } from '#src/features/review-mode/ReviewBanner';
@@ -29,6 +34,10 @@ export function LearningWorkspacePage({
   const api = useApi();
   const queryClient = useQueryClient();
   const [completion, setCompletion] = useState<CompletionPayload | null>(null);
+  const [navigatorOpen, setNavigatorOpen] = useState(false);
+  const [lockedRequirements, setLockedRequirements] = useState<
+    readonly RequirementView[] | null
+  >(null);
   const canonical = Boolean(requestedCourseId && requestedChapterId && requestedLessonId);
   const courseQuery = useQuery({ queryKey: ['course'], queryFn: () => api.getCourse() });
   const navigationQuery = useQuery({
@@ -98,7 +107,7 @@ export function LearningWorkspacePage({
   const context = canonicalPayload?.context;
   const navigation = navigationQuery.data;
   const busy = reading.isPending || complete.isPending;
-  const completedLessons = course.lessons.filter((item) => item.status === 'COMPLETED').length;
+  const progressSummary = buildLearningProgressSummary(course, lesson, navigation);
   const onNextAction = (action: NextActionPayload): void => {
     switch (action.type) {
       case 'ACKNOWLEDGE_READING':
@@ -135,17 +144,64 @@ export function LearningWorkspacePage({
       <ScrollArea className="syn-lesson-panel__scroll">
         <article className="syn-lesson-panel__article">
           {navigation ? (
-            <SynLessonProgress
-              navigation={navigation}
-              viewedItemId={lesson.id}
-              onOpenLesson={(chapterId, lessonId) =>
-                navigateToLesson(course.id, chapterId, lessonId)
-              }
-              onOpenAssessment={(chapterId, assessmentId) =>
-                navigateToAssessment(course.id, chapterId, assessmentId)
-              }
-              onLockedItem={() => undefined}
-            />
+            <section className="syn-course-navigation-shell">
+              <button
+                type="button"
+                className="syn-course-navigation-trigger"
+                aria-expanded={navigatorOpen}
+                aria-controls="course-learning-navigation"
+                onClick={() => {
+                  setNavigatorOpen((open) => !open);
+                  setLockedRequirements(null);
+                }}
+              >
+                <span>
+                  <strong>Nội dung khóa học</strong>
+                  <small>{progressSummary.completionLabel}</small>
+                </span>
+                <span aria-hidden="true">{navigatorOpen ? 'Thu gọn' : 'Mở'}</span>
+              </button>
+              {navigatorOpen ? (
+                <>
+                  <SynLessonProgress
+                    navigation={navigation}
+                    viewedItemId={lesson.id}
+                    onOpenLesson={(chapterId, lessonId) => {
+                      setLockedRequirements(null);
+                      navigateToLesson(course.id, chapterId, lessonId);
+                    }}
+                    onOpenAssessment={(chapterId, assessmentId) => {
+                      setLockedRequirements(null);
+                      navigateToAssessment(course.id, chapterId, assessmentId);
+                    }}
+                    onLockedItem={(requirements) => setLockedRequirements(requirements)}
+                  />
+                  {lockedRequirements !== null ? (
+                    <div className="syn-course-navigation-blockers" role="alert">
+                      <strong>Mục này chưa thể mở</strong>
+                      <p>Hoàn thành các yêu cầu sau để tiếp tục:</p>
+                      <ul>
+                        {lockedRequirements.filter(
+                          (requirement) => requirement.required && !requirement.satisfied,
+                        ).length === 0 ? (
+                          <li>Mục này chưa đáp ứng điều kiện mở khóa.</li>
+                        ) : (
+                          lockedRequirements
+                            .filter(
+                              (requirement) => requirement.required && !requirement.satisfied,
+                            )
+                            .map((requirement) => (
+                              <li key={`${requirement.kind}:${requirement.id}`}>
+                                {requirementLabel(requirement)}
+                              </li>
+                            ))
+                        )}
+                      </ul>
+                    </div>
+                  ) : null}
+                </>
+              ) : null}
+            </section>
           ) : null}
           {context?.viewMode === 'REVIEW' && context.returnTarget ? (
             <ReviewBanner
@@ -170,10 +226,10 @@ export function LearningWorkspacePage({
               </StatusBadge>
               <h1>{lesson.title}</h1>
             </div>
-            <LessonProgress
-              current={completedLessons + (lesson.status === 'COMPLETED' ? 0 : 1)}
-              total={course.lessons.length}
-            />
+            <div className="syn-learning-progress-summary" aria-label="Tiến độ bài học">
+              <strong>{progressSummary.positionLabel}</strong>
+              <span>{progressSummary.completionLabel}</span>
+            </div>
           </div>
           <LessonContent blocks={lesson.blocks} />
           {context ? (
