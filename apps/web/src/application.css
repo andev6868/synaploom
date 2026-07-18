@@ -902,3 +902,214 @@ body,
   max-width: 100%;
   width: 100%;
 }
+
+.syn-activity-host {
+  display: grid;
+  gap: 1rem;
+  margin-block: 1.5rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--syn-color-border);
+  border-radius: var(--syn-radius-lg);
+  background: var(--syn-color-surface);
+}
+
+.syn-activity-host fieldset {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+
+.syn-activity-host legend {
+  padding: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.syn-activity-renderer,
+.syn-activity-fields,
+.syn-activity-options,
+.syn-activity-matching {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.syn-activity-options--horizontal {
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
+
+.syn-activity-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--syn-color-border);
+  border-radius: var(--syn-radius-md);
+  background: var(--syn-color-surface-muted);
+  cursor: pointer;
+}
+
+.syn-activity-option:focus-within {
+  outline: 2px solid var(--syn-color-primary);
+  outline-offset: 2px;
+}
+
+.syn-activity-option input {
+  margin-top: 0.2rem;
+}
+
+.syn-activity-field {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+  font-weight: 600;
+}
+
+.syn-activity-field input,
+.syn-activity-field textarea,
+.syn-activity-field select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--syn-color-border);
+  border-radius: var(--syn-radius-md);
+  color: var(--syn-color-text);
+  background: var(--syn-color-surface);
+  font: inherit;
+  font-weight: 400;
+}
+
+.syn-activity-field input:focus-visible,
+.syn-activity-field textarea:focus-visible,
+.syn-activity-field select:focus-visible,
+.syn-activity-actions button:focus-visible,
+.syn-activity-ordering button:focus-visible {
+  outline: 2px solid var(--syn-color-primary);
+  outline-offset: 2px;
+}
+
+.syn-activity-field__description,
+.syn-activity-hint,
+.syn-activity-host__state,
+.syn-activity-writing__count {
+  color: var(--syn-color-text-muted);
+  font-size: 0.86rem;
+  font-weight: 400;
+}
+
+.syn-activity-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.syn-activity-actions button {
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--syn-radius-md);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.syn-activity-actions__secondary {
+  border: 1px solid var(--syn-color-border);
+  color: var(--syn-color-text);
+  background: var(--syn-color-surface);
+}
+
+.syn-activity-actions__primary {
+  border: 1px solid var(--syn-color-primary);
+  color: white;
+  background: var(--syn-color-primary);
+}
+
+.syn-activity-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.syn-activity-ordering {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.syn-activity-ordering li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--syn-color-border);
+  border-radius: var(--syn-radius-md);
+  background: var(--syn-color-surface-muted);
+}
+
+.syn-activity-ordering__actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.syn-activity-ordering button {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--syn-color-border);
+  border-radius: var(--syn-radius-sm);
+  background: var(--syn-color-surface);
+}
+
+.syn-activity-matching__row,
+.syn-activity-numeric {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.syn-activity-numeric {
+  grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.25fr);
+}
+
+.syn-activity-writing__outline,
+.syn-activity-feedback {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--syn-color-border);
+  border-radius: var(--syn-radius-md);
+  background: var(--syn-color-surface-muted);
+}
+
+.syn-activity-writing__outline h4,
+.syn-activity-feedback h3,
+.syn-activity-feedback p {
+  margin-top: 0;
+}
+
+.syn-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  .syn-activity-numeric {
+    grid-template-columns: 1fr;
+  }
+
+  .syn-activity-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .syn-activity-actions button {
+    width: 100%;
+  }
+}

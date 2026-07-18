@@ -1,12 +1,5 @@
-import type {
-  ActivityAnswer,
-  ActivitySetPolicy,
-} from '@synaploom/contracts';
-import type {
-  ActivityAttempt,
-  ActivityOwner,
-  ActivityPublicView,
-} from '@synaploom/protocol';
+import type { ActivityAnswer, ActivitySetPolicy } from '@synaploom/contracts';
+import type { ActivityAttempt, ActivityOwner, ActivityPublicView } from '@synaploom/protocol';
 
 export type ActivityInteractionState =
   | 'loading'

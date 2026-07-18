@@ -91,11 +91,18 @@ export function useActivityAttempt({
       setAnswerState(saved.answer);
       queryClient.setQueryData(attemptKey(owner, activityId), saved);
     },
-    onError: (cause) => setError(cause instanceof Error ? cause : new Error('Không thể lưu bản nháp.')),
+    onError: (cause) =>
+      setError(cause instanceof Error ? cause : new Error('Không thể lưu bản nháp.')),
   });
 
   const submitMutation = useMutation({
-    mutationFn: async ({ currentAnswer, idempotencyKey }: { readonly currentAnswer: ActivityAnswer; readonly idempotencyKey: string }) =>
+    mutationFn: async ({
+      currentAnswer,
+      idempotencyKey,
+    }: {
+      readonly currentAnswer: ActivityAnswer;
+      readonly idempotencyKey: string;
+    }) =>
       api.submitActivityAttempt(owner, activityId, {
         answer: currentAnswer,
         idempotencyKey,
@@ -111,7 +118,8 @@ export function useActivityAttempt({
       await invalidateRelated();
       await onProgressChanged();
     },
-    onError: (cause) => setError(cause instanceof Error ? cause : new Error('Không thể nộp câu trả lời.')),
+    onError: (cause) =>
+      setError(cause instanceof Error ? cause : new Error('Không thể nộp câu trả lời.')),
   });
 
   const setAnswer = useCallback((next: ActivityAnswer): void => {
@@ -132,7 +140,10 @@ export function useActivityAttempt({
   const submit = useCallback(async (): Promise<void> => {
     if (!answer || submitMutation.isPending) return;
     try {
-      await submitMutation.mutateAsync({ currentAnswer: answer, idempotencyKey: createIdempotencyKey() });
+      await submitMutation.mutateAsync({
+        currentAnswer: answer,
+        idempotencyKey: createIdempotencyKey(),
+      });
     } catch {
       // Mutation state exposes the error while preserving the learner answer.
     }
@@ -152,7 +163,15 @@ export function useActivityAttempt({
     if (attempt?.status === 'DRAFT') return 'draft';
     if (answer) return 'ready';
     return 'not-started';
-  }, [answer, attempt, attemptQuery.isLoading, error, isDirty, saveMutation.isPending, submitMutation.isPending]);
+  }, [
+    answer,
+    attempt,
+    attemptQuery.isLoading,
+    error,
+    isDirty,
+    saveMutation.isPending,
+    submitMutation.isPending,
+  ]);
 
   const attemptsExhausted =
     policy.maxAttempts !== null &&
