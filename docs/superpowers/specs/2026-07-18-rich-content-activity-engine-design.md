@@ -1,8 +1,8 @@
 # Rich Lesson Content and Multi-Domain Activity Engine Design
 
-**Status:** Approved scope; design awaiting final review  
-**Date:** 2026-07-18  
-**Target release:** Course Schema 1.2.0  
+**Status:** Approved
+**Date:** 2026-07-18
+**Target release:** Course Schema 1.2.0
 **Supersedes:** Coding-only exercise assumptions in Course Schema 1.0/1.1
 
 ## 1. Purpose
