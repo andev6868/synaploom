@@ -17,6 +17,20 @@ type Registry struct {
 	evaluators map[ActivityKind]Evaluator
 }
 
+func DefaultRegistry() Registry {
+	return NewRegistry(
+		NewChoiceEvaluator(ActivityKindSingleChoice),
+		NewChoiceEvaluator(ActivityKindMultipleChoice),
+		NewChoiceEvaluator(ActivityKindTrueFalse),
+		NewTextEvaluator(ActivityKindShortAnswer),
+		NewTextEvaluator(ActivityKindFillBlanks),
+		NewOrderingEvaluator(),
+		NewMatchingEvaluator(),
+		NewNumericEvaluator(),
+		NewWritingEvaluator(),
+	)
+}
+
 func NewRegistry(evaluators ...Evaluator) Registry {
 	registry := Registry{evaluators: make(map[ActivityKind]Evaluator, len(evaluators))}
 	for _, evaluator := range evaluators {
@@ -74,8 +88,9 @@ func evaluatedResult(definition ActivityDefinition, score float64, fullyCorrect 
 		nextAction = "continue"
 	}
 	return EvaluationResult{
-		Score: score, MaxScore: maxScore, Passed: passed, CorrectAnswer: cloneValue(correctAnswer),
-		Feedback: ActivityFeedback{Summary: summary, Details: details, NextAction: nextAction},
+		Score: floatPointer(score), MaxScore: floatPointer(maxScore), Passed: boolPointer(passed), Completed: passed,
+		CorrectAnswer: cloneValue(correctAnswer),
+		Feedback:      ActivityFeedback{Summary: summary, Details: details, NextAction: nextAction},
 	}
 }
 
@@ -123,3 +138,26 @@ func uniqueStrings(values []string) bool {
 	}
 	return true
 }
+
+func boolPointer(value bool) *bool        { return &value }
+func floatPointer(value float64) *float64 { return &value }
+
+func resultPassed(result EvaluationResult) bool {
+	return result.Passed != nil && *result.Passed
+}
+
+func resultScore(result EvaluationResult) float64 {
+	if result.Score == nil {
+		return 0
+	}
+	return *result.Score
+}
+
+func resultMaxScore(result EvaluationResult) float64 {
+	if result.MaxScore == nil {
+		return 0
+	}
+	return *result.MaxScore
+}
+
+func stringPointer(value string) *string { return &value }

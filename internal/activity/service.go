@@ -115,26 +115,21 @@ func (s *ServiceImpl) Submit(ctx context.Context, command SubmitCommand) (Activi
 		return attemptFromRecord(record)
 	}
 
-	var result EvaluationResult
-	if definition.Evaluation.Mode == EvaluationModeSubmission {
-		result = EvaluationResult{Passed: true, Feedback: ActivityFeedback{Summary: "Bài làm đã được ghi nhận.", NextAction: "continue"}}
-	} else {
-		if s.evaluator == nil {
-			return ActivityAttempt{}, ErrEvaluatorUnavailable
-		}
-		result, err = s.evaluator.Evaluate(ctx, definition, command.Answer)
-		if err != nil {
-			return ActivityAttempt{}, fmt.Errorf("evaluate activity: %w", err)
-		}
-		result = ApplyRevealPolicy(result, policy, countSubmitted(attempts, command.Identity.ActivityID)+1)
+	if s.evaluator == nil {
+		return ActivityAttempt{}, ErrEvaluatorUnavailable
 	}
+	result, err := s.evaluator.Evaluate(ctx, definition, command.Answer)
+	if err != nil {
+		return ActivityAttempt{}, fmt.Errorf("evaluate activity: %w", err)
+	}
+	result = ApplyRevealPolicy(result, policy, countSubmitted(attempts, command.Identity.ActivityID)+1)
 	feedback, err := json.Marshal(result.Feedback)
 	if err != nil {
 		return ActivityAttempt{}, fmt.Errorf("marshal activity feedback: %w", err)
 	}
 	evaluated, err := s.repository.UpdateEvaluation(ctx, storage.EvaluationWrite{
-		AttemptID: record.ID, FeedbackJSON: feedback, Score: &result.Score,
-		MaxScore: &result.MaxScore, Passed: &result.Passed, At: command.At,
+		AttemptID: record.ID, FeedbackJSON: feedback, Score: result.Score,
+		MaxScore: result.MaxScore, Passed: result.Passed, At: command.At,
 	})
 	if err != nil {
 		return ActivityAttempt{}, mapStorageError(err)

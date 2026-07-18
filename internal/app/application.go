@@ -148,7 +148,7 @@ func configureRouter(ctx context.Context, service course.Service, sessions *serv
 		if err != nil {
 			return nil, fmt.Errorf("configure activity catalog: %w", err)
 		}
-		activities := activity.NewService(catalog, storage.NewActivityRepository(database.SQL), nil)
+		activities := activity.NewService(catalog, storage.NewActivityRepository(database.SQL), activity.DefaultRegistry())
 		options = append(options, server.WithActivities(activities))
 	}
 	return server.NewRouter(content, sessions, options...), nil

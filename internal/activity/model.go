@@ -176,9 +176,10 @@ type SubmitCommand struct {
 }
 
 type EvaluationResult struct {
-	Score         float64
-	MaxScore      float64
-	Passed        bool
+	Score         *float64
+	MaxScore      *float64
+	Passed        *bool
+	Completed     bool
 	Feedback      ActivityFeedback
 	CorrectAnswer any
 }

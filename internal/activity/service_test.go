@@ -32,7 +32,7 @@ func TestServiceRunsDraftSubmissionEvaluationLifecycle(t *testing.T) {
 		"options": []any{map[string]any{"id": "a", "label": "A"}}, "correctOptionId": "a",
 	}, EvaluationModeAutomatic)
 	set := ActivitySetDefinition{ID: "practice", Policy: ActivitySetPolicy{Purpose: ActivityPurposePractice}, Activities: []ActivityReference{{ID: "quiz", Required: true}}}
-	evaluator := &recordingEvaluator{result: EvaluationResult{Score: 1, MaxScore: 1, Passed: true, Feedback: ActivityFeedback{Summary: "Correct"}}}
+	evaluator := &recordingEvaluator{result: EvaluationResult{Score: floatPointer(1), MaxScore: floatPointer(1), Passed: boolPointer(true), Completed: true, Feedback: ActivityFeedback{Summary: "Correct"}}}
 	service := NewService(testCatalog{definitions: map[string]ActivityDefinition{"quiz": definition}, sets: map[string]ActivitySetDefinition{"practice": set}}, storage.NewActivityRepository(db.SQL), evaluator)
 	identity := AttemptIdentity{Owner: OwnerIdentity{CourseID: "course", CourseVersion: "1", Kind: OwnerKindLesson, ID: "lesson"}, ActivityID: "quiz"}
 
@@ -73,7 +73,7 @@ func TestServiceEnforcesMaxAttemptsAndAnswerShape(t *testing.T) {
 	maxAttempts := 1
 	definition := activityDefinition("quiz", ActivityKindTrueFalse, map[string]any{"expected": true}, EvaluationModeAutomatic)
 	set := ActivitySetDefinition{ID: "assessment", Policy: ActivitySetPolicy{Purpose: ActivityPurposeAssessment, MaxAttempts: &maxAttempts}, Activities: []ActivityReference{{ID: "quiz", Required: true}}}
-	evaluator := &recordingEvaluator{result: EvaluationResult{Score: 1, MaxScore: 1, Passed: true}}
+	evaluator := &recordingEvaluator{result: EvaluationResult{Score: floatPointer(1), MaxScore: floatPointer(1), Passed: boolPointer(true), Completed: true}}
 	service := NewService(testCatalog{definitions: map[string]ActivityDefinition{"quiz": definition}, sets: map[string]ActivitySetDefinition{"assessment": set}}, storage.NewActivityRepository(db.SQL), evaluator)
 	identity := AttemptIdentity{Owner: OwnerIdentity{CourseID: "course", CourseVersion: "1", Kind: OwnerKindAssessment, ID: "assessment"}, ActivityID: "quiz"}
 	if _, err := service.Submit(ctx, SubmitCommand{Identity: identity, Answer: json.RawMessage(`{"kind":"true-false","value":"not-bool"}`), IdempotencyKey: "bad"}); !errors.Is(err, ErrMalformedAnswer) {
@@ -87,7 +87,7 @@ func TestServiceEnforcesMaxAttemptsAndAnswerShape(t *testing.T) {
 	}
 }
 
-func TestWritingSubmissionCompletesWithoutAutomaticEvaluator(t *testing.T) {
+func TestWritingSubmissionCompletesWithoutAutomaticGrade(t *testing.T) {
 	ctx := context.Background()
 	db, err := storage.Open(ctx, filepath.Join(t.TempDir(), "activity.db"))
 	if err != nil {
@@ -96,15 +96,15 @@ func TestWritingSubmissionCompletesWithoutAutomaticEvaluator(t *testing.T) {
 	defer db.Close()
 	definition := activityDefinition("essay", ActivityKindWriting, map[string]any{"minimumCharacters": 3, "maximumCharacters": 100, "answerFormat": "plain-text"}, EvaluationModeSubmission)
 	set := ActivitySetDefinition{ID: "practice", Policy: ActivitySetPolicy{Purpose: ActivityPurposePractice}, Activities: []ActivityReference{{ID: "essay", Required: true}}}
-	evaluator := &recordingEvaluator{}
+	evaluator := NewRegistry(NewWritingEvaluator())
 	service := NewService(testCatalog{definitions: map[string]ActivityDefinition{"essay": definition}, sets: map[string]ActivitySetDefinition{"practice": set}}, storage.NewActivityRepository(db.SQL), evaluator)
 	identity := AttemptIdentity{Owner: OwnerIdentity{CourseID: "course", CourseVersion: "1", Kind: OwnerKindLesson, ID: "lesson"}, ActivityID: "essay"}
 	attempt, err := service.Submit(ctx, SubmitCommand{Identity: identity, Answer: json.RawMessage(`{"kind":"writing","value":"A considered response"}`), IdempotencyKey: "essay-1"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if attempt.Status != AttemptStatusEvaluated || attempt.Passed == nil || !*attempt.Passed || evaluator.calls != 0 {
-		t.Fatalf("writing submission was not completed: %+v evaluator calls=%d", attempt, evaluator.calls)
+	if attempt.Status != AttemptStatusEvaluated || attempt.Passed != nil || attempt.Score != nil || attempt.MaxScore != nil {
+		t.Fatalf("writing submission was falsely auto-graded: %+v", attempt)
 	}
 }
 
@@ -129,7 +129,7 @@ func TestServiceAppliesActivitySetRevealPolicyBeforePersistingFeedback(t *testin
 		Activities: []ActivityReference{{ID: "quiz", Required: true}},
 	}
 	evaluator := &recordingEvaluator{result: EvaluationResult{
-		Score: 0, MaxScore: 1, Passed: false, CorrectAnswer: "a",
+		Score: floatPointer(0), MaxScore: floatPointer(1), Passed: boolPointer(false), CorrectAnswer: "a",
 		Feedback: ActivityFeedback{Summary: "Incorrect"},
 	}}
 	service := NewService(testCatalog{definitions: map[string]ActivityDefinition{"quiz": definition}, sets: map[string]ActivitySetDefinition{"practice": set}}, storage.NewActivityRepository(db.SQL), evaluator)

@@ -70,7 +70,7 @@ func TestChoiceEvaluators(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Evaluate() error = %v", err)
 			}
-			if result.Score != test.score || result.MaxScore != test.definition.Evaluation.Points || result.Passed != test.passed {
+			if resultScore(result) != test.score || resultMaxScore(result) != test.definition.Evaluation.Points || resultPassed(result) != test.passed {
 				t.Fatalf("Evaluate() = score %v/%v passed %v, want %v/%v passed %v", result.Score, result.MaxScore, result.Passed, test.score, test.definition.Evaluation.Points, test.passed)
 			}
 		})

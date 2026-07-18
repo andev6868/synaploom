@@ -55,7 +55,7 @@ func TestShortAnswerNormalization(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Evaluate() error = %v", err)
 			}
-			if result.Passed != test.passed {
+			if resultPassed(result) != test.passed {
 				t.Fatalf("Passed = %v, want %v", result.Passed, test.passed)
 			}
 			if got := feedbackDetail(result.Feedback, "NORMALIZED_ANSWER", nil); got != test.normalized {
@@ -107,7 +107,7 @@ func TestFillBlanksScoring(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if result.Score != test.score || result.Passed != test.passed {
+			if resultScore(result) != test.score || resultPassed(result) != test.passed {
 				t.Fatalf("result = score %v passed %v, want %v/%v", result.Score, result.Passed, test.score, test.passed)
 			}
 			if got := feedbackDetail(result.Feedback, "BLANK_INCORRECT", stringPointer("verb")); got == "" {
@@ -149,5 +149,3 @@ func feedbackDetail(feedback ActivityFeedback, code string, field *string) strin
 	}
 	return ""
 }
-
-func stringPointer(value string) *string { return &value }
