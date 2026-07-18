@@ -114,6 +114,7 @@ describe('LearningWorkspacePage', () => {
     expect(screen.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Nội dung' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Hoàn thành phần đọc' })).toBeEnabled();
+    expect(document.querySelector('main[data-layout="reading"]')).toBeInTheDocument();
   });
 
   it('uses a compact review status without breadcrumb or review banner', async () => {
@@ -236,5 +237,120 @@ describe('LearningWorkspacePage', () => {
     expect(screen.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
     expect(screen.getByText('Trợ lý AI')).toBeVisible();
     expect(document.querySelector('.syn-assessment-page')).not.toBeInTheDocument();
+  });
+
+  it('renders embedded non-coding activities inline with the lesson document', async () => {
+    const lessonWithActivity = {
+      ...lesson,
+      blocks: [...lesson.blocks, { type: 'activity' as const, activityId: 'main-thread-check' }],
+    };
+    const api: SynaploomApiClient = {
+      ...fakeApi(),
+      getCurrentLesson: () => Promise.resolve(lessonWithActivity),
+      getLesson: () => Promise.resolve(lessonWithActivity),
+      getActivitySets: () =>
+        Promise.resolve([
+          {
+            id: 'main-thread-practice',
+            policy: {
+              purpose: 'practice',
+              maxAttempts: null,
+              feedbackMode: 'immediate',
+              revealAnswers: 'after-submit',
+              scoring: 'points',
+              passingScore: null,
+            },
+            activities: [
+              {
+                required: true,
+                activity: {
+                  id: 'main-thread-check',
+                  kind: 'single-choice',
+                  title: 'Main Thread làm gì?',
+                  prompt: { blocks: [] },
+                  config: {
+                    options: [
+                      { id: 'render', label: 'Render và chạy JavaScript' },
+                      { id: 'network', label: 'Chỉ tải mạng' },
+                    ],
+                  },
+                  evaluation: { mode: 'automatic', points: 1 },
+                  completion: { required: true },
+                },
+              },
+            ],
+          },
+        ]),
+    };
+
+    render(
+      <AppProviders api={api}>
+        <LearningWorkspacePage route={{ kind: 'lesson', lessonId: null }} />
+      </AppProviders>,
+    );
+
+    expect(await screen.findByRole('group', { name: 'Main Thread làm gì?' })).toBeVisible();
+    expect(document.querySelector('main[data-layout="inline-activity"]')).toBeInTheDocument();
+  });
+
+  it('selects the split coding layout for a coding activity', async () => {
+    const api: SynaploomApiClient = {
+      ...fakeApi(),
+      getActivitySets: () =>
+        Promise.resolve([
+          {
+            id: 'main-thread-coding',
+            policy: {
+              purpose: 'practice',
+              maxAttempts: null,
+              feedbackMode: 'immediate',
+              revealAnswers: 'after-submit',
+              scoring: 'points',
+              passingScore: null,
+            },
+            activities: [
+              {
+                required: true,
+                activity: {
+                  id: 'main-thread-lab',
+                  kind: 'coding',
+                  title: 'Main Thread Lab',
+                  prompt: { blocks: [] },
+                  config: {
+                    schemaVersion: '1.0',
+                    id: 'main-thread-lab',
+                    title: 'Main Thread Lab',
+                    runtime: { kind: 'local', requires: ['node'] },
+                    workspace: { editable: ['index.js'] },
+                    actions: {
+                      run: {
+                        label: 'Chạy',
+                        executable: 'node',
+                        args: ['index.js'],
+                        timeoutMs: 1000,
+                      },
+                    },
+                    checks: [],
+                    completion: { requireAllRequiredChecks: true },
+                  },
+                  evaluation: { mode: 'coding', points: 1 },
+                  completion: { required: true },
+                },
+              },
+            ],
+          },
+        ]),
+    };
+
+    render(
+      <AppProviders api={api}>
+        <LearningWorkspacePage route={{ kind: 'lesson', lessonId: null }} />
+      </AppProviders>,
+    );
+
+    expect(
+      await screen.findByText('Không gian lập trình sẽ mở trong workspace thực hành.'),
+    ).toBeVisible();
+    expect(document.querySelector('.syn-workspace-shell')).toBeInTheDocument();
   });
 });

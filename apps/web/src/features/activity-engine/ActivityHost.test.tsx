@@ -77,4 +77,29 @@ describe('ActivityHost', () => {
     const heading = screen.getByRole('heading', { name: 'Kết quả' });
     await waitFor(() => expect(heading).toHaveFocus());
   });
+
+  it('renders the typed rich prompt before the activity controls', async () => {
+    render(
+      <AppProviders api={api()}>
+        <ActivityHost
+          owner={owner}
+          activity={{
+            ...base,
+            prompt: {
+              blocks: [
+                {
+                  type: 'paragraph',
+                  children: [{ type: 'text', value: 'Chọn mô tả chính xác nhất.' }],
+                },
+              ],
+            },
+          }}
+          policy={policy}
+          onProgressChanged={vi.fn()}
+        />
+      </AppProviders>,
+    );
+
+    expect(await screen.findByText('Chọn mô tả chính xác nhất.')).toBeVisible();
+  });
 });

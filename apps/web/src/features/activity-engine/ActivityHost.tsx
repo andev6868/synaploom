@@ -10,6 +10,7 @@ import { TrueFalseActivity } from '#src/features/activity-engine/renderers/TrueF
 import { WritingActivity } from '#src/features/activity-engine/renderers/WritingActivity';
 import type { ActivityHostProps, ActivityRendererProps } from '#src/features/activity-engine/types';
 import { useActivityAttempt } from '#src/features/activity-engine/useActivityAttempt';
+import { LessonContent } from '#src/features/lesson-content/LessonContent';
 
 function CodingActivityPending(): ReactNode {
   return (
@@ -74,6 +75,11 @@ export function ActivityHost({
     >
       <fieldset disabled={controller.disabled} aria-label={activity.title}>
         <legend>{activity.title}</legend>
+        {activity.prompt.blocks.length > 0 ? (
+          <div className="syn-activity-host__prompt">
+            <LessonContent blocks={activity.prompt.blocks} />
+          </div>
+        ) : null}
         {renderKnownActivity(rendererProps)}
       </fieldset>
       {controller.state === 'loading' ? (

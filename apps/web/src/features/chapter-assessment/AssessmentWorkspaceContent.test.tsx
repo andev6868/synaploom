@@ -123,3 +123,55 @@ describe('AssessmentWorkspaceContent', () => {
     );
   });
 });
+
+it('renders assessment activities through the shared activity engine', async () => {
+  const activityApi: SynaploomApiClient = {
+    ...fakeApi(),
+    getActivitySets: () =>
+      Promise.resolve([
+        {
+          id: 'runtime-checkpoint-set',
+          title: 'Runtime Checkpoint',
+          policy: {
+            purpose: 'assessment',
+            maxAttempts: 2,
+            feedbackMode: 'after-submit',
+            revealAnswers: 'after-final-attempt',
+            scoring: 'points',
+            passingScore: 1,
+          },
+          activities: [
+            {
+              required: true,
+              activity: {
+                id: 'event-loop-order',
+                kind: 'true-false',
+                title: 'Promise chạy trước timer',
+                prompt: { blocks: [] },
+                config: {},
+                evaluation: { mode: 'automatic', points: 1 },
+                completion: { required: true },
+              },
+            },
+          ],
+        },
+      ]),
+  };
+
+  render(
+    <AppProviders api={activityApi}>
+      <AssessmentWorkspaceContent
+        courseId="perf"
+        chapterId="runtime"
+        assessmentId="runtime-checkpoint"
+        navigation={navigation}
+        onAction={vi.fn()}
+      />
+    </AppProviders>,
+  );
+
+  expect(await screen.findByRole('group', { name: 'Promise chạy trước timer' })).toBeVisible();
+  expect(screen.getByRole('radio', { name: 'Đúng' })).toBeVisible();
+  expect(document.querySelector('article[data-layout="focused-activity"]')).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Kiểm tra kết quả' })).not.toBeInTheDocument();
+});

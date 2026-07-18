@@ -1,5 +1,7 @@
 import type {
+  ActivityOwner,
   CanonicalLessonPayload,
+  PublicActivitySetPayload,
   CompletionPayload,
   LessonPayload,
   NextActionPayload,
@@ -9,13 +11,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState, type ReactNode } from 'react';
 import { useApi } from '#src/app/providers/AppProviders';
 import { navigateToAssessment, navigateToLesson } from '#src/app/router/lesson-route';
+import { ActivityHost } from '#src/features/activity-engine/ActivityHost';
 import { AssistantPanel } from '#src/features/ai-assistant/AssistantPanel';
 import { AssessmentWorkspaceContent } from '#src/features/chapter-assessment/AssessmentWorkspaceContent';
-import { LessonContent } from '#src/features/lesson-content/LessonContent';
+import { LessonActivities } from '#src/features/lesson-content/LessonActivities';
 import { LessonRequirementFooter } from '#src/features/lesson-progress/LessonRequirementFooter';
 import { LearningTopNavigation } from '#src/features/learning-progress/LearningTopNavigation';
 import { buildLearningProgressSummary } from '#src/features/learning-progress/progress-summary';
 import { PracticePanel } from '#src/features/practice-runner/PracticePanel';
+import { resolveWorkspaceLayout } from '#src/features/workspace-layout/activity-layout';
 import { CompletionBar } from '#src/features/progression/CompletionBar';
 import type { NavigationViewTarget } from '#src/shared/api/client';
 
@@ -94,6 +98,27 @@ export function LearningWorkspacePage({
     queryFn: () => api.getPaneRatio(),
     enabled: route.kind === 'lesson',
   });
+  const loadedLessonId =
+    route.kind === 'lesson'
+      ? ((canonicalLessonQuery.data as CanonicalLessonPayload | undefined)?.lesson.id ??
+        legacyLessonQuery.data?.id ??
+        lessonRoute?.lessonId)
+      : null;
+  const activityCourseId = navigationCourseId ?? courseQuery.data?.id;
+  const lessonActivityOwner: ActivityOwner | null =
+    route.kind === 'lesson' && activityCourseId && loadedLessonId
+      ? { courseId: activityCourseId, ownerKind: 'lessons', ownerId: loadedLessonId }
+      : null;
+  const activitySetsQuery = useQuery({
+    queryKey: [
+      'activity-sets',
+      lessonActivityOwner?.courseId,
+      lessonActivityOwner?.ownerKind,
+      lessonActivityOwner?.ownerId,
+    ],
+    queryFn: () => api.getActivitySets(lessonActivityOwner as ActivityOwner),
+    enabled: lessonActivityOwner !== null,
+  });
 
   const invalidate = useCallback(async (): Promise<void> => {
     await Promise.all([
@@ -102,6 +127,7 @@ export function LearningWorkspacePage({
       queryClient.invalidateQueries({ queryKey: ['lesson-view'] }),
       queryClient.invalidateQueries({ queryKey: ['course-navigation'] }),
       queryClient.invalidateQueries({ queryKey: ['chapter-assessment'] }),
+      queryClient.invalidateQueries({ queryKey: ['activity-sets'] }),
     ]);
   }, [queryClient]);
   const reading = useMutation({
@@ -119,7 +145,9 @@ export function LearningWorkspacePage({
   const lessonLoading =
     route.kind === 'lesson' &&
     (canonicalLesson ? canonicalLessonQuery.isLoading : legacyLessonQuery.isLoading);
-  const loading = courseQuery.isLoading || navigationQuery.isLoading || lessonLoading;
+  const activitySetsLoading = lessonActivityOwner !== null && activitySetsQuery.isLoading;
+  const loading =
+    courseQuery.isLoading || navigationQuery.isLoading || lessonLoading || activitySetsLoading;
   if (loading) return <main className="syn-loading">Đang tải không gian học…</main>;
 
   const lessonError =
@@ -128,7 +156,8 @@ export function LearningWorkspacePage({
         ? canonicalLessonQuery.error
         : legacyLessonQuery.error
       : null;
-  const error = courseQuery.error ?? navigationQuery.error ?? lessonError;
+  const error =
+    courseQuery.error ?? navigationQuery.error ?? lessonError ?? activitySetsQuery.error;
   if (error)
     return (
       <main className="syn-error">
@@ -238,6 +267,21 @@ export function LearningWorkspacePage({
       : lesson.status === 'COMPLETED'
         ? 'Hoàn thành'
         : 'Đang học';
+  const activitySets = (activitySetsQuery.data ?? []) as readonly PublicActivitySetPayload[];
+  const activityReferences = activitySets.flatMap((set) =>
+    set.activities.map((reference) => ({ ...reference, policy: set.policy })),
+  );
+  const codingActivity = activityReferences.find(
+    (reference) => reference.activity.kind === 'coding',
+  );
+  const inlineKinds = activityReferences
+    .filter((reference) => reference.activity.kind !== 'coding')
+    .map((reference) => reference.activity.kind);
+  const workspaceLayout = resolveWorkspaceLayout({
+    hasDocument: lesson.blocks.length > 0,
+    embeddedKinds: inlineKinds,
+    focusedKind: codingActivity ? 'coding' : null,
+  });
   const lessonPanel = (
     <section className="syn-lesson-panel">
       <ScrollArea className="syn-lesson-panel__scroll">
@@ -254,7 +298,13 @@ export function LearningWorkspacePage({
               <span>{progressSummary.completionLabel}</span>
             </div>
           </div>
-          <LessonContent blocks={lesson.blocks} />
+          <LessonActivities
+            blocks={lesson.blocks}
+            owner={lessonActivityOwner as ActivityOwner}
+            activitySets={(activitySetsQuery.data ?? []) as readonly PublicActivitySetPayload[]}
+            excludedActivityIds={codingActivity ? [codingActivity.activity.id] : []}
+            onProgressChanged={invalidate}
+          />
           {context ? (
             <LessonRequirementFooter
               context={context}
@@ -280,14 +330,23 @@ export function LearningWorkspacePage({
       <AssistantPanel />
     </section>
   );
-  const practicePanel = (
+  const practicePanel = lesson.exercise ? (
     <PracticePanel lesson={lesson} onActionComplete={() => void invalidate()} />
-  );
+  ) : codingActivity && lessonActivityOwner ? (
+    <div className="syn-focused-activity-workspace">
+      <ActivityHost
+        owner={lessonActivityOwner}
+        activity={codingActivity.activity}
+        policy={codingActivity.policy}
+        onProgressChanged={invalidate}
+      />
+    </div>
+  ) : null;
 
   return (
     <div className="syn-learning-app">
       {header}
-      {lesson.exercise ? (
+      {workspaceLayout === 'split-coding' && practicePanel ? (
         <WorkspaceShell
           defaultLessonSize={Math.round((paneQuery.data ?? 0.48) * 100)}
           lesson={lessonPanel}
@@ -295,7 +354,9 @@ export function LearningWorkspacePage({
           onLessonSizeChange={(percentage) => void api.setPaneRatio(percentage / 100)}
         />
       ) : (
-        <main className="syn-reading-workspace">{lessonPanel}</main>
+        <main className="syn-reading-workspace" data-layout={workspaceLayout}>
+          {lessonPanel}
+        </main>
       )}
     </div>
   );

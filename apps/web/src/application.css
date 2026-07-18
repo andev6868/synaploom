@@ -1113,3 +1113,27 @@ body,
     width: 100%;
   }
 }
+
+.syn-lesson-activities,
+.syn-assessment-workspace__activities {
+  display: grid;
+  gap: 1rem;
+  margin-block: 1.5rem;
+}
+
+.syn-assessment-workspace__article[data-layout='focused-activity'] {
+  width: min(54rem, 100%);
+}
+
+.syn-assessment-workspace__activities .syn-activity-host:first-child,
+.syn-lesson-activities .syn-activity-host:first-child {
+  margin-top: 0;
+}
+
+.syn-activity-host__prompt .syn-prose > :first-child {
+  margin-top: 0;
+}
+
+.syn-activity-host__prompt .syn-prose > :last-child {
+  margin-bottom: 0;
+}
