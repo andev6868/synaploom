@@ -111,3 +111,35 @@ func TestWritingSubmissionCompletesWithoutAutomaticEvaluator(t *testing.T) {
 func activityDefinition(id string, kind ActivityKind, config map[string]any, mode EvaluationMode) ActivityDefinition {
 	return ActivityDefinition{ID: id, Kind: kind, Title: id, Prompt: map[string]any{"blocks": []any{}}, Config: config, Evaluation: EvaluationPolicy{Mode: mode, Points: 1}, Completion: CompletionPolicy{Required: true}}
 }
+
+func TestServiceAppliesActivitySetRevealPolicyBeforePersistingFeedback(t *testing.T) {
+	ctx := context.Background()
+	db, err := storage.Open(ctx, filepath.Join(t.TempDir(), "activity.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	definition := activityDefinition("quiz", ActivityKindSingleChoice, map[string]any{
+		"options":         []any{map[string]any{"id": "a", "label": "A"}, map[string]any{"id": "b", "label": "B"}},
+		"correctOptionId": "a",
+	}, EvaluationModeAutomatic)
+	set := ActivitySetDefinition{
+		ID:         "practice",
+		Policy:     ActivitySetPolicy{Purpose: ActivityPurposePractice, RevealAnswers: "after-submit"},
+		Activities: []ActivityReference{{ID: "quiz", Required: true}},
+	}
+	evaluator := &recordingEvaluator{result: EvaluationResult{
+		Score: 0, MaxScore: 1, Passed: false, CorrectAnswer: "a",
+		Feedback: ActivityFeedback{Summary: "Incorrect"},
+	}}
+	service := NewService(testCatalog{definitions: map[string]ActivityDefinition{"quiz": definition}, sets: map[string]ActivitySetDefinition{"practice": set}}, storage.NewActivityRepository(db.SQL), evaluator)
+	identity := AttemptIdentity{Owner: OwnerIdentity{CourseID: "course", CourseVersion: "1", Kind: OwnerKindLesson, ID: "lesson"}, ActivityID: "quiz"}
+
+	attempt, err := service.Submit(ctx, SubmitCommand{Identity: identity, Answer: json.RawMessage(`{"kind":"single-choice","optionId":"b"}`), IdempotencyKey: "reveal-1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if attempt.Feedback == nil || attempt.Feedback.CorrectAnswer != "a" {
+		t.Fatalf("persisted feedback correctAnswer = %#v, want a", attempt.Feedback)
+	}
+}

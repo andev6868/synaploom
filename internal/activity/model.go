@@ -176,10 +176,11 @@ type SubmitCommand struct {
 }
 
 type EvaluationResult struct {
-	Score    float64
-	MaxScore float64
-	Passed   bool
-	Feedback ActivityFeedback
+	Score         float64
+	MaxScore      float64
+	Passed        bool
+	Feedback      ActivityFeedback
+	CorrectAnswer any
 }
 
 type EvaluationEngine interface {

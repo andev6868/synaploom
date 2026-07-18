@@ -126,6 +126,7 @@ func (s *ServiceImpl) Submit(ctx context.Context, command SubmitCommand) (Activi
 		if err != nil {
 			return ActivityAttempt{}, fmt.Errorf("evaluate activity: %w", err)
 		}
+		result = ApplyRevealPolicy(result, policy, countSubmitted(attempts, command.Identity.ActivityID)+1)
 	}
 	feedback, err := json.Marshal(result.Feedback)
 	if err != nil {
