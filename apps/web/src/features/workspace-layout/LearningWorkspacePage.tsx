@@ -40,10 +40,11 @@ export function LearningWorkspacePage({
   >(null);
   const canonical = Boolean(requestedCourseId && requestedChapterId && requestedLessonId);
   const courseQuery = useQuery({ queryKey: ['course'], queryFn: () => api.getCourse() });
+  const navigationCourseId = requestedCourseId ?? courseQuery.data?.id;
   const navigationQuery = useQuery({
-    queryKey: ['course-navigation', requestedCourseId],
-    queryFn: () => api.getNavigation(requestedCourseId as string),
-    enabled: canonical,
+    queryKey: ['course-navigation', navigationCourseId],
+    queryFn: () => api.getNavigation(navigationCourseId as string),
+    enabled: Boolean(navigationCourseId),
   });
   const canonicalLessonQuery = useQuery({
     queryKey: ['lesson-view', requestedCourseId, requestedChapterId, requestedLessonId],
@@ -84,13 +85,13 @@ export function LearningWorkspacePage({
 
   const loading =
     courseQuery.isLoading ||
-    (canonical
-      ? canonicalLessonQuery.isLoading || navigationQuery.isLoading
-      : legacyLessonQuery.isLoading);
+    navigationQuery.isLoading ||
+    (canonical ? canonicalLessonQuery.isLoading : legacyLessonQuery.isLoading);
   if (loading) return <main className="syn-loading">Đang tải không gian học…</main>;
   const error =
     courseQuery.error ??
-    (canonical ? (canonicalLessonQuery.error ?? navigationQuery.error) : legacyLessonQuery.error);
+    navigationQuery.error ??
+    (canonical ? canonicalLessonQuery.error : legacyLessonQuery.error);
   if (error)
     return (
       <main className="syn-error">

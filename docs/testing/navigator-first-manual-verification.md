@@ -74,3 +74,16 @@ For runtime acceptance:
 pnpm go:stage-web
 pnpm playwright test --project=go-runtime --headed
 ```
+
+## Legacy/current lesson entry route
+
+The Go runtime commonly opens the application without a canonical lesson URL. Verify that the
+navigator is still available on this entry route:
+
+1. Start Synaploom at its default root URL without a `/courses/.../chapters/.../lessons/...` path.
+2. Confirm the lesson page shows the **Nội dung khóa học** button.
+3. Open the drawer and select a lesson.
+4. Confirm the browser moves to the canonical course/chapter/lesson URL.
+
+If the progress summary appears but the button is absent, inspect the network panel for
+`GET /api/courses/<course-id>/navigation`. The request must be sent after the course payload loads.

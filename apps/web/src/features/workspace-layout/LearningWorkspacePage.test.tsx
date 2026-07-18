@@ -35,9 +35,38 @@ const lesson = {
   exercise: null,
 };
 
+const navigation = {
+  courseId: course.id,
+  currentLessonId: lesson.id,
+  viewedItemId: lesson.id,
+  viewMode: 'ACTIVE' as const,
+  returnTarget: null,
+  nextAction: { type: 'NONE' as const },
+  chapters: [
+    {
+      id: 'runtime-fundamentals',
+      title: 'Runtime Fundamentals',
+      status: 'IN_PROGRESS' as const,
+      required: true,
+      lessons: [
+        {
+          id: lesson.id,
+          title: lesson.title,
+          status: 'AVAILABLE' as const,
+          required: true,
+          current: true,
+          viewed: true,
+          blockingRequirements: [],
+        },
+      ],
+      assessments: [],
+    },
+  ],
+};
+
 function fakeApi(): SynaploomApiClient {
   return {
-    getNavigation: () => Promise.reject(new Error('not used')),
+    getNavigation: () => Promise.resolve(navigation),
     getLessonView: () => Promise.reject(new Error('not used')),
     getChapterAssessment: () => Promise.reject(new Error('not used')),
     recordChapterAssessment: () => Promise.reject(new Error('not used')),
@@ -69,6 +98,7 @@ describe('LearningWorkspacePage', () => {
     );
     expect(await screen.findByRole('heading', { name: 'Main Thread', level: 1 })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Mục tiêu học tập' })).toBeVisible();
+    expect(screen.getByRole('button', { name: /Nội dung khóa học/i })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Hoàn thành phần đọc' })).toBeEnabled();
   });
 });
