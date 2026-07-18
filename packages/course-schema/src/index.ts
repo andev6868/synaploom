@@ -1,6 +1,6 @@
 export const COURSE_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export const SEMVER_PATTERN = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
-export const SUPPORTED_SCHEMA_VERSIONS = ['1.0', '1.1.0'] as const;
+export const SUPPORTED_SCHEMA_VERSIONS = ['1.0', '1.1.0', '1.2.0'] as const;
 export const SUPPORTED_SCHEMA_VERSION = '1.0' as const;
 
 export type CompletionRule =
@@ -95,9 +95,12 @@ function validateCompletionRule(value: unknown): boolean {
   );
 }
 
-function validateHierarchicalCourse(candidate: Record<string, unknown>): CanonicalValidationResult {
+function validateHierarchicalCourse(
+  candidate: Record<string, unknown>,
+  schemaVersion: '1.1.0' | '1.2.0',
+): CanonicalValidationResult {
   if (
-    candidate.schemaVersion !== '1.1.0' ||
+    candidate.schemaVersion !== schemaVersion ||
     'lessons' in candidate ||
     !validateCommonCourseFields(candidate) ||
     !Array.isArray(candidate.chapters) ||
@@ -172,16 +175,74 @@ function validateHierarchicalCourse(candidate: Record<string, unknown>): Canonic
   return { valid: true };
 }
 
+const ACTIVITY_KINDS = new Set([
+  'single-choice',
+  'multiple-choice',
+  'true-false',
+  'short-answer',
+  'fill-blanks',
+  'ordering',
+  'matching',
+  'numeric',
+  'writing',
+  'coding',
+]);
+
+function validateActivity(candidate: Record<string, unknown>): CanonicalValidationResult {
+  if (
+    candidate.schemaVersion !== '1.0' ||
+    !isId(candidate.id) ||
+    typeof candidate.kind !== 'string' ||
+    !ACTIVITY_KINDS.has(candidate.kind) ||
+    typeof candidate.title !== 'string' ||
+    candidate.title.length === 0 ||
+    !isRecord(candidate.prompt) ||
+    !Array.isArray(candidate.prompt.blocks) ||
+    !isRecord(candidate.config) ||
+    !isRecord(candidate.evaluation) ||
+    !isRecord(candidate.completion)
+  ) {
+    return { valid: false, path: '$' };
+  }
+
+  const config = candidate.config as Record<string, unknown>;
+  const evaluation = candidate.evaluation as Record<string, unknown>;
+  const completion = candidate.completion as Record<string, unknown>;
+
+  if (candidate.kind !== 'coding') {
+    const forbidden = ['runtime', 'workspace', 'actions', 'executable', 'args'];
+    if (forbidden.some((key) => key in config)) {
+      return { valid: false, path: '$.config' };
+    }
+  } else if (!('runtime' in config) || !('workspace' in config) || !('actions' in config)) {
+    return { valid: false, path: '$.config' };
+  }
+
+  const mode = evaluation.mode;
+  if (
+    (mode !== 'automatic' && mode !== 'submission' && mode !== 'coding') ||
+    typeof evaluation.points !== 'number' ||
+    evaluation.points < 0
+  ) {
+    return { valid: false, path: '$.evaluation' };
+  }
+  if (typeof completion.required !== 'boolean') {
+    return { valid: false, path: '$.completion' };
+  }
+  return { valid: true };
+}
+
 export function validateCanonicalFixture(
   schemaName: string,
   value: unknown,
 ): CanonicalValidationResult {
   if (!isRecord(value)) return { valid: false, path: '$' };
   if (schemaName === 'course') {
-    return value.schemaVersion === '1.1.0'
-      ? validateHierarchicalCourse(value)
-      : validateLinearCourse(value);
+    if (value.schemaVersion === '1.1.0') return validateHierarchicalCourse(value, '1.1.0');
+    if (value.schemaVersion === '1.2.0') return validateHierarchicalCourse(value, '1.2.0');
+    return validateLinearCourse(value);
   }
+  if (schemaName === 'activity') return validateActivity(value);
   if (schemaName === 'process-event') {
     const allowed = new Set([
       'process.started',

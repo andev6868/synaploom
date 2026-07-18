@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0",
+  "title": "Example activity",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Answer the prompt."
+          }
+        ]
+      }
+    ]
+  },
+  "evaluation": {
+    "mode": "automatic",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  },
+  "id": "single-choice-example",
+  "kind": "single-choice",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "label": "A"
+      },
+      {
+        "id": "b",
+        "label": "B"
+      }
+    ],
+    "correctOptionId": "a"
+  }
+}

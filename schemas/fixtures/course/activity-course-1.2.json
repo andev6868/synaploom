@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.2.0",
+  "id": "multi-domain-foundations",
+  "title": "Multi-domain Foundations",
+  "description": "A course using rich content and activities.",
+  "version": "1.2.0",
+  "language": "vi",
+  "chapters": [
+    {
+      "id": "foundations",
+      "title": "Foundations",
+      "required": true,
+      "lessons": [{ "id": "intro", "required": true }],
+      "assessments": []
+    }
+  ]
+}

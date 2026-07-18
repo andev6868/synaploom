@@ -107,7 +107,7 @@
       "additionalProperties": false
     },
     "lessonBlock": {
-      "title": "LessonBlock",
+      "title": "ApiLessonBlock",
       "type": "object",
       "required": ["type"],
       "properties": {
@@ -751,6 +751,50 @@
           "items": {
             "type": "string"
           }
+        }
+      },
+      "additionalProperties": false
+    },
+    "activityDraftRequest": {
+      "title": "ActivityDraftRequest",
+      "type": "object",
+      "required": ["answer", "revision"],
+      "properties": {
+        "answer": {
+          "type": "object",
+          "required": ["kind"],
+          "properties": {
+            "kind": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "activitySubmitRequest": {
+      "title": "ActivitySubmitRequest",
+      "type": "object",
+      "required": ["answer", "idempotencyKey"],
+      "properties": {
+        "answer": {
+          "type": "object",
+          "required": ["kind"],
+          "properties": {
+            "kind": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "additionalProperties": false

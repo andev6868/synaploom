@@ -2,6 +2,351 @@
 
 package contracts
 
+type ActivityAnswer interface{}
+
+type ActivityAttempt struct {
+	// ActivityId corresponds to the JSON schema field "activityId".
+	ActivityId string `json:"activityId" yaml:"activityId" mapstructure:"activityId"`
+
+	// Answer corresponds to the JSON schema field "answer".
+	Answer ActivityAnswer `json:"answer" yaml:"answer" mapstructure:"answer"`
+
+	// AttemptNumber corresponds to the JSON schema field "attemptNumber".
+	AttemptNumber int `json:"attemptNumber" yaml:"attemptNumber" mapstructure:"attemptNumber"`
+
+	// CourseId corresponds to the JSON schema field "courseId".
+	CourseId string `json:"courseId" yaml:"courseId" mapstructure:"courseId"`
+
+	// CourseVersion corresponds to the JSON schema field "courseVersion".
+	CourseVersion string `json:"courseVersion" yaml:"courseVersion" mapstructure:"courseVersion"`
+
+	// EvaluatedAt corresponds to the JSON schema field "evaluatedAt".
+	EvaluatedAt ActivityAttemptEvaluatedAt `json:"evaluatedAt" yaml:"evaluatedAt" mapstructure:"evaluatedAt"`
+
+	// Feedback corresponds to the JSON schema field "feedback".
+	Feedback *ActivityFeedback `json:"feedback" yaml:"feedback" mapstructure:"feedback"`
+
+	// Id corresponds to the JSON schema field "id".
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
+
+	// MaxScore corresponds to the JSON schema field "maxScore".
+	MaxScore ActivityAttemptMaxScore `json:"maxScore" yaml:"maxScore" mapstructure:"maxScore"`
+
+	// OwnerId corresponds to the JSON schema field "ownerId".
+	OwnerId string `json:"ownerId" yaml:"ownerId" mapstructure:"ownerId"`
+
+	// OwnerKind corresponds to the JSON schema field "ownerKind".
+	OwnerKind ActivityAttemptOwnerKind `json:"ownerKind" yaml:"ownerKind" mapstructure:"ownerKind"`
+
+	// Passed corresponds to the JSON schema field "passed".
+	Passed ActivityAttemptPassed `json:"passed" yaml:"passed" mapstructure:"passed"`
+
+	// RandomSeed corresponds to the JSON schema field "randomSeed".
+	RandomSeed ActivityAttemptRandomSeed `json:"randomSeed,omitempty,omitzero" yaml:"randomSeed,omitempty" mapstructure:"randomSeed,omitempty"`
+
+	// Revision corresponds to the JSON schema field "revision".
+	Revision *int `json:"revision,omitempty,omitzero" yaml:"revision,omitempty" mapstructure:"revision,omitempty"`
+
+	// Score corresponds to the JSON schema field "score".
+	Score ActivityAttemptScore `json:"score" yaml:"score" mapstructure:"score"`
+
+	// StartedAt corresponds to the JSON schema field "startedAt".
+	StartedAt string `json:"startedAt" yaml:"startedAt" mapstructure:"startedAt"`
+
+	// Status corresponds to the JSON schema field "status".
+	Status ActivityAttemptStatus `json:"status" yaml:"status" mapstructure:"status"`
+
+	// SubmittedAt corresponds to the JSON schema field "submittedAt".
+	SubmittedAt ActivityAttemptSubmittedAt `json:"submittedAt" yaml:"submittedAt" mapstructure:"submittedAt"`
+}
+
+type ActivityAttemptEvaluatedAt *string
+
+type ActivityAttemptMaxScore *float64
+
+type ActivityAttemptOwnerKind string
+
+const ActivityAttemptOwnerKindAssessment ActivityAttemptOwnerKind = "assessment"
+const ActivityAttemptOwnerKindLesson ActivityAttemptOwnerKind = "lesson"
+
+type ActivityAttemptPassed *bool
+
+type ActivityAttemptRandomSeed *string
+
+type ActivityAttemptScore *float64
+
+type ActivityAttemptStatus string
+
+const ActivityAttemptStatusDRAFT ActivityAttemptStatus = "DRAFT"
+const ActivityAttemptStatusEVALUATED ActivityAttemptStatus = "EVALUATED"
+const ActivityAttemptStatusSUBMITTED ActivityAttemptStatus = "SUBMITTED"
+
+type ActivityAttemptSubmittedAt *string
+
+type ActivityCompletionPolicy struct {
+	// PassingScore corresponds to the JSON schema field "passingScore".
+	PassingScore CompletionPolicyPassingScore `json:"passingScore,omitempty,omitzero" yaml:"passingScore,omitempty" mapstructure:"passingScore,omitempty"`
+
+	// Required corresponds to the JSON schema field "required".
+	Required bool `json:"required" yaml:"required" mapstructure:"required"`
+}
+
+type ActivityDefinition interface{}
+
+type ActivityDefinitionConfig map[string]interface{}
+
+type ActivityDraftRequest struct {
+	// Answer corresponds to the JSON schema field "answer".
+	Answer ActivityDraftRequestAnswer `json:"answer" yaml:"answer" mapstructure:"answer"`
+
+	// Revision corresponds to the JSON schema field "revision".
+	Revision int `json:"revision" yaml:"revision" mapstructure:"revision"`
+}
+
+type ActivityDraftRequestAnswer struct {
+	// Kind corresponds to the JSON schema field "kind".
+	Kind string `json:"kind" yaml:"kind" mapstructure:"kind"`
+
+	AdditionalProperties interface{} `mapstructure:",remain"`
+}
+
+type ActivityEvaluationPolicy struct {
+	// Mode corresponds to the JSON schema field "mode".
+	Mode EvaluationPolicyMode `json:"mode" yaml:"mode" mapstructure:"mode"`
+
+	// Points corresponds to the JSON schema field "points".
+	Points float64 `json:"points" yaml:"points" mapstructure:"points"`
+}
+
+type ActivityFeedback struct {
+	// CorrectAnswer corresponds to the JSON schema field "correctAnswer".
+	CorrectAnswer interface{} `json:"correctAnswer,omitempty,omitzero" yaml:"correctAnswer,omitempty" mapstructure:"correctAnswer,omitempty"`
+
+	// Details corresponds to the JSON schema field "details".
+	Details []ActivityFeedbackItem `json:"details" yaml:"details" mapstructure:"details"`
+
+	// NextAction corresponds to the JSON schema field "nextAction".
+	NextAction *ActivityFeedbackNextAction `json:"nextAction,omitempty,omitzero" yaml:"nextAction,omitempty" mapstructure:"nextAction,omitempty"`
+
+	// Summary corresponds to the JSON schema field "summary".
+	Summary string `json:"summary" yaml:"summary" mapstructure:"summary"`
+}
+
+type ActivityFeedbackItem struct {
+	// Code corresponds to the JSON schema field "code".
+	Code string `json:"code" yaml:"code" mapstructure:"code"`
+
+	// Field corresponds to the JSON schema field "field".
+	Field *string `json:"field,omitempty,omitzero" yaml:"field,omitempty" mapstructure:"field,omitempty"`
+
+	// Message corresponds to the JSON schema field "message".
+	Message string `json:"message" yaml:"message" mapstructure:"message"`
+}
+
+type ActivityFeedbackNextAction string
+
+const ActivityFeedbackNextActionContinue ActivityFeedbackNextAction = "continue"
+const ActivityFeedbackNextActionRetry ActivityFeedbackNextAction = "retry"
+const ActivityFeedbackNextActionReviewContent ActivityFeedbackNextAction = "review-content"
+
+type ActivityFeedbackPolicy struct {
+	// ShowExplanation corresponds to the JSON schema field "showExplanation".
+	ShowExplanation *bool `json:"showExplanation,omitempty,omitzero" yaml:"showExplanation,omitempty" mapstructure:"showExplanation,omitempty"`
+}
+
+type ActivityKind string
+
+const ActivityKindCoding ActivityKind = "coding"
+const ActivityKindFillBlanks ActivityKind = "fill-blanks"
+const ActivityKindMatching ActivityKind = "matching"
+const ActivityKindMultipleChoice ActivityKind = "multiple-choice"
+const ActivityKindNumeric ActivityKind = "numeric"
+const ActivityKindOrdering ActivityKind = "ordering"
+const ActivityKindShortAnswer ActivityKind = "short-answer"
+const ActivityKindSingleChoice ActivityKind = "single-choice"
+const ActivityKindTrueFalse ActivityKind = "true-false"
+const ActivityKindWriting ActivityKind = "writing"
+
+type ActivityPublicView struct {
+	// Completion corresponds to the JSON schema field "completion".
+	Completion ActivityCompletionPolicy `json:"completion" yaml:"completion" mapstructure:"completion"`
+
+	// Config corresponds to the JSON schema field "config".
+	Config ActivityPublicViewConfig `json:"config" yaml:"config" mapstructure:"config"`
+
+	// Evaluation corresponds to the JSON schema field "evaluation".
+	Evaluation ActivityPublicViewEvaluation `json:"evaluation" yaml:"evaluation" mapstructure:"evaluation"`
+
+	// Feedback corresponds to the JSON schema field "feedback".
+	Feedback *ActivityFeedbackPolicy `json:"feedback,omitempty,omitzero" yaml:"feedback,omitempty" mapstructure:"feedback,omitempty"`
+
+	// Id corresponds to the JSON schema field "id".
+	Id Id `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Kind corresponds to the JSON schema field "kind".
+	Kind ActivityKind `json:"kind" yaml:"kind" mapstructure:"kind"`
+
+	// Prompt corresponds to the JSON schema field "prompt".
+	Prompt LessonDocumentFragment `json:"prompt" yaml:"prompt" mapstructure:"prompt"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title string `json:"title" yaml:"title" mapstructure:"title"`
+}
+
+type ActivityPublicViewConfig map[string]interface{}
+
+type ActivityPublicViewEvaluation struct {
+	// Mode corresponds to the JSON schema field "mode".
+	Mode ActivityPublicViewEvaluationMode `json:"mode" yaml:"mode" mapstructure:"mode"`
+
+	// Points corresponds to the JSON schema field "points".
+	Points float64 `json:"points" yaml:"points" mapstructure:"points"`
+}
+
+type ActivityPublicViewEvaluationMode string
+
+const ActivityPublicViewEvaluationModeAutomatic ActivityPublicViewEvaluationMode = "automatic"
+const ActivityPublicViewEvaluationModeCoding ActivityPublicViewEvaluationMode = "coding"
+const ActivityPublicViewEvaluationModeSubmission ActivityPublicViewEvaluationMode = "submission"
+
+type ActivityReference struct {
+	// Id corresponds to the JSON schema field "id".
+	Id Id `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Path corresponds to the JSON schema field "path".
+	Path SafePath `json:"path" yaml:"path" mapstructure:"path"`
+
+	// Required corresponds to the JSON schema field "required".
+	Required bool `json:"required" yaml:"required" mapstructure:"required"`
+}
+
+type ActivitySetDefinition struct {
+	// Activities corresponds to the JSON schema field "activities".
+	Activities []ActivityReference `json:"activities" yaml:"activities" mapstructure:"activities"`
+
+	// Id corresponds to the JSON schema field "id".
+	Id Id `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Policy corresponds to the JSON schema field "policy".
+	Policy ActivitySetPolicy `json:"policy" yaml:"policy" mapstructure:"policy"`
+
+	// SchemaVersion corresponds to the JSON schema field "schemaVersion".
+	SchemaVersion interface{} `json:"schemaVersion" yaml:"schemaVersion" mapstructure:"schemaVersion"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title *string `json:"title,omitempty,omitzero" yaml:"title,omitempty" mapstructure:"title,omitempty"`
+}
+
+type ActivitySetPolicy struct {
+	// FeedbackMode corresponds to the JSON schema field "feedbackMode".
+	FeedbackMode ActivitySetPolicyFeedbackMode `json:"feedbackMode" yaml:"feedbackMode" mapstructure:"feedbackMode"`
+
+	// MaxAttempts corresponds to the JSON schema field "maxAttempts".
+	MaxAttempts ActivitySetPolicyMaxAttempts `json:"maxAttempts" yaml:"maxAttempts" mapstructure:"maxAttempts"`
+
+	// PassingScore corresponds to the JSON schema field "passingScore".
+	PassingScore ActivitySetPolicyPassingScore `json:"passingScore" yaml:"passingScore" mapstructure:"passingScore"`
+
+	// Purpose corresponds to the JSON schema field "purpose".
+	Purpose ActivitySetPolicyPurpose `json:"purpose" yaml:"purpose" mapstructure:"purpose"`
+
+	// RevealAnswers corresponds to the JSON schema field "revealAnswers".
+	RevealAnswers ActivitySetPolicyRevealAnswers `json:"revealAnswers" yaml:"revealAnswers" mapstructure:"revealAnswers"`
+
+	// Scoring corresponds to the JSON schema field "scoring".
+	Scoring ActivitySetPolicyScoring `json:"scoring" yaml:"scoring" mapstructure:"scoring"`
+}
+
+type ActivitySetPolicyFeedbackMode string
+
+const ActivitySetPolicyFeedbackModeAfterFinalAttempt ActivitySetPolicyFeedbackMode = "after-final-attempt"
+const ActivitySetPolicyFeedbackModeAfterSubmit ActivitySetPolicyFeedbackMode = "after-submit"
+const ActivitySetPolicyFeedbackModeImmediate ActivitySetPolicyFeedbackMode = "immediate"
+
+type ActivitySetPolicyMaxAttempts *int
+
+type ActivitySetPolicyPassingScore *float64
+
+type ActivitySetPolicyPurpose string
+
+const ActivitySetPolicyPurposeAssessment ActivitySetPolicyPurpose = "assessment"
+const ActivitySetPolicyPurposePractice ActivitySetPolicyPurpose = "practice"
+
+type ActivitySetPolicyRevealAnswers string
+
+const ActivitySetPolicyRevealAnswersAfterFinalAttempt ActivitySetPolicyRevealAnswers = "after-final-attempt"
+const ActivitySetPolicyRevealAnswersAfterSubmit ActivitySetPolicyRevealAnswers = "after-submit"
+const ActivitySetPolicyRevealAnswersNever ActivitySetPolicyRevealAnswers = "never"
+
+type ActivitySetPolicyScoring string
+
+const ActivitySetPolicyScoringNone ActivitySetPolicyScoring = "none"
+const ActivitySetPolicyScoringPoints ActivitySetPolicyScoring = "points"
+
+type ActivitySetProgress struct {
+	// CompletedRequiredActivities corresponds to the JSON schema field
+	// "completedRequiredActivities".
+	CompletedRequiredActivities int `json:"completedRequiredActivities" yaml:"completedRequiredActivities" mapstructure:"completedRequiredActivities"`
+
+	// MaxScore corresponds to the JSON schema field "maxScore".
+	MaxScore ActivitySetProgressMaxScore `json:"maxScore" yaml:"maxScore" mapstructure:"maxScore"`
+
+	// Passed corresponds to the JSON schema field "passed".
+	Passed ActivitySetProgressPassed `json:"passed" yaml:"passed" mapstructure:"passed"`
+
+	// RequiredActivities corresponds to the JSON schema field "requiredActivities".
+	RequiredActivities int `json:"requiredActivities" yaml:"requiredActivities" mapstructure:"requiredActivities"`
+
+	// Score corresponds to the JSON schema field "score".
+	Score ActivitySetProgressScore `json:"score" yaml:"score" mapstructure:"score"`
+
+	// Status corresponds to the JSON schema field "status".
+	Status ActivitySetProgressStatus `json:"status" yaml:"status" mapstructure:"status"`
+}
+
+type ActivitySetProgressMaxScore *float64
+
+type ActivitySetProgressPassed *bool
+
+type ActivitySetProgressScore *float64
+
+type ActivitySetProgressStatus string
+
+const ActivitySetProgressStatusCOMPLETED ActivitySetProgressStatus = "COMPLETED"
+const ActivitySetProgressStatusINPROGRESS ActivitySetProgressStatus = "IN_PROGRESS"
+const ActivitySetProgressStatusNOTSTARTED ActivitySetProgressStatus = "NOT_STARTED"
+
+type ActivitySetPublicView struct {
+	// Activities corresponds to the JSON schema field "activities".
+	Activities []ActivitySetPublicViewActivitiesElem `json:"activities" yaml:"activities" mapstructure:"activities"`
+
+	// Id corresponds to the JSON schema field "id".
+	Id Id `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Policy corresponds to the JSON schema field "policy".
+	Policy ActivitySetPolicy `json:"policy" yaml:"policy" mapstructure:"policy"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title *string `json:"title,omitempty,omitzero" yaml:"title,omitempty" mapstructure:"title,omitempty"`
+}
+
+type ActivitySetPublicViewActivitiesElem map[string]interface{}
+
+type ActivitySubmitRequest struct {
+	// Answer corresponds to the JSON schema field "answer".
+	Answer ActivitySubmitRequestAnswer `json:"answer" yaml:"answer" mapstructure:"answer"`
+
+	// IdempotencyKey corresponds to the JSON schema field "idempotencyKey".
+	IdempotencyKey string `json:"idempotencyKey" yaml:"idempotencyKey" mapstructure:"idempotencyKey"`
+}
+
+type ActivitySubmitRequestAnswer struct {
+	// Kind corresponds to the JSON schema field "kind".
+	Kind string `json:"kind" yaml:"kind" mapstructure:"kind"`
+
+	AdditionalProperties interface{} `mapstructure:",remain"`
+}
+
 type ApiErrorDetails map[string]interface{}
 
 type ApiErrorPayload struct {
@@ -16,6 +361,13 @@ type ApiErrorPayload struct {
 
 	// RequestId corresponds to the JSON schema field "requestId".
 	RequestId *string `json:"requestId,omitempty,omitzero" yaml:"requestId,omitempty" mapstructure:"requestId,omitempty"`
+}
+
+type ApiLessonBlock struct {
+	// Type corresponds to the JSON schema field "type".
+	Type string `json:"type" yaml:"type" mapstructure:"type"`
+
+	AdditionalProperties interface{} `mapstructure:",remain"`
 }
 
 type AssessmentNavigationItem struct {
@@ -183,6 +535,8 @@ type CheckResult struct {
 	Passed bool `json:"passed" yaml:"passed" mapstructure:"passed"`
 }
 
+type CompletionPolicyPassingScore *float64
+
 type CompletionRule interface{}
 
 type CourseLessonSummary struct {
@@ -256,6 +610,7 @@ type CourseManifestSchemaVersion string
 
 const CourseManifestSchemaVersionA10 CourseManifestSchemaVersion = "1.0"
 const CourseManifestSchemaVersionA110 CourseManifestSchemaVersion = "1.1.0"
+const CourseManifestSchemaVersionA120 CourseManifestSchemaVersion = "1.2.0"
 
 type CourseNavigationPayload struct {
 	// Chapters corresponds to the JSON schema field "chapters".
@@ -313,6 +668,12 @@ type CoursePayload struct {
 type CoursePayloadCompletedAt *string
 
 type CoursePayloadCurrentLessonId *string
+
+type EvaluationPolicyMode string
+
+const EvaluationPolicyModeAutomatic EvaluationPolicyMode = "automatic"
+const EvaluationPolicyModeCoding EvaluationPolicyMode = "coding"
+const EvaluationPolicyModeSubmission EvaluationPolicyMode = "submission"
 
 type Event struct {
 	// Type corresponds to the JSON schema field "type".
@@ -399,6 +760,8 @@ type FailedToStart struct {
 
 type Id string
 
+type InlineContent interface{}
+
 type Killed struct {
 	// ExitCode corresponds to the JSON schema field "exitCode".
 	ExitCode KilledExitCode `json:"exitCode" yaml:"exitCode" mapstructure:"exitCode"`
@@ -428,38 +791,10 @@ type LessonBlock struct {
 	AdditionalProperties interface{} `mapstructure:",remain"`
 }
 
-type LessonDocument struct {
+type LessonDocumentFragment struct {
 	// Blocks corresponds to the JSON schema field "blocks".
-	Blocks []LessonDocumentBlocksElem `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
-
-	// CourseId corresponds to the JSON schema field "courseId".
-	CourseId string `json:"courseId" yaml:"courseId" mapstructure:"courseId"`
-
-	// Id corresponds to the JSON schema field "id".
-	Id string `json:"id" yaml:"id" mapstructure:"id"`
-
-	// Position corresponds to the JSON schema field "position".
-	Position int `json:"position" yaml:"position" mapstructure:"position"`
-
-	// Title corresponds to the JSON schema field "title".
-	Title string `json:"title" yaml:"title" mapstructure:"title"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type LessonDocumentType `json:"type" yaml:"type" mapstructure:"type"`
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
 }
-
-type LessonDocumentBlocksElem struct {
-	// Type corresponds to the JSON schema field "type".
-	Type string `json:"type" yaml:"type" mapstructure:"type"`
-
-	AdditionalProperties interface{} `mapstructure:",remain"`
-}
-
-type LessonDocumentType string
-
-const LessonDocumentTypeMixed LessonDocumentType = "mixed"
-const LessonDocumentTypePractice LessonDocumentType = "practice"
-const LessonDocumentTypeTheory LessonDocumentType = "theory"
 
 type LessonExercise struct {
 	// Actions corresponds to the JSON schema field "actions".
@@ -497,6 +832,32 @@ type LessonExerciseChecksElem struct {
 	Title string `json:"title" yaml:"title" mapstructure:"title"`
 }
 
+type LessonFrontMatter12 struct {
+	// ActivitySets corresponds to the JSON schema field "activitySets".
+	ActivitySets []SafePath `json:"activitySets,omitempty,omitzero" yaml:"activitySets,omitempty" mapstructure:"activitySets,omitempty"`
+
+	// EstimatedMinutes corresponds to the JSON schema field "estimatedMinutes".
+	EstimatedMinutes *int `json:"estimatedMinutes,omitempty,omitzero" yaml:"estimatedMinutes,omitempty" mapstructure:"estimatedMinutes,omitempty"`
+
+	// Id corresponds to the JSON schema field "id".
+	Id Id `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Position corresponds to the JSON schema field "position".
+	Position int `json:"position" yaml:"position" mapstructure:"position"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title string `json:"title" yaml:"title" mapstructure:"title"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type LessonFrontMatter12Type `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type LessonFrontMatter12Type string
+
+const LessonFrontMatter12TypeMixed LessonFrontMatter12Type = "mixed"
+const LessonFrontMatter12TypePractice LessonFrontMatter12Type = "practice"
+const LessonFrontMatter12TypeTheory LessonFrontMatter12Type = "theory"
+
 type LessonNavigationItem struct {
 	// BlockingRequirements corresponds to the JSON schema field
 	// "blockingRequirements".
@@ -531,7 +892,7 @@ const LessonNavigationItemStatusLOCKED LessonNavigationItemStatus = "LOCKED"
 
 type LessonPayload struct {
 	// Blocks corresponds to the JSON schema field "blocks".
-	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+	Blocks []ApiLessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
 
 	// EstimatedMinutes corresponds to the JSON schema field "estimatedMinutes".
 	EstimatedMinutes LessonPayloadEstimatedMinutes `json:"estimatedMinutes" yaml:"estimatedMinutes" mapstructure:"estimatedMinutes"`
@@ -694,10 +1055,13 @@ type RequirementView struct {
 
 type RequirementViewKind string
 
-const RequirementViewKindAssessment RequirementViewKind = "assessment"
 const RequirementViewKindLesson RequirementViewKind = "lesson"
 const RequirementViewKindPractice RequirementViewKind = "practice"
 const RequirementViewKindReading RequirementViewKind = "reading"
+
+type ActivityAttemptFeedback_0 = ActivityFeedback
+
+const RequirementViewKindAssessment RequirementViewKind = "assessment"
 
 type RequirementViewLatestPassed *bool
 

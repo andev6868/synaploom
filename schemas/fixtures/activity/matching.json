@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0",
+  "title": "Example activity",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Answer the prompt."
+          }
+        ]
+      }
+    ]
+  },
+  "evaluation": {
+    "mode": "automatic",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  },
+  "id": "matching-example",
+  "kind": "matching",
+  "config": {
+    "left": [
+      {
+        "id": "l1",
+        "label": "Left"
+      }
+    ],
+    "right": [
+      {
+        "id": "r1",
+        "label": "Right"
+      }
+    ],
+    "correctMatches": {
+      "l1": "r1"
+    }
+  }
+}

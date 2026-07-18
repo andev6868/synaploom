@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.synaploom.dev/v1/activity-public.schema.json",
+  "title": "ActivityPublicView",
+  "type": "object",
+  "required": ["id", "kind", "title", "prompt", "config", "evaluation", "completion"],
+  "properties": {
+    "id": {
+      "$ref": "course.schema.json#/$defs/id"
+    },
+    "kind": {
+      "$ref": "activity.schema.json#/$defs/activityKind"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "prompt": {
+      "$ref": "lesson-document.schema.json#/$defs/fragment"
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "evaluation": {
+      "type": "object",
+      "required": ["mode", "points"],
+      "properties": {
+        "mode": {
+          "enum": ["automatic", "submission", "coding"]
+        },
+        "points": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "completion": {
+      "$ref": "activity.schema.json#/$defs/completionPolicy"
+    },
+    "feedback": {
+      "$ref": "activity.schema.json#/$defs/feedbackPolicy"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "activitySetPublicView": {
+      "title": "ActivitySetPublicView",
+      "type": "object",
+      "required": ["id", "policy", "activities"],
+      "properties": {
+        "id": {
+          "$ref": "course.schema.json#/$defs/id"
+        },
+        "title": {
+          "type": "string"
+        },
+        "policy": {
+          "$ref": "activity.schema.json#/$defs/activitySetPolicy"
+        },
+        "activities": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

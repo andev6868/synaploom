@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0",
+  "title": "Example activity",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Answer the prompt."
+          }
+        ]
+      }
+    ]
+  },
+  "evaluation": {
+    "mode": "coding",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  },
+  "id": "coding-example",
+  "kind": "coding",
+  "config": {
+    "schemaVersion": "1.0",
+    "id": "coding-config",
+    "title": "Coding config",
+    "runtime": {
+      "kind": "local",
+      "requires": ["node"]
+    },
+    "workspace": {
+      "editable": ["index.js"]
+    },
+    "actions": {
+      "run": {
+        "label": "Run",
+        "executable": "node",
+        "args": ["index.js"],
+        "timeoutMs": 1000
+      }
+    },
+    "checks": [],
+    "completion": {
+      "requireAllRequiredChecks": true
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0",
+  "title": "Example activity",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Answer the prompt."
+          }
+        ]
+      }
+    ]
+  },
+  "evaluation": {
+    "mode": "automatic",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  },
+  "id": "short-answer-example",
+  "kind": "short-answer",
+  "config": {
+    "acceptedAnswers": ["answer"],
+    "normalization": {
+      "trim": true,
+      "caseSensitive": false,
+      "collapseWhitespace": true,
+      "removePunctuation": false
+    }
+  }
+}

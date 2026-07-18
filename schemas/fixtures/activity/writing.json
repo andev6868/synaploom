@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0",
+  "title": "Example activity",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Answer the prompt."
+          }
+        ]
+      }
+    ]
+  },
+  "evaluation": {
+    "mode": "submission",
+    "points": 0
+  },
+  "completion": {
+    "required": true
+  },
+  "id": "writing-example",
+  "kind": "writing",
+  "config": {
+    "minimumCharacters": 1,
+    "maximumCharacters": 2000,
+    "answerFormat": "plain-text"
+  }
+}

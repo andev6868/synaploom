@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { validateCanonicalFixture } from './index';
+import { SUPPORTED_SCHEMA_VERSIONS, validateCanonicalFixture } from './index';
 
 function loadJson(relativePath: string): any {
   return JSON.parse(readFileSync(path.resolve(relativePath), 'utf8'));
@@ -34,6 +34,43 @@ describe('canonical schemas', () => {
       );
       expect(result.valid, fixture.path).toBe(false);
     }
+  });
+
+  it('accepts Course Schema 1.2 and all Activity Engine v1 kinds', () => {
+    expect(SUPPORTED_SCHEMA_VERSIONS).toContain('1.2.0');
+    expect(
+      validateCanonicalFixture(
+        'course',
+        loadJson('schemas/fixtures/course/activity-course-1.2.json'),
+      ),
+    ).toEqual({ valid: true });
+
+    for (const kind of [
+      'single-choice',
+      'multiple-choice',
+      'true-false',
+      'short-answer',
+      'fill-blanks',
+      'ordering',
+      'matching',
+      'numeric',
+      'writing',
+      'coding',
+    ]) {
+      expect(
+        validateCanonicalFixture('activity', loadJson(`schemas/fixtures/activity/${kind}.json`)),
+        kind,
+      ).toEqual({ valid: true });
+    }
+  });
+
+  it('rejects runner capabilities on non-coding activities', () => {
+    expect(
+      validateCanonicalFixture(
+        'activity',
+        loadJson('schemas/fixtures/activity/noncoding-runtime-fields.json'),
+      ),
+    ).toEqual({ valid: false, path: '$.config' });
   });
 
   it('accepts a schema 1.1 course with chapter assessments', () => {

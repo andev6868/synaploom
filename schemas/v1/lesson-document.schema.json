@@ -2,7 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.synaploom.dev/v1/lesson-document.schema.json",
   "title": "LessonDocument",
-  "type": "object",
+  "allOf": [
+    {
+      "$ref": "#/$defs/fragment"
+    }
+  ],
   "required": ["id", "courseId", "position", "title", "type", "blocks"],
   "properties": {
     "id": {
@@ -20,19 +24,97 @@
     },
     "type": {
       "enum": ["theory", "practice", "mixed"]
-    },
-    "blocks": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["type"],
-        "properties": {
-          "type": {
-            "type": "string"
-          }
+    }
+  },
+  "$defs": {
+    "inlineContent": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "value"],
+          "properties": {
+            "type": {
+              "const": "text"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
         },
-        "additionalProperties": true
-      }
+        {
+          "type": "object",
+          "required": ["type", "value"],
+          "properties": {
+            "type": {
+              "const": "code"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "children"],
+          "properties": {
+            "type": {
+              "const": "strong"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/inlineContent"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "href", "children"],
+          "properties": {
+            "type": {
+              "const": "link"
+            },
+            "href": {
+              "type": "string"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/inlineContent"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "lessonBlock": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "fragment": {
+      "title": "LessonDocumentFragment",
+      "type": "object",
+      "required": ["blocks"],
+      "properties": {
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/lessonBlock"
+          }
+        }
+      },
+      "additionalProperties": false
     }
   },
   "unevaluatedProperties": false

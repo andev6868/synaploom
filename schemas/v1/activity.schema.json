@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.synaploom.dev/v1/activity.schema.json",
+  "title": "ActivityDefinition",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "kind",
+    "title",
+    "prompt",
+    "config",
+    "evaluation",
+    "completion"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "id": {
+      "$ref": "course.schema.json#/$defs/id"
+    },
+    "kind": {
+      "$ref": "#/$defs/activityKind"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "prompt": {
+      "$ref": "lesson-document.schema.json#/$defs/fragment"
+    },
+    "config": {
+      "type": "object"
+    },
+    "evaluation": {
+      "$ref": "#/$defs/evaluationPolicy"
+    },
+    "completion": {
+      "$ref": "#/$defs/completionPolicy"
+    },
+    "feedback": {
+      "$ref": "#/$defs/feedbackPolicy"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "coding"
+          }
+        },
+        "required": ["kind"]
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "$ref": "exercise.schema.json"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "config": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["runtime"]
+                },
+                {
+                  "required": ["workspace"]
+                },
+                {
+                  "required": ["actions"]
+                },
+                {
+                  "required": ["executable"]
+                },
+                {
+                  "required": ["args"]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "activityKind": {
+      "type": "string",
+      "enum": [
+        "single-choice",
+        "multiple-choice",
+        "true-false",
+        "short-answer",
+        "fill-blanks",
+        "ordering",
+        "matching",
+        "numeric",
+        "writing",
+        "coding"
+      ]
+    },
+    "evaluationPolicy": {
+      "title": "ActivityEvaluationPolicy",
+      "type": "object",
+      "required": ["mode", "points"],
+      "properties": {
+        "mode": {
+          "enum": ["automatic", "submission", "coding"]
+        },
+        "points": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "completionPolicy": {
+      "title": "ActivityCompletionPolicy",
+      "type": "object",
+      "required": ["required"],
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "passingScore": {
+          "type": ["number", "null"],
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "feedbackPolicy": {
+      "title": "ActivityFeedbackPolicy",
+      "type": "object",
+      "properties": {
+        "showExplanation": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "activitySetPolicy": {
+      "title": "ActivitySetPolicy",
+      "type": "object",
+      "required": [
+        "purpose",
+        "maxAttempts",
+        "feedbackMode",
+        "revealAnswers",
+        "scoring",
+        "passingScore"
+      ],
+      "properties": {
+        "purpose": {
+          "enum": ["practice", "assessment"]
+        },
+        "maxAttempts": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "feedbackMode": {
+          "enum": ["immediate", "after-submit", "after-final-attempt"]
+        },
+        "revealAnswers": {
+          "enum": ["never", "after-submit", "after-final-attempt"]
+        },
+        "scoring": {
+          "enum": ["none", "points"]
+        },
+        "passingScore": {
+          "type": ["number", "null"],
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "activityReference": {
+      "title": "ActivityReference",
+      "type": "object",
+      "required": ["id", "path", "required"],
+      "properties": {
+        "id": {
+          "$ref": "course.schema.json#/$defs/id"
+        },
+        "path": {
+          "$ref": "course.schema.json#/$defs/safePath"
+        },
+        "required": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "activitySetDefinition": {
+      "title": "ActivitySetDefinition",
+      "type": "object",
+      "required": ["schemaVersion", "id", "policy", "activities"],
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "id": {
+          "$ref": "course.schema.json#/$defs/id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policy": {
+          "$ref": "#/$defs/activitySetPolicy"
+        },
+        "activities": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/activityReference"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

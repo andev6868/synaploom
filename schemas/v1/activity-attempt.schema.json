@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.synaploom.dev/v1/activity-attempt.schema.json",
+  "title": "ActivityAttempt",
+  "type": "object",
+  "required": [
+    "id",
+    "courseId",
+    "courseVersion",
+    "ownerKind",
+    "ownerId",
+    "activityId",
+    "attemptNumber",
+    "status",
+    "answer",
+    "score",
+    "maxScore",
+    "passed",
+    "feedback",
+    "startedAt",
+    "submittedAt",
+    "evaluatedAt"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "courseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "courseVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownerKind": {
+      "enum": ["lesson", "assessment"]
+    },
+    "ownerId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "activityId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "attemptNumber": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "status": {
+      "enum": ["DRAFT", "SUBMITTED", "EVALUATED"]
+    },
+    "answer": {
+      "$ref": "#/$defs/activityAnswer"
+    },
+    "score": {
+      "type": ["number", "null"]
+    },
+    "maxScore": {
+      "type": ["number", "null"]
+    },
+    "passed": {
+      "type": ["boolean", "null"]
+    },
+    "feedback": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/activityFeedback"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "startedAt": {
+      "type": "string"
+    },
+    "submittedAt": {
+      "type": ["string", "null"]
+    },
+    "evaluatedAt": {
+      "type": ["string", "null"]
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "randomSeed": {
+      "type": ["string", "null"]
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "activityAnswer": {
+      "title": "ActivityAnswer",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["kind", "optionId"],
+          "properties": {
+            "kind": {
+              "const": "single-choice"
+            },
+            "optionId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["kind", "optionIds"],
+          "properties": {
+            "kind": {
+              "const": "multiple-choice"
+            },
+            "optionIds": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": {
+              "const": "true-false"
+            },
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": {
+              "const": "short-answer"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["kind", "values"],
+          "properties": {
+            "kind": {
+              "const": "fill-blanks"
+            },
+            "values": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["kind", "itemIds"],
+          "properties": {
+            "kind": {
+              "const": "ordering"
+            },
+            "itemIds": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["kind", "pairs"],
+          "properties": {
+            "kind": {
+              "const": "matching"
+            },
+            "pairs": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": {
+              "const": "numeric"
+            },
+            "value": {
+              "type": "string"
+            },
+            "unit": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": {
+              "const": "writing"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["kind", "workspaceRevision"],
+          "properties": {
+            "kind": {
+              "const": "coding"
+            },
+            "workspaceRevision": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "feedbackItem": {
+      "title": "ActivityFeedbackItem",
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "activityFeedback": {
+      "title": "ActivityFeedback",
+      "type": "object",
+      "required": ["summary", "details"],
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/feedbackItem"
+          }
+        },
+        "correctAnswer": {},
+        "nextAction": {
+          "enum": ["retry", "continue", "review-content"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "activitySetProgress": {
+      "title": "ActivitySetProgress",
+      "type": "object",
+      "required": [
+        "status",
+        "completedRequiredActivities",
+        "requiredActivities",
+        "score",
+        "maxScore",
+        "passed"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["NOT_STARTED", "IN_PROGRESS", "COMPLETED"]
+        },
+        "completedRequiredActivities": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "requiredActivities": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "score": {
+          "type": ["number", "null"]
+        },
+        "maxScore": {
+          "type": ["number", "null"]
+        },
+        "passed": {
+          "type": ["boolean", "null"]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
