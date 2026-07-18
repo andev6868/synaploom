@@ -65,10 +65,20 @@ async function request<T>(fetchImpl: typeof fetch, url: string, init?: RequestIn
   return parseResponse<T>(response);
 }
 
+/** Identifies the learning item whose navigation context should be evaluated. */
+export interface NavigationViewTarget {
+  readonly kind: 'lesson' | 'assessment';
+  readonly id: string;
+  readonly chapterId?: string;
+}
+
 /** Typed client for the loopback-only Synaploom daemon. */
 export interface SynaploomApiClient {
   getCourse(): Promise<CoursePayload>;
-  getNavigation(courseId: string): Promise<CourseNavigationPayload>;
+  getNavigation(
+    courseId: string,
+    viewed?: NavigationViewTarget,
+  ): Promise<CourseNavigationPayload>;
   getLessonView(
     courseId: string,
     chapterId: string,
@@ -103,11 +113,19 @@ export function createApiClient(
   const api = (path: string): string => `${apiBasePath}${path}`;
   return {
     getCourse: () => request<CoursePayload>(fetchImpl, api('/course')),
-    getNavigation: (courseId) =>
-      request<CourseNavigationPayload>(
+    getNavigation: (courseId, viewed) => {
+      const search = new URLSearchParams();
+      if (viewed) {
+        search.set('viewedKind', viewed.kind);
+        search.set('viewedId', viewed.id);
+        if (viewed.chapterId) search.set('chapterId', viewed.chapterId);
+      }
+      const suffix = search.size > 0 ? `?${search.toString()}` : '';
+      return request<CourseNavigationPayload>(
         fetchImpl,
-        api(`/courses/${encodeURIComponent(courseId)}/navigation`),
-      ),
+        api(`/courses/${encodeURIComponent(courseId)}/navigation${suffix}`),
+      );
+    },
     getLessonView: (courseId, chapterId, lessonId) =>
       request<CanonicalLessonPayload>(
         fetchImpl,

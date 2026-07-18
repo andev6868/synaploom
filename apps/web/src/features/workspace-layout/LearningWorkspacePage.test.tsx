@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { AppProviders } from '#src/app/providers/AppProviders';
 import { LearningWorkspacePage } from '#src/features/workspace-layout/LearningWorkspacePage';
+import type { CourseNavigationPayload } from '@synaploom/protocol';
 import type { SynaploomApiClient } from '#src/shared/api/client';
 
 const course = {
@@ -93,7 +94,7 @@ describe('LearningWorkspacePage', () => {
   it('renders the focused lesson and practice workspace from typed daemon data', async () => {
     render(
       <AppProviders api={fakeApi()}>
-        <LearningWorkspacePage requestedLessonId={null} />
+        <LearningWorkspacePage route={{ kind: 'lesson', lessonId: null }} />
       </AppProviders>,
     );
     expect(await screen.findByRole('heading', { name: 'Main Thread', level: 1 })).toBeVisible();
@@ -145,9 +146,12 @@ describe('LearningWorkspacePage', () => {
     render(
       <AppProviders api={api}>
         <LearningWorkspacePage
-          requestedCourseId={course.id}
-          requestedChapterId="runtime-fundamentals"
-          requestedLessonId="main-thread"
+          route={{
+            kind: 'lesson',
+            courseId: course.id,
+            chapterId: 'runtime-fundamentals',
+            lessonId: 'main-thread',
+          }}
         />
       </AppProviders>,
     );
@@ -155,6 +159,72 @@ describe('LearningWorkspacePage', () => {
     expect(await screen.findByText('Đang xem lại')).toBeVisible();
     expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Chế độ xem lại')).not.toBeInTheDocument();
+  });
+
+
+  it('renders an assessment inside the same top navigation and assistant shell', async () => {
+    const assessmentNavigation: CourseNavigationPayload = {
+      ...navigation,
+      currentLessonId: null,
+      viewedItemId: 'runtime-checkpoint',
+      nextAction: { type: 'NONE' },
+      chapters: [
+        {
+          id: 'runtime-fundamentals',
+          title: 'Runtime Fundamentals',
+          status: 'ASSESSMENT_REQUIRED',
+          required: true,
+          lessons: navigation.chapters[0]?.lessons ?? [],
+          assessments: [
+            {
+              id: 'runtime-checkpoint',
+              title: 'Runtime Checkpoint',
+              status: 'AVAILABLE',
+              required: true,
+              viewed: true,
+              blockingRequirements: [],
+            },
+          ],
+        },
+      ],
+    };
+    const api: SynaploomApiClient = {
+      ...fakeApi(),
+      getNavigation: () => Promise.resolve(assessmentNavigation),
+      getChapterAssessment: () =>
+        Promise.resolve({
+          id: 'runtime-checkpoint',
+          chapterId: 'runtime-fundamentals',
+          title: 'Runtime Checkpoint',
+          required: true,
+          status: 'AVAILABLE' as const,
+          requirements: [],
+          latestResult: null,
+          bestResult: null,
+          actions: [{ id: 'check', label: 'Kiểm tra kết quả' }],
+          editable: [],
+        }),
+    };
+
+    render(
+      <AppProviders api={api}>
+        <LearningWorkspacePage
+          route={{
+            kind: 'assessment',
+            courseId: course.id,
+            chapterId: 'runtime-fundamentals',
+            assessmentId: 'runtime-checkpoint',
+          }}
+        />
+      </AppProviders>,
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'Runtime Checkpoint', level: 1 }),
+    ).toBeVisible();
+    expect(screen.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
+    expect(screen.getByText('Trợ lý AI')).toBeVisible();
+    expect(document.querySelector('.syn-assessment-page')).not.toBeInTheDocument();
   });
 
 });

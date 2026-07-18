@@ -435,16 +435,78 @@ body,
   color: var(--syn-color-success);
   font-weight: 700;
 }
-.syn-assessment-page {
-  display: grid;
-  grid-template-columns: minmax(16rem, 22rem) 1fr;
-  gap: 1.5rem;
-  padding: 1.5rem;
+
+.syn-assessment-workspace {
+  min-height: 0;
+  background: var(--syn-color-surface);
 }
-.syn-assessment-page article {
-  padding: 1.5rem;
+
+.syn-assessment-workspace .syn-lesson-panel__article,
+.syn-assessment-workspace__article {
+  width: min(62rem, 100%);
+  margin: 0 auto;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.syn-assessment-workspace__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.syn-assessment-workspace__kicker {
+  margin: 0.75rem 0 0.25rem;
+  color: var(--syn-color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.syn-assessment-workspace__heading h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 2.7vw, 2.6rem);
+  letter-spacing: -0.035em;
+}
+
+.syn-assessment-workspace__result {
+  margin: 1.25rem 0;
+  padding: 1rem;
   border: 1px solid var(--syn-color-border);
-  border-radius: 0.75rem;
+  border-radius: var(--syn-radius-lg);
+  background: var(--syn-color-surface-muted);
+}
+
+.syn-assessment-workspace__result h2,
+.syn-assessment-workspace__result p {
+  margin: 0;
+}
+
+.syn-assessment-workspace__result p + p {
+  margin-top: 0.45rem;
+}
+
+.syn-assessment-workspace__check {
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--syn-color-primary);
+  border-radius: 0.65rem;
+  background: var(--syn-color-primary);
+  color: var(--syn-color-on-primary, #fff);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.syn-assessment-workspace__check:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.syn-assessment-workspace__state {
+  width: min(62rem, 100%);
+  margin: 0 auto;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
 }
 
 .syn-course-navigation-shell {

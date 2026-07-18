@@ -10,6 +10,7 @@ import { resolveProgressionAction } from './progression-action';
 type Props = {
   readonly context: LessonViewContext;
   readonly navigation?: CourseNavigationPayload;
+  readonly heading?: string;
   readonly busy?: boolean;
   readonly onAction: (action: NextActionPayload) => void;
 };
@@ -34,6 +35,7 @@ function requirementLabel(requirement: RequirementView): string {
 export function LessonRequirementFooter({
   context,
   navigation,
+  heading = 'Yêu cầu hoàn thành bài học',
   busy = false,
   onAction,
 }: Props): ReactNode {
@@ -44,7 +46,7 @@ export function LessonRequirementFooter({
   return (
     <footer className="syn-requirement-footer">
       <section aria-labelledby="lesson-requirements-title">
-        <h2 id="lesson-requirements-title">Yêu cầu hoàn thành bài học</h2>
+        <h2 id="lesson-requirements-title">{heading}</h2>
         <ul className="syn-requirement-footer__list">
           {[...required, ...optional].map((requirement) => (
             <li

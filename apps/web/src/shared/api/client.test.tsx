@@ -82,6 +82,28 @@ describe('hierarchical API client', () => {
     ]);
   });
 
+
+  it('requests navigation in the context of the viewed assessment', async () => {
+    const fetchImpl = vi.fn(async () =>
+      new Response('{}', {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    );
+    const client = createApiClient(fetchImpl as typeof fetch);
+
+    await client.getNavigation('perf', {
+      kind: 'assessment',
+      chapterId: 'runtime',
+      id: 'runtime-checkpoint',
+    });
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      '/api/v1/courses/perf/navigation?viewedKind=assessment&viewedId=runtime-checkpoint&chapterId=runtime',
+      expect.any(Object),
+    );
+  });
+
   it('preserves locked-item metadata on typed errors', async () => {
     const blockingRequirements = [
       {
