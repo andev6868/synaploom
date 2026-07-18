@@ -8,19 +8,7 @@ import type {
   NormalizedLesson,
 } from '@synaploom/contracts';
 import { assertValidCoursePackage, parseFrontMatter } from '@synaploom/course-validator';
-import { parseLessonMarkdown } from '@synaploom/lesson-renderer';
 import { resolveInsideRoot } from '@synaploom/security';
-
-function removeRedundantTitleHeading(
-  blocks: readonly import('@synaploom/contracts').LessonBlock[],
-  title: string,
-): readonly import('@synaploom/contracts').LessonBlock[] {
-  const first = blocks[0];
-  if (first?.type === 'heading' && first.level === 1 && first.text.trim() === title.trim()) {
-    return blocks.slice(1);
-  }
-  return blocks;
-}
 
 function normalizeFrontMatter(data: Record<string, unknown>): LessonFrontMatter {
   return {
@@ -42,7 +30,8 @@ export async function loadCourse(courseRoot: string): Promise<NormalizedCourse> 
     await readFile(path.join(root, 'course.json'), 'utf8'),
   ) as CourseManifest;
   const lessons: NormalizedLesson[] = [];
-  for (const reference of [...manifest.lessons].sort((a, b) => a.position - b.position)) {
+  const references = manifest.lessons ?? [];
+  for (const reference of [...references].sort((a, b) => a.position - b.position)) {
     const directory = resolveInsideRoot(root, reference.path);
     const markdown = await readFile(path.join(directory, 'lesson.md'), 'utf8');
     const parsed = parseFrontMatter(markdown);
@@ -65,15 +54,8 @@ export async function loadCourse(courseRoot: string): Promise<NormalizedCourse> 
       title: frontMatter.title,
       type: frontMatter.type,
       ...(frontMatter.estimatedMinutes ? { estimatedMinutes: frontMatter.estimatedMinutes } : {}),
-      blocks: removeRedundantTitleHeading(
-        parseLessonMarkdown(parsed.body, {
-          validateImageSource: (source) => {
-            resolveInsideRoot(directory, source);
-            return source;
-          },
-        }),
-        frontMatter.title,
-      ),
+      // Rich lesson documents are parsed canonically by the Go daemon.
+      blocks: [],
       sourceMarkdown: parsed.body,
       ...(exercise ? { exercise } : {}),
     };

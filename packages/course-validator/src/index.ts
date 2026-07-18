@@ -84,7 +84,7 @@ function validateManifestShape(manifest: CourseManifest, issues: ValidationIssue
     issue(issues, 'COURSE_VERSION_INVALID', 'Course version must be semantic version');
 
   if (manifest.schemaVersion === '1.0') {
-    if (!Array.isArray(manifest.lessons) || manifest.lessons.length === 0) {
+    if (manifest.lessons === undefined || manifest.lessons.length === 0) {
       issue(issues, 'LESSONS_REQUIRED', 'At least one lesson is required');
       return;
     }
@@ -103,7 +103,7 @@ function validateManifestShape(manifest: CourseManifest, issues: ValidationIssue
     return;
   }
 
-  if (!Array.isArray(manifest.chapters) || manifest.chapters.length === 0) {
+  if (manifest.chapters === undefined || manifest.chapters.length === 0) {
     issue(issues, 'CHAPTERS_REQUIRED', 'Hierarchical courses require chapters');
     return;
   }
@@ -326,7 +326,7 @@ async function collectLessonReferences(
     (manifest.chapters ?? []).flatMap((chapter) => chapter.lessons.map((lesson) => lesson.id)),
   );
   const discovered: LessonFileReference[] = [];
-  let entries: Dirent<string>[];
+  let entries: Dirent[];
   try {
     entries = await readdir(path.join(root, 'lessons'), { withFileTypes: true });
   } catch {

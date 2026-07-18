@@ -823,3 +823,82 @@ body,
     display: none;
   }
 }
+
+.syn-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.syn-table-scroll table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.syn-table-scroll caption {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+.syn-table-scroll th,
+.syn-table-scroll td {
+  border: 1px solid var(--syn-border-subtle);
+  padding: 0.625rem 0.75rem;
+}
+
+.syn-document-tabs__list {
+  border-bottom: 1px solid var(--syn-border-subtle);
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.syn-document-tabs__tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  padding: 0.625rem 0.75rem;
+}
+
+.syn-document-tabs__tab[aria-selected='true'] {
+  border-bottom-color: currentColor;
+  font-weight: 600;
+}
+
+.syn-math--display,
+.syn-math-fallback--display {
+  display: block;
+  margin-block: 1rem;
+  overflow-x: auto;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.syn-pedagogical-block,
+.syn-media-block,
+.syn-attachment,
+.syn-footnote {
+  border: 1px solid var(--syn-border-subtle);
+  border-radius: 0.75rem;
+  margin-block: 1rem;
+  padding: 1rem;
+}
+
+.syn-compare__columns {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.syn-task-list-item {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.syn-media-block audio,
+.syn-media-block video {
+  max-width: 100%;
+  width: 100%;
+}

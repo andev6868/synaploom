@@ -29,7 +29,13 @@ const lesson = {
   position: 1,
   type: 'theory' as const,
   estimatedMinutes: 10,
-  blocks: [{ type: 'heading' as const, level: 2 as const, text: 'Mục tiêu học tập' }],
+  blocks: [
+    {
+      type: 'heading' as const,
+      level: 2 as const,
+      children: [{ type: 'text' as const, value: 'Mục tiêu học tập' }],
+    },
+  ],
   status: 'AVAILABLE' as const,
   readingAcknowledged: false,
   latestCheck: null,

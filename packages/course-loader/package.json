@@ -24,7 +24,6 @@
     "@synaploom/contracts": "workspace:*",
     "@synaploom/course-schema": "workspace:*",
     "@synaploom/course-validator": "workspace:*",
-    "@synaploom/lesson-renderer": "workspace:*",
     "@synaploom/security": "workspace:*"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 # Standard
 
-Paragraph with *emphasis*, **strong**, ~~strike~~, `code`, $x^2$, and [link](https://example.com).
+Paragraph with _emphasis_, **strong**, ~~strike~~, `code`, $x^2$, and [link](https://example.com).
 
 > Quote
 
@@ -8,8 +8,8 @@ Paragraph with *emphasis*, **strong**, ~~strike~~, `code`, $x^2$, and [link](htt
   - Nested
 
 | Name | Value |
-| :--- | ---: |
-| x | 1 |
+| :--- | ----: |
+| x    |     1 |
 
 ---
 

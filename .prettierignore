@@ -5,3 +5,6 @@ playwright-report
 test-results
 *.tgz
 dist-types/
+
+# Go parser golden output is byte-stable and must not be reformatted.
+internal/course/testdata/markdown/standard.golden.json
