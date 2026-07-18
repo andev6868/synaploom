@@ -24,6 +24,7 @@ export function PracticePanel({
   const completedEventsUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
+    if (!lesson.exercise) return undefined;
     let cancelled = false;
     void api.listFiles(lesson.id).then((items) => {
       if (cancelled) return;
@@ -33,7 +34,7 @@ export function PracticePanel({
     return () => {
       cancelled = true;
     };
-  }, [api, lesson.id]);
+  }, [api, lesson.exercise, lesson.id]);
 
   useEffect(() => {
     if (!selectedFile) return undefined;

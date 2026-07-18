@@ -16,3 +16,12 @@ test('type-strip compatibility check does not require a globally installed TypeS
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stdout, /Type-strip compatibility checked for \d+ TypeScript files\./);
 });
+
+test('package scripts do not invoke Corepack or a bare Go executable', async () => {
+  const packageJson = JSON.parse(
+    await import('node:fs/promises').then(({ readFile }) => readFile('package.json', 'utf8')),
+  ) as { scripts: Record<string, string> };
+  const scripts = Object.values(packageJson.scripts).join('\n');
+  assert.doesNotMatch(scripts, /corepack pnpm/);
+  assert.doesNotMatch(scripts, /(?:^|&&\s*)go (?:run|build|test|vet)\b/m);
+});

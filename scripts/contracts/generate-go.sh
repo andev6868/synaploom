@@ -2,12 +2,11 @@
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$root"
-export GOPROXY="${GOPROXY:-https://${CAAS_ARTIFACTORY_GO_REGISTRY:-proxy.golang.org}}"
 mkdir -p generated/go/contracts internal/contracts
 if [[ -n "${GO_JSONSCHEMA_BIN:-}" ]]; then
   generator=("$GO_JSONSCHEMA_BIN")
 else
-  generator=(go run github.com/atombender/go-jsonschema@v0.23.1)
+  generator=(bash scripts/go/with-internal-toolchain.sh run github.com/atombender/go-jsonschema@v0.23.1)
 fi
 "${generator[@]}" \
   --package contracts --struct-name-from-title --only-models \
@@ -26,4 +25,5 @@ for name,data,url in files:
 out += ['}','']
 Path('internal/contracts/schemas.go').write_text('\n'.join(out))
 PY
-gofmt -w generated/go/contracts/generated.go internal/contracts/schemas.go
+bash scripts/go/with-internal-toolchain.sh fmt generated/go/contracts/generated.go
+bash scripts/go/with-internal-toolchain.sh fmt internal/contracts/schemas.go

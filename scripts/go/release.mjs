@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { chmod, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
+import { goCommand } from './go-command.mjs';
 import path from 'node:path';
 export const targets = [
   'darwin/amd64',
@@ -24,10 +25,11 @@ for (const target of targets) {
   const ext = goos === 'windows' ? '.exe' : '';
   const filename = `synaploom-${goos}-${goarch}${ext}`;
   const file = path.join(out, filename);
-  execFileSync(
-    'go',
+  console.log(`Building ${target}...`);
+  const command = goCommand(
     [
       'build',
+      '-p=1',
       '-trimpath',
       '-ldflags',
       `-s -w -X github.com/synaploom/synaploom/internal/buildinfo.Version=${version} -X github.com/synaploom/synaploom/internal/buildinfo.Commit=${commit} -X github.com/synaploom/synaploom/internal/buildinfo.SchemaVersion=${schema}`,
@@ -35,8 +37,12 @@ for (const target of targets) {
       file,
       './cmd/synaploom',
     ],
-    { stdio: 'inherit', env: { ...process.env, CGO_ENABLED: '0', GOOS: goos, GOARCH: goarch } },
+    {
+      stdio: 'inherit',
+      env: { CGO_ENABLED: '0', GOOS: goos, GOARCH: goarch, GOMAXPROCS: '2' },
+    },
   );
+  execFileSync(command.file, command.args, command.options);
   if (goos !== 'windows') await chmod(file, 0o755);
   sums.push(
     `${createHash('sha256')

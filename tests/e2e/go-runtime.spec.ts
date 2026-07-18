@@ -4,6 +4,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
+import { goCommand } from '../../scripts/go/go-command.mjs';
 
 const exec = promisify(execFile);
 let proc: ChildProcess | undefined;
@@ -27,7 +28,8 @@ async function stopRuntime(): Promise<void> {
 
 test.beforeAll(async () => {
   home = await mkdtemp(path.join(tmpdir(), 'synaploom-e2e-'));
-  await exec('go', ['build', '-o', path.join(home, 'synaploom'), './cmd/synaploom']);
+  const command = goCommand(['build', '-o', path.join(home, 'synaploom'), './cmd/synaploom']);
+  await exec(command.file, command.args, command.options);
   await exec(
     path.join(home, 'synaploom'),
     ['course', 'import', 'examples/frontend-performance-foundations'],

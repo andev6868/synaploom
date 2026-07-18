@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { goCommand } from '../../../scripts/go/go-command.mjs';
 
 type Entry = { schema: string; path: string };
 const catalog = JSON.parse(readFileSync('schemas/fixtures/catalog.json', 'utf8')) as {
@@ -25,12 +26,15 @@ describe('cross-language contract conformance', () => {
         schema,
         fixture,
       ]);
-      const goResult = run('go', [
+      const command = goCommand([
         'run',
         './tests/conformance/contracts/go-runner',
         schema,
         fixture,
       ]);
+      const goResult = JSON.parse(
+        execFileSync(command.file, command.args, { ...command.options, encoding: 'utf8' }).trim(),
+      ) as { valid: boolean };
       expect(goResult).toEqual(typescriptResult);
     },
     30_000,

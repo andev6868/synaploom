@@ -118,4 +118,16 @@ describe('PracticePanel', () => {
 
     await waitFor(() => expect(onActionComplete).toHaveBeenCalledTimes(1));
   });
+  it('does not access workspace APIs when the lesson has no exercise', async () => {
+    const api = fakeApi();
+    const listFiles = vi.spyOn(api, 'listFiles');
+    render(
+      <AppProviders api={api}>
+        <PracticePanel lesson={{ ...lesson, exercise: null }} onActionComplete={vi.fn()} />
+      </AppProviders>,
+    );
+
+    expect(screen.getByText('Không có bài thực hành')).toBeVisible();
+    await waitFor(() => expect(listFiles).not.toHaveBeenCalled());
+  });
 });
