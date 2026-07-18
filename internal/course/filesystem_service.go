@@ -82,6 +82,12 @@ func OpenFilesystemServiceWithWorkspace(root, workspaceRoot string) (*Filesystem
 	}
 	return &FilesystemService{manifest: manifest, root: root, lessons: lessons, current: current, states: states, workspaces: workspace.Manager{Root: workspaceRoot}}, nil
 }
+
+// ActivitySetSources returns validated owner-scoped activity definitions for runtime wiring.
+func (s *FilesystemService) ActivitySetSources(ctx context.Context) (map[string][]ActivitySetSource, error) {
+	return loadCourseActivitySets(ctx, s.root, s.manifest)
+}
+
 func (s *FilesystemService) Course(context.Context) (contracts.CoursePayload, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

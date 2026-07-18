@@ -51,6 +51,11 @@ func (s *ServiceImpl) CurrentAttempt(ctx context.Context, identity AttemptIdenti
 	if err != nil {
 		return nil, err
 	}
+	records, err := s.repository.ListOwnerAttempts(ctx, storageOwner(identity.Owner))
+	if err != nil {
+		return nil, mapStorageError(err)
+	}
+	attempt.AttemptNumber = countSubmitted(records, identity.ActivityID) + 1
 	return &attempt, nil
 }
 
@@ -69,7 +74,16 @@ func (s *ServiceImpl) SaveDraft(ctx context.Context, command SaveDraftCommand) (
 	if err != nil {
 		return ActivityAttempt{}, mapStorageError(err)
 	}
-	return attemptFromRecord(record)
+	attempt, err := attemptFromRecord(record)
+	if err != nil {
+		return ActivityAttempt{}, err
+	}
+	records, err := s.repository.ListOwnerAttempts(ctx, storageOwner(command.Identity.Owner))
+	if err != nil {
+		return ActivityAttempt{}, mapStorageError(err)
+	}
+	attempt.AttemptNumber = countSubmitted(records, command.Identity.ActivityID) + 1
+	return attempt, nil
 }
 
 func (s *ServiceImpl) Submit(ctx context.Context, command SubmitCommand) (ActivityAttempt, error) {
@@ -136,34 +150,52 @@ func (s *ServiceImpl) SetProgress(ctx context.Context, owner OwnerIdentity, setI
 	if err != nil {
 		return ActivitySetProgress{}, mapStorageError(err)
 	}
-	progress := ActivitySetProgress{SetID: set.ID, Completed: true, Passed: true}
+	progress := ActivitySetProgress{Status: "NOT_STARTED"}
+	var score, maxScore float64
+	var anyEvaluated bool
 	for _, reference := range set.Activities {
-		item := ActivityProgress{ActivityID: reference.ID, Required: reference.Required}
+		if reference.Required {
+			progress.RequiredActivities++
+		}
+		passed := false
+		bestScore := 0.0
+		bestMax := 0.0
 		for _, record := range records {
 			if record.ActivityID != reference.ID || record.Status != storage.ActivityAttemptStatusEvaluated {
 				continue
 			}
-			if record.Score != nil && *record.Score >= item.Score {
-				item.Score = *record.Score
+			anyEvaluated = true
+			if record.Score != nil && *record.Score >= bestScore {
+				bestScore = *record.Score
 			}
-			if record.MaxScore != nil && *record.MaxScore > item.MaxScore {
-				item.MaxScore = *record.MaxScore
+			if record.MaxScore != nil && *record.MaxScore > bestMax {
+				bestMax = *record.MaxScore
 			}
 			if record.Passed != nil && *record.Passed {
-				item.Passed = true
-				item.Completed = true
+				passed = true
 			}
 		}
-		if reference.Required && !item.Completed {
-			progress.Completed = false
-			progress.Passed = false
+		if reference.Required && passed {
+			progress.CompletedRequiredActivities++
 		}
-		progress.Score += item.Score
-		progress.MaxScore += item.MaxScore
-		progress.Activities = append(progress.Activities, item)
+		score += bestScore
+		maxScore += bestMax
 	}
-	if set.Policy.PassingScore != nil && progress.Score < *set.Policy.PassingScore {
-		progress.Passed = false
+	if anyEvaluated {
+		progress.Status = "IN_PROGRESS"
+		progress.Score = &score
+		progress.MaxScore = &maxScore
+	}
+	completed := progress.CompletedRequiredActivities == progress.RequiredActivities
+	passed := completed
+	if set.Policy.PassingScore != nil {
+		passed = completed && score >= *set.Policy.PassingScore
+	}
+	if completed {
+		progress.Status = "COMPLETED"
+	}
+	if anyEvaluated || completed {
+		progress.Passed = &passed
 	}
 	return progress, nil
 }

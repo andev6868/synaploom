@@ -142,3 +142,46 @@ describe('hierarchical API client', () => {
     expect(error).toMatchObject({ code: 'ITEM_LOCKED', blockingRequirements, currentTarget });
   });
 });
+
+describe('activity API client', () => {
+  it('builds owner-qualified activity URLs and request methods', async () => {
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      void input;
+      void init;
+      return new Response('null', {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
+    const client = createApiClient(fetchImpl as typeof fetch);
+    const owner = {
+      courseId: 'multi domain',
+      ownerKind: 'lessons' as const,
+      ownerId: 'intro lesson',
+    };
+
+    await client.getActivity(owner, 'quiz one');
+    await client.getCurrentActivityAttempt(owner, 'quiz one');
+    await client.saveActivityDraft(owner, 'quiz one', {
+      answer: { kind: 'single-choice', optionId: 'a' },
+      revision: 2,
+      randomSeed: 7,
+    });
+    await client.submitActivityAttempt(owner, 'quiz one', {
+      answer: { kind: 'single-choice', optionId: 'a' },
+      idempotencyKey: 'submit-1',
+      randomSeed: 7,
+    });
+    await client.getActivitySetProgress(owner, 'practice set');
+
+    expect(fetchImpl.mock.calls.map(([url]) => url)).toEqual([
+      '/api/v1/courses/multi%20domain/lessons/intro%20lesson/activities/quiz%20one',
+      '/api/v1/courses/multi%20domain/lessons/intro%20lesson/activities/quiz%20one/attempts/current',
+      '/api/v1/courses/multi%20domain/lessons/intro%20lesson/activities/quiz%20one/attempts/current/draft',
+      '/api/v1/courses/multi%20domain/lessons/intro%20lesson/activities/quiz%20one/attempts',
+      '/api/v1/courses/multi%20domain/lessons/intro%20lesson/activity-sets/practice%20set/progress',
+    ]);
+    expect(fetchImpl.mock.calls[2]?.[1]).toMatchObject({ method: 'PUT' });
+    expect(fetchImpl.mock.calls[3]?.[1]).toMatchObject({ method: 'POST' });
+  });
+});

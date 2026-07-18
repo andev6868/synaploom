@@ -1,6 +1,10 @@
 import type { AiGenerateCommand, AiResponse } from '@synaploom/ai-contracts';
 import type { ProcessEvent } from '@synaploom/contracts';
 import type {
+  ActivityAttempt,
+  ActivityOwner,
+  ActivityPublicView,
+  ActivitySetProgress,
   CanonicalLessonPayload,
   ChapterAssessmentPayload,
   CompletionPayload,
@@ -9,6 +13,8 @@ import type {
   LessonPayload,
   NavigationTarget,
   RequirementView,
+  SaveDraftPayload,
+  SubmitAttemptPayload,
   ProcessSessionPayload,
   WorkspaceFilePayload,
 } from '@synaploom/protocol';
@@ -87,6 +93,22 @@ export interface SynaploomApiClient {
     assessmentId: string,
     result: { readonly passed: boolean; readonly score?: number; readonly summary?: string },
   ): Promise<{ readonly navigation: CourseNavigationPayload }>;
+  getActivity(owner: ActivityOwner, activityId: string): Promise<ActivityPublicView>;
+  getCurrentActivityAttempt(
+    owner: ActivityOwner,
+    activityId: string,
+  ): Promise<ActivityAttempt | null>;
+  saveActivityDraft(
+    owner: ActivityOwner,
+    activityId: string,
+    draft: SaveDraftPayload,
+  ): Promise<ActivityAttempt>;
+  submitActivityAttempt(
+    owner: ActivityOwner,
+    activityId: string,
+    payload: SubmitAttemptPayload,
+  ): Promise<ActivityAttempt>;
+  getActivitySetProgress(owner: ActivityOwner, setId: string): Promise<ActivitySetProgress>;
   getCurrentLesson(): Promise<LessonPayload>;
   getLesson(lessonId: string): Promise<LessonPayload>;
   startLesson(lessonId: string): Promise<void>;
@@ -100,6 +122,10 @@ export interface SynaploomApiClient {
   requestAi(command: AiGenerateCommand): Promise<AiResponse>;
   getPaneRatio(): Promise<number>;
   setPaneRatio(ratio: number): Promise<number>;
+}
+
+function activityOwnerPath(owner: ActivityOwner): string {
+  return `/courses/${encodeURIComponent(owner.courseId)}/${owner.ownerKind}/${encodeURIComponent(owner.ownerId)}`;
 }
 
 /** Creates a client that can be substituted with a test double. */
@@ -144,6 +170,37 @@ export function createApiClient(
           `/chapters/${encodeURIComponent(chapterId)}/assessments/${encodeURIComponent(assessmentId)}/actions/check`,
         ),
         { method: 'POST', body: JSON.stringify(result) },
+      ),
+    getActivity: (owner, activityId) =>
+      request<ActivityPublicView>(
+        fetchImpl,
+        api(`${activityOwnerPath(owner)}/activities/${encodeURIComponent(activityId)}`),
+      ),
+    getCurrentActivityAttempt: (owner, activityId) =>
+      request<ActivityAttempt | null>(
+        fetchImpl,
+        api(
+          `${activityOwnerPath(owner)}/activities/${encodeURIComponent(activityId)}/attempts/current`,
+        ),
+      ),
+    saveActivityDraft: (owner, activityId, draft) =>
+      request<ActivityAttempt>(
+        fetchImpl,
+        api(
+          `${activityOwnerPath(owner)}/activities/${encodeURIComponent(activityId)}/attempts/current/draft`,
+        ),
+        { method: 'PUT', body: JSON.stringify(draft) },
+      ),
+    submitActivityAttempt: (owner, activityId, payload) =>
+      request<ActivityAttempt>(
+        fetchImpl,
+        api(`${activityOwnerPath(owner)}/activities/${encodeURIComponent(activityId)}/attempts`),
+        { method: 'POST', body: JSON.stringify(payload) },
+      ),
+    getActivitySetProgress: (owner, setId) =>
+      request<ActivitySetProgress>(
+        fetchImpl,
+        api(`${activityOwnerPath(owner)}/activity-sets/${encodeURIComponent(setId)}/progress`),
       ),
     getCurrentLesson: () => request<LessonPayload>(fetchImpl, api('/lessons/current')),
     getLesson: (lessonId) =>

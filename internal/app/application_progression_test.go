@@ -47,4 +47,13 @@ func TestConfigureRouterRegistersProgressionRoutesForFilesystemCourse(t *testing
 	if response.Code != http.StatusOK {
 		t.Fatalf("status=%d body=%s", response.Code, response.Body.String())
 	}
+
+	activityRequest := httptest.NewRequest(http.MethodGet, "http://127.0.0.1/api/v1/courses/frontend-performance-foundations/lessons/event-loop/activities/event-loop-order", nil)
+	activityRequest.Host = "127.0.0.1:3210"
+	activityRequest.AddCookie(cookies[0])
+	activityResponse := httptest.NewRecorder()
+	handler.ServeHTTP(activityResponse, activityRequest)
+	if activityResponse.Code != http.StatusOK {
+		t.Fatalf("activity status=%d body=%s", activityResponse.Code, activityResponse.Body.String())
+	}
 }

@@ -1,10 +1,34 @@
 import type {
+  ActivityAnswer,
+  ActivityAttempt,
+  ActivityPublicView,
+  ActivitySetProgress,
   CheckResult,
   LessonBlock,
   LessonStatus,
   LessonType,
   ProcessEvent,
 } from '@synaploom/contracts';
+
+export interface ActivityOwner {
+  readonly courseId: string;
+  readonly ownerKind: 'lessons' | 'assessments';
+  readonly ownerId: string;
+}
+
+export interface SaveDraftPayload {
+  readonly answer: ActivityAnswer;
+  readonly revision: number;
+  readonly randomSeed?: number;
+}
+
+export interface SubmitAttemptPayload {
+  readonly answer: ActivityAnswer;
+  readonly idempotencyKey: string;
+  readonly randomSeed?: number;
+}
+
+export type { ActivityAttempt, ActivityPublicView, ActivitySetProgress };
 
 /** Summary used by the course navigation UI. */
 export interface CourseLessonSummary {

@@ -186,20 +186,35 @@ type EvaluationEngine interface {
 	Evaluate(context.Context, ActivityDefinition, json.RawMessage) (EvaluationResult, error)
 }
 
-type ActivityProgress struct {
-	ActivityID string  `json:"activityId"`
-	Required   bool    `json:"required"`
-	Completed  bool    `json:"completed"`
-	Passed     bool    `json:"passed"`
-	Score      float64 `json:"score"`
-	MaxScore   float64 `json:"maxScore"`
+type ActivitySetProgress struct {
+	Status                      string   `json:"status"`
+	CompletedRequiredActivities int      `json:"completedRequiredActivities"`
+	RequiredActivities          int      `json:"requiredActivities"`
+	Score                       *float64 `json:"score"`
+	MaxScore                    *float64 `json:"maxScore"`
+	Passed                      *bool    `json:"passed"`
 }
 
-type ActivitySetProgress struct {
-	SetID      string             `json:"setId"`
-	Completed  bool               `json:"completed"`
-	Passed     bool               `json:"passed"`
-	Score      float64            `json:"score"`
-	MaxScore   float64            `json:"maxScore"`
-	Activities []ActivityProgress `json:"activities"`
+func DefinitionFromMap(raw map[string]any) (ActivityDefinition, error) {
+	data, err := json.Marshal(raw)
+	if err != nil {
+		return ActivityDefinition{}, err
+	}
+	var wire struct {
+		ID         string           `json:"id"`
+		Kind       ActivityKind     `json:"kind"`
+		Title      string           `json:"title"`
+		Prompt     map[string]any   `json:"prompt"`
+		Config     map[string]any   `json:"config"`
+		Evaluation EvaluationPolicy `json:"evaluation"`
+		Completion CompletionPolicy `json:"completion"`
+		Feedback   FeedbackPolicy   `json:"feedback"`
+	}
+	if err := json.Unmarshal(data, &wire); err != nil {
+		return ActivityDefinition{}, err
+	}
+	if wire.ID == "" || wire.Title == "" || wire.Kind == "" || wire.Config == nil || wire.Prompt == nil {
+		return ActivityDefinition{}, ErrActivityNotFound
+	}
+	return ActivityDefinition{ID: wire.ID, Kind: wire.Kind, Title: wire.Title, Prompt: wire.Prompt, Config: wire.Config, Evaluation: wire.Evaluation, Completion: wire.Completion, Feedback: wire.Feedback}, nil
 }

@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/synaploom/synaploom/internal/activity"
 	"github.com/synaploom/synaploom/internal/buildinfo"
 	"github.com/synaploom/synaploom/internal/cli"
 	"github.com/synaploom/synaploom/internal/course"
@@ -136,10 +137,21 @@ func configureRouter(ctx context.Context, service course.Service, sessions *serv
 		return nil, fmt.Errorf("initialize progression: %w", err)
 	}
 	content := service
+	options := []server.RouterOption{server.WithProgression(progress)}
 	if filesystem, ok := service.(*course.FilesystemService); ok {
 		content = &progressionAwareFilesystemService{FilesystemService: filesystem, progression: progress, graph: graph}
+		sources, err := filesystem.ActivitySetSources(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("load activity catalog: %w", err)
+		}
+		catalog, err := newFilesystemActivityCatalog(graph.ID, graph.Version, sources)
+		if err != nil {
+			return nil, fmt.Errorf("configure activity catalog: %w", err)
+		}
+		activities := activity.NewService(catalog, storage.NewActivityRepository(database.SQL), nil)
+		options = append(options, server.WithActivities(activities))
 	}
-	return server.NewRouter(content, sessions, server.WithProgression(progress)), nil
+	return server.NewRouter(content, sessions, options...), nil
 }
 
 type progressionAwareFilesystemService struct {

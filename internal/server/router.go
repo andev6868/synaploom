@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/synaploom/synaploom/internal/activity"
 	"github.com/synaploom/synaploom/internal/ai"
 	"github.com/synaploom/synaploom/internal/course"
 	"github.com/synaploom/synaploom/internal/runner"
@@ -18,6 +19,7 @@ type routerOptions struct {
 	aiProvider  ai.Provider
 	aiLocal     bool
 	progression LearningProgression
+	activities  activity.Service
 }
 
 // RouterOption configures optional preview runtime capabilities.
@@ -36,6 +38,11 @@ func WithAI(provider ai.Provider, local bool) RouterOption {
 // WithActions enables trusted action execution routes.
 func WithActions(actions map[string]runner.Action) RouterOption {
 	return func(options *routerOptions) { options.actions = actions }
+}
+
+// WithActivities enables owner-qualified activity and attempt routes.
+func WithActivities(service activity.Service) RouterOption {
+	return func(options *routerOptions) { options.activities = service }
 }
 
 // WithProgression enables hierarchical navigation and requirement-authoritative mutations.
@@ -75,6 +82,14 @@ func NewRouter(service course.Service, sessions *SessionManager, options ...Rout
 	api.HandleFunc("POST /api/v1/lessons/{lessonId}/workspace/reset", handlers.resetWorkspace)
 	api.HandleFunc("GET /api/v1/preferences/pane-ratio", handlers.getPaneRatio)
 	api.HandleFunc("PUT /api/v1/preferences/pane-ratio", handlers.setPaneRatio)
+	if configuration.activities != nil {
+		activities := activityHandlers{content: service, activity: configuration.activities}
+		api.HandleFunc("GET /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activities/{activityId}", activities.get)
+		api.HandleFunc("GET /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activities/{activityId}/attempts/current", activities.current)
+		api.HandleFunc("PUT /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activities/{activityId}/attempts/current/draft", activities.saveDraft)
+		api.HandleFunc("POST /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activities/{activityId}/attempts", activities.submit)
+		api.HandleFunc("GET /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activity-sets/{setId}/progress", activities.setProgress)
+	}
 	if configuration.devEvents != nil {
 		api.HandleFunc("GET /api/v1/dev/events", DevEventsHandler(configuration.devEvents))
 	}
