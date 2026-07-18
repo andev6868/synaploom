@@ -36,7 +36,7 @@ test('represents course and runtime contracts', () => {
     timestamp: new Date(0).toISOString(),
   };
   assert.equal(COURSE_SCHEMA_VERSION, '1.0');
-  assert.equal(course.lessons.length, 1);
+  assert.equal(course.lessons?.length, 1);
   assert.equal(activity.kind, 'true-false');
   assert.equal(status, 'AVAILABLE');
   assert.equal(event.type, 'process.started');

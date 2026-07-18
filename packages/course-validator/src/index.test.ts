@@ -1,3 +1,5 @@
+import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import os from 'node:os';
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
 import path from 'node:path';
@@ -31,4 +33,91 @@ test('rejects non-contiguous positions', async () => {
   });
   assert.equal(report.valid, false);
   assert.ok(report.issues.some((issue) => issue.code === 'LESSON_POSITION_INVALID'));
+});
+
+test('validates Course Schema 1.2 activity sets and rejects scored submission-only writing', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'synaploom-activity-course-'));
+  await mkdir(path.join(root, 'lessons', '01-writing', 'activities'), { recursive: true });
+  await writeFile(
+    path.join(root, 'course.json'),
+    JSON.stringify({
+      schemaVersion: '1.2.0',
+      id: 'writing-course',
+      title: 'Writing Course',
+      description: 'Writing',
+      version: '1.2.0',
+      language: 'en',
+      chapters: [
+        {
+          id: 'writing',
+          title: 'Writing',
+          required: true,
+          lessons: [{ id: 'essay', required: true }],
+          assessments: [],
+        },
+      ],
+    }),
+  );
+  await writeFile(
+    path.join(root, 'lessons', '01-writing', 'lesson.md'),
+    `---
+id: essay
+title: Essay
+position: 1
+type: theory
+activitySets:
+  - activities/practice.json
+---
+Write.
+`,
+  );
+  await writeFile(
+    path.join(root, 'lessons', '01-writing', 'activities', 'practice.json'),
+    JSON.stringify({
+      schemaVersion: '1.0',
+      id: 'practice',
+      policy: {
+        purpose: 'practice',
+        maxAttempts: null,
+        feedbackMode: 'immediate',
+        revealAnswers: 'never',
+        scoring: 'none',
+        passingScore: null,
+      },
+      activities: [{ id: 'reflection', path: 'reflection.activity.json', required: true }],
+    }),
+  );
+  await writeFile(
+    path.join(root, 'lessons', '01-writing', 'activities', 'reflection.activity.json'),
+    JSON.stringify({
+      schemaVersion: '1.0',
+      id: 'reflection',
+      kind: 'writing',
+      title: 'Reflection',
+      prompt: { blocks: [] },
+      config: { minimumCharacters: 1, maximumCharacters: 500, answerFormat: 'plain-text' },
+      evaluation: { mode: 'submission', points: 0 },
+      completion: { required: true },
+    }),
+  );
+
+  const valid = await validateCoursePackage(root);
+  assert.equal(valid.valid, true, JSON.stringify(valid.issues));
+
+  const setPath = path.join(root, 'lessons', '01-writing', 'activities', 'practice.json');
+  const scoredSet = JSON.parse(
+    await import('node:fs/promises').then(({ readFile }) => readFile(setPath, 'utf8')),
+  );
+  scoredSet.policy = {
+    ...scoredSet.policy,
+    purpose: 'assessment',
+    scoring: 'points',
+    passingScore: 1,
+  };
+  await writeFile(setPath, JSON.stringify(scoredSet));
+  const invalid = await validateCoursePackage(root);
+  assert.equal(invalid.valid, false);
+  assert.ok(
+    invalid.issues.some((issue) => issue.code === 'ASSESSMENT_SCORE_REQUIRES_SCORABLE_ACTIVITY'),
+  );
 });

@@ -10,17 +10,33 @@ export type LessonStatus = 'LOCKED' | 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED';
 /** Portable metadata stored in a course package. */
 export interface CourseManifest {
   readonly $schema?: string;
-  readonly schemaVersion: '1.0';
+  readonly schemaVersion: '1.0' | '1.1.0' | '1.2.0';
   readonly id: string;
   readonly title: string;
   readonly description: string;
   readonly version: string;
   readonly language: string;
   readonly author?: string;
-  readonly lessons: readonly {
+  readonly lessons?: readonly {
     readonly id: string;
     readonly position: number;
     readonly path: string;
+  }[];
+  readonly chapters?: readonly {
+    readonly id: string;
+    readonly title: string;
+    readonly required: boolean;
+    readonly lessons: readonly { readonly id: string; readonly required: boolean }[];
+    readonly assessments: readonly {
+      readonly id: string;
+      readonly title: string;
+      readonly required: boolean;
+      readonly path: string;
+      readonly requiresLessons: readonly string[];
+      readonly completion:
+        | { readonly type: 'all-required-checks' }
+        | { readonly type: 'minimum-score'; readonly threshold: number };
+    }[];
   }[];
 }
 

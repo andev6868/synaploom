@@ -417,7 +417,7 @@ func buildFilesystemLessonCatalog(root string, manifest contracts.CourseManifest
 		sort.Slice(lessons, func(i, j int) bool { return lessons[i].Position < lessons[j].Position })
 		return lessons, nil
 	}
-	if manifest.SchemaVersion != contracts.CourseManifestSchemaVersionA110 {
+	if manifest.SchemaVersion != contracts.CourseManifestSchemaVersionA110 && manifest.SchemaVersion != contracts.CourseManifestSchemaVersionA120 {
 		return nil, fmt.Errorf("unsupported course schema version %q", manifest.SchemaVersion)
 	}
 	discovered := map[string]string{}

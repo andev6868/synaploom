@@ -134,11 +134,10 @@ export namespace ActivityPublicSchema {
     feedback?: ActivityFeedbackPolicy;
   }
   export interface LessonDocumentFragment {
-    blocks: LessonBlock[];
-  }
-  export interface LessonBlock {
-    type: string;
-    [k: string]: unknown;
+    blocks: {
+      type: string;
+      [k: string]: unknown;
+    }[];
   }
   export interface ActivityCompletionPolicy {
     required: boolean;
@@ -204,11 +203,10 @@ export namespace ActivityDefinitionSchema {
     | 'coding';
 
   export interface LessonDocumentFragment {
-    blocks: LessonBlock[];
-  }
-  export interface LessonBlock {
-    type: string;
-    [k: string]: unknown;
+    blocks: {
+      type: string;
+      [k: string]: unknown;
+    }[];
   }
   /**
    * This interface was referenced by `undefined`'s JSON-Schema
@@ -360,7 +358,7 @@ export interface CoursePayload {
  * This interface was referenced by `ApiContracts`'s JSON-Schema
  * via the `definition` "lessonBlock".
  */
-export interface ApiLessonBlock {
+export interface LessonBlock {
   type: string;
   [k: string]: unknown;
 }
@@ -401,7 +399,7 @@ export interface LessonPayload {
   position: number;
   type: 'theory' | 'practice' | 'mixed';
   estimatedMinutes: number | null;
-  blocks: ApiLessonBlock[];
+  blocks: LessonBlock[];
   status: 'LOCKED' | 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED';
   readingAcknowledged: boolean;
   latestCheck: null | {
@@ -742,51 +740,27 @@ export interface ExerciseManifest {
 
 // Generated from schemas/v1/lesson-document.schema.json.
 export namespace LessonDocumentSchema {
-  export type LessonDocument = LessonDocumentFragment & {
+  export interface LessonDocument {
     id: string;
     courseId: string;
     position: number;
     title: string;
     type: 'theory' | 'practice' | 'mixed';
+    blocks: {
+      type: string;
+      [k: string]: unknown;
+    }[];
     [k: string]: unknown;
-  };
+  }
   /**
-   * This interface was referenced by `undefined`'s JSON-Schema
-   * via the `definition` "inlineContent".
-   */
-  export type InlineContent =
-    | {
-        type: 'text';
-        value: string;
-      }
-    | {
-        type: 'code';
-        value: string;
-      }
-    | {
-        type: 'strong';
-        children: InlineContent[];
-      }
-    | {
-        type: 'link';
-        href: string;
-        children: InlineContent[];
-      };
-
-  /**
-   * This interface was referenced by `undefined`'s JSON-Schema
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
    * via the `definition` "fragment".
    */
   export interface LessonDocumentFragment {
-    blocks: LessonBlock[];
-  }
-  /**
-   * This interface was referenced by `undefined`'s JSON-Schema
-   * via the `definition` "lessonBlock".
-   */
-  export interface LessonBlock {
-    type: string;
-    [k: string]: unknown;
+    blocks: {
+      type: string;
+      [k: string]: unknown;
+    }[];
   }
 }
 
@@ -869,5 +843,3 @@ export type ActivityReference = ActivityDefinitionSchema.ActivityReference;
 export type ActivitySetDefinition = ActivityDefinitionSchema.ActivitySetDefinition;
 export type LessonDocument = LessonDocumentSchema.LessonDocument;
 export type LessonDocumentFragment = LessonDocumentSchema.LessonDocumentFragment;
-export type LessonInlineContent = LessonDocumentSchema.InlineContent;
-export type RichLessonBlock = LessonDocumentSchema.LessonBlock;

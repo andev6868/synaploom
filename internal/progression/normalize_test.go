@@ -130,3 +130,15 @@ func TestNormalizeRejectsDuplicateLessonMembership(t *testing.T) {
 		t.Fatalf("expected invalid graph, got %v", err)
 	}
 }
+
+func TestNormalizeCourseSchemaOneTwoUsesHierarchicalGraph(t *testing.T) {
+	manifest := chapterManifest()
+	manifest.SchemaVersion = contracts.CourseManifestSchemaVersionA120
+	graph, err := NormalizeCourse(manifest, lessonDefinitions())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(graph.Chapters) != 1 || graph.Chapters[0].ID != "runtime" {
+		t.Fatalf("graph=%+v", graph)
+	}
+}

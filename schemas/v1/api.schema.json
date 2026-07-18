@@ -107,7 +107,7 @@
       "additionalProperties": false
     },
     "lessonBlock": {
-      "title": "ApiLessonBlock",
+      "title": "LessonBlock",
       "type": "object",
       "required": ["type"],
       "properties": {

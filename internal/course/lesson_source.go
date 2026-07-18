@@ -20,6 +20,7 @@ type lessonFrontMatter struct {
 	Type             contracts.LessonPayloadType
 	EstimatedMinutes *int
 	Exercise         string
+	ActivitySets     []string
 }
 
 func parseLessonFrontMatter(source []byte) (lessonFrontMatter, []byte, error) {
@@ -28,6 +29,8 @@ func parseLessonFrontMatter(source []byte) (lessonFrontMatter, []byte, error) {
 		return lessonFrontMatter{}, source, nil
 	}
 	values := map[string]string{}
+	lists := map[string][]string{}
+	currentList := ""
 	closed := false
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -35,11 +38,26 @@ func parseLessonFrontMatter(source []byte) (lessonFrontMatter, []byte, error) {
 			closed = true
 			break
 		}
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "- ") && currentList != "" {
+			value := strings.Trim(strings.TrimSpace(strings.TrimPrefix(trimmed, "- ")), `"'`)
+			if value != "" {
+				lists[currentList] = append(lists[currentList], value)
+			}
+			continue
+		}
 		key, value, ok := strings.Cut(line, ":")
 		if !ok {
 			continue
 		}
-		values[strings.TrimSpace(key)] = strings.Trim(strings.TrimSpace(value), `"'`)
+		key = strings.TrimSpace(key)
+		value = strings.Trim(strings.TrimSpace(value), `"'`)
+		currentList = ""
+		if value == "" {
+			currentList = key
+			continue
+		}
+		values[key] = value
 	}
 	if !closed {
 		return lessonFrontMatter{}, nil, fmt.Errorf("lesson front matter is not closed")
@@ -52,7 +70,7 @@ func parseLessonFrontMatter(source []byte) (lessonFrontMatter, []byte, error) {
 	if err := scanner.Err(); err != nil {
 		return lessonFrontMatter{}, nil, err
 	}
-	metadata := lessonFrontMatter{ID: values["id"], Title: values["title"], Exercise: values["exercise"]}
+	metadata := lessonFrontMatter{ID: values["id"], Title: values["title"], Exercise: values["exercise"], ActivitySets: lists["activitySets"]}
 	switch values["type"] {
 	case "practice":
 		metadata.Type = contracts.LessonPayloadTypePractice

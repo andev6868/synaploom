@@ -32,7 +32,7 @@ func NormalizeCourse(manifest contracts.CourseManifest, lessons []LessonDefiniti
 			return CourseGraph{}, err
 		}
 		graph.Chapters = []Chapter{chapter}
-	case contracts.CourseManifestSchemaVersionA110:
+	case contracts.CourseManifestSchemaVersionA110, contracts.CourseManifestSchemaVersionA120:
 		chapters, err := normalizeHierarchicalChapters(manifest, definitions)
 		if err != nil {
 			return CourseGraph{}, err

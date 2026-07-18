@@ -363,13 +363,6 @@ type ApiErrorPayload struct {
 	RequestId *string `json:"requestId,omitempty,omitzero" yaml:"requestId,omitempty" mapstructure:"requestId,omitempty"`
 }
 
-type ApiLessonBlock struct {
-	// Type corresponds to the JSON schema field "type".
-	Type string `json:"type" yaml:"type" mapstructure:"type"`
-
-	AdditionalProperties interface{} `mapstructure:",remain"`
-}
-
 type AssessmentNavigationItem struct {
 	// BlockingRequirements corresponds to the JSON schema field
 	// "blockingRequirements".
@@ -758,9 +751,14 @@ type FailedToStart struct {
 	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
 }
 
-type Id string
+type FragmentBlocksElem struct {
+	// Type corresponds to the JSON schema field "type".
+	Type string `json:"type" yaml:"type" mapstructure:"type"`
 
-type InlineContent interface{}
+	AdditionalProperties interface{} `mapstructure:",remain"`
+}
+
+type Id string
 
 type Killed struct {
 	// ExitCode corresponds to the JSON schema field "exitCode".
@@ -791,10 +789,43 @@ type LessonBlock struct {
 	AdditionalProperties interface{} `mapstructure:",remain"`
 }
 
+type LessonDocument struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonDocumentBlocksElem `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// CourseId corresponds to the JSON schema field "courseId".
+	CourseId string `json:"courseId" yaml:"courseId" mapstructure:"courseId"`
+
+	// Id corresponds to the JSON schema field "id".
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Position corresponds to the JSON schema field "position".
+	Position int `json:"position" yaml:"position" mapstructure:"position"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title string `json:"title" yaml:"title" mapstructure:"title"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type LessonDocumentType `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type LessonDocumentBlocksElem struct {
+	// Type corresponds to the JSON schema field "type".
+	Type string `json:"type" yaml:"type" mapstructure:"type"`
+
+	AdditionalProperties interface{} `mapstructure:",remain"`
+}
+
 type LessonDocumentFragment struct {
 	// Blocks corresponds to the JSON schema field "blocks".
-	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+	Blocks []FragmentBlocksElem `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
 }
+
+type LessonDocumentType string
+
+const LessonDocumentTypeMixed LessonDocumentType = "mixed"
+const LessonDocumentTypePractice LessonDocumentType = "practice"
+const LessonDocumentTypeTheory LessonDocumentType = "theory"
 
 type LessonExercise struct {
 	// Actions corresponds to the JSON schema field "actions".
@@ -892,7 +923,7 @@ const LessonNavigationItemStatusLOCKED LessonNavigationItemStatus = "LOCKED"
 
 type LessonPayload struct {
 	// Blocks corresponds to the JSON schema field "blocks".
-	Blocks []ApiLessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
 
 	// EstimatedMinutes corresponds to the JSON schema field "estimatedMinutes".
 	EstimatedMinutes LessonPayloadEstimatedMinutes `json:"estimatedMinutes" yaml:"estimatedMinutes" mapstructure:"estimatedMinutes"`
@@ -1055,17 +1086,16 @@ type RequirementView struct {
 
 type RequirementViewKind string
 
+const RequirementViewKindAssessment RequirementViewKind = "assessment"
 const RequirementViewKindLesson RequirementViewKind = "lesson"
 const RequirementViewKindPractice RequirementViewKind = "practice"
 const RequirementViewKindReading RequirementViewKind = "reading"
 
-type ActivityAttemptFeedback_0 = ActivityFeedback
-
-const RequirementViewKindAssessment RequirementViewKind = "assessment"
-
 type RequirementViewLatestPassed *bool
 
 type SafePath string
+
+type ActivityAttemptFeedback_0 = ActivityFeedback
 
 type Started struct {
 	// LessonId corresponds to the JSON schema field "lessonId".

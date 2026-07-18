@@ -21,10 +21,11 @@ import (
 var ErrUnsafePath = errors.New("unsafe path")
 
 type InstalledCourse struct {
-	Manifest    generated.CourseManifest
-	SourcePath  string
-	InstallPath string
-	Digest      string
+	Manifest     generated.CourseManifest
+	SourcePath   string
+	InstallPath  string
+	Digest       string
+	ActivitySets map[string][]ActivitySetSource
 }
 
 func Import(ctx context.Context, sourcePath, destinationRoot string) (InstalledCourse, error) {
@@ -57,6 +58,10 @@ func Import(ctx context.Context, sourcePath, destinationRoot string) (InstalledC
 	if err := walkSafe(source); err != nil {
 		return InstalledCourse{}, err
 	}
+	activitySets, err := loadCourseActivitySets(ctx, source, manifest)
+	if err != nil {
+		return InstalledCourse{}, err
+	}
 	digest, err := hashTree(source)
 	if err != nil {
 		return InstalledCourse{}, err
@@ -81,7 +86,7 @@ func Import(ctx context.Context, sourcePath, destinationRoot string) (InstalledC
 		}
 		return InstalledCourse{}, err
 	}
-	return InstalledCourse{Manifest: manifest, SourcePath: source, InstallPath: install, Digest: digest}, nil
+	return InstalledCourse{Manifest: manifest, SourcePath: source, InstallPath: install, Digest: digest, ActivitySets: activitySets}, nil
 }
 
 func validateRelativePath(value string) error {
