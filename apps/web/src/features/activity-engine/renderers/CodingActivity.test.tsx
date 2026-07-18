@@ -88,25 +88,30 @@ describe('CodingActivity', () => {
     expect(screen.getByText('Output chính xác')).toBeVisible();
     expect(activityListFiles).toHaveBeenCalledWith({
       courseId: 'course',
-      lessonId: 'coding-lesson',
+      ownerKind: 'lessons',
+      ownerId: 'coding-lesson',
       activityId: 'coding-lab',
     });
     expect(legacyListFiles).not.toHaveBeenCalled();
   });
 
-  it('fails closed outside a lesson owner until a trusted assessment adapter is available', () => {
+  it('reuses the trusted coding workspace for an assessment owner', async () => {
     render(
       <AppProviders api={api()}>
         <CodingActivity
-          owner={{ ...owner, ownerKind: 'assessments' }}
+          owner={{ ...owner, ownerKind: 'assessments', ownerId: 'runtime-checkpoint' }}
           activity={activity}
           onProgressChanged={vi.fn()}
         />
       </AppProviders>,
     );
 
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'Không gian lập trình chưa khả dụng cho loại nội dung này',
-    );
+    expect(await screen.findByRole('heading', { name: 'Coding Lab' })).toBeVisible();
+    expect(activityListFiles).toHaveBeenCalledWith({
+      courseId: 'course',
+      ownerKind: 'assessments',
+      ownerId: 'runtime-checkpoint',
+      activityId: 'coding-lab',
+    });
   });
 });

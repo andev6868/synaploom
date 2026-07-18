@@ -208,7 +208,8 @@ describe('activity API client', () => {
     const client = createApiClient(fetchImpl as typeof fetch);
     const target = {
       courseId: 'coding course',
-      lessonId: 'intro lesson',
+      ownerKind: 'lessons' as const,
+      ownerId: 'intro lesson',
       activityId: 'coding lab',
     };
 
@@ -228,5 +229,27 @@ describe('activity API client', () => {
     expect(fetchImpl.mock.calls[2]?.[1]).toMatchObject({ method: 'PUT' });
     expect(fetchImpl.mock.calls[3]?.[1]).toMatchObject({ method: 'POST' });
     expect(fetchImpl.mock.calls[4]?.[1]).toMatchObject({ method: 'POST' });
+  });
+
+  it('builds assessment coding workspace URLs', async () => {
+    const fetchImpl = vi.fn(async () =>
+      new Response(JSON.stringify({ files: ['answer.js'] }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    );
+    const client = createApiClient(fetchImpl as typeof fetch);
+
+    await client.listActivityFiles?.({
+      courseId: 'course',
+      ownerKind: 'assessments',
+      ownerId: 'checkpoint',
+      activityId: 'coding-final',
+    });
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      '/api/v1/courses/course/assessments/checkpoint/activities/coding-final/workspace/files',
+      expect.anything(),
+    );
   });
 });

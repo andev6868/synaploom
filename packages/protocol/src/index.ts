@@ -17,10 +17,11 @@ export interface ActivityOwner {
   readonly ownerId: string;
 }
 
-/** Identifies one coding activity workspace inside a lesson. */
+/** Identifies one trusted coding workspace owned by a lesson or assessment. */
 export interface CodingWorkspaceTarget {
   readonly courseId: string;
-  readonly lessonId: string;
+  readonly ownerKind: 'lessons' | 'assessments';
+  readonly ownerId: string;
   readonly activityId: string;
 }
 

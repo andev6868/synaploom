@@ -74,5 +74,22 @@ func (s *FilesystemService) ProgressionGraph() (progression.CourseGraph, error) 
 		}
 		definitions = append(definitions, definition)
 	}
-	return progression.NormalizeCourse(s.manifest, definitions)
+	graph, err := progression.NormalizeCourse(s.manifest, definitions)
+	if err != nil {
+		return progression.CourseGraph{}, err
+	}
+	assessmentSets, err := loadAssessmentActivitySets(context.Background(), s.root, s.manifest)
+	if err != nil {
+		return progression.CourseGraph{}, fmt.Errorf("load assessment activity sets: %w", err)
+	}
+	for chapterIndex := range graph.Chapters {
+		for assessmentIndex := range graph.Chapters[chapterIndex].Assessments {
+			assessment := &graph.Chapters[chapterIndex].Assessments[assessmentIndex]
+			sets := assessmentSets[assessment.ID]
+			if len(sets) > 0 {
+				assessment.ActivitySetID = string(sets[0].Definition.Id)
+			}
+		}
+	}
+	return graph, nil
 }

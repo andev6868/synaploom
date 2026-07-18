@@ -89,6 +89,11 @@ func (s *FilesystemService) ActivitySetSources(ctx context.Context) (map[string]
 	return loadCourseActivitySets(ctx, s.root, s.manifest)
 }
 
+// AssessmentActivitySetSources returns chapter-assessment activity definitions.
+func (s *FilesystemService) AssessmentActivitySetSources(ctx context.Context) (map[string][]ActivitySetSource, error) {
+	return loadAssessmentActivitySets(ctx, s.root, s.manifest)
+}
+
 func (s *FilesystemService) Course(context.Context) (contracts.CoursePayload, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

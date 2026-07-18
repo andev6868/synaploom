@@ -1,8 +1,8 @@
 # Rich Lesson Content and Multi-Domain Activity Engine Design
 
-**Status:** Approved
-**Date:** 2026-07-18
-**Target release:** Course Schema 1.2.0
+**Status:** Approved scope; design awaiting final review  
+**Date:** 2026-07-18  
+**Target release:** Course Schema 1.2.0  
 **Supersedes:** Coding-only exercise assumptions in Course Schema 1.0/1.1
 
 ## 1. Purpose
@@ -131,13 +131,13 @@ When the viewed item moves to another chapter, the strip is replaced with that c
 
 Each step communicates both kind and status:
 
-| Kind/state       | Visual semantic                        | Accessible label example                          |
-| ---------------- | -------------------------------------- | ------------------------------------------------- |
-| completed lesson | filled marker                          | `Main Thread, bài học, đã hoàn thành`             |
-| current lesson   | emphasized ring                        | `Event Loop, bài học hiện tại`                    |
-| available lesson | empty marker                           | `Rendering Pipeline, bài học tùy chọn, có thể mở` |
-| locked lesson    | lock marker                            | `Rendering Pipeline, bài học bị khóa`             |
-| assessment       | distinct `A` marker or assessment icon | `Runtime Checkpoint, đánh giá chương`             |
+| Kind/state | Visual semantic | Accessible label example |
+|---|---|---|
+| completed lesson | filled marker | `Main Thread, bài học, đã hoàn thành` |
+| current lesson | emphasized ring | `Event Loop, bài học hiện tại` |
+| available lesson | empty marker | `Rendering Pipeline, bài học tùy chọn, có thể mở` |
+| locked lesson | lock marker | `Rendering Pipeline, bài học bị khóa` |
+| assessment | distinct `A` marker or assessment icon | `Runtime Checkpoint, đánh giá chương` |
 
 Color is supplementary. Every status has text in tooltip/accessibility output and a non-color visual distinction.
 
@@ -249,10 +249,9 @@ Với tam giác vuông: $a^2 + b^2 = c^2$.
 :::
 
 :::worked-example title="Tính cạnh huyền"
-
 1. Thay $a=3$, $b=4$.
 2. Tính $c=\sqrt{3^2+4^2}=5$.
-   :::
+:::
 
 :::activity id="pythagoras-numeric"
 :::

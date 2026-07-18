@@ -69,13 +69,11 @@ examples/multi-domain-foundations/*                Cross-domain Course Schema 1.
 ### Task 1: Restrict top navigation steps to the active chapter
 
 **Files:**
-
 - Modify: `apps/web/src/features/learning-progress/LearningTopNavigation.tsx:25-100`
 - Modify: `apps/web/src/features/learning-progress/LearningTopNavigation.test.tsx`
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
-
 - Consumes: `CourseNavigationPayload.chapters`, `viewedItemId`.
 - Produces: `activeChapterItems(navigation, viewedItemId): readonly FlatLearningItem[]`; previous/next continue using the course-wide flattened sequence.
 
@@ -163,7 +161,6 @@ git commit -m "fix: scope learning steps to active chapter"
 ### Task 2: Add Course Schema 1.2 and activity contract schemas
 
 **Files:**
-
 - Create: `schemas/v1/activity.schema.json`
 - Create: `schemas/v1/activity-public.schema.json`
 - Create: `schemas/v1/activity-attempt.schema.json`
@@ -175,7 +172,6 @@ git commit -m "fix: scope learning steps to active chapter"
 - Modify: `packages/contracts/src/index.ts`
 
 **Interfaces:**
-
 - Produces: `ActivityKind`, `ActivitySetPolicy`, `ActivityDefinition`, `ActivityPublicView`, `ActivityAnswer`, `ActivityAttempt`, `ActivityFeedback`, `ActivitySetProgress`, `SUPPORTED_SCHEMA_VERSIONS` containing `1.2.0`.
 
 - [ ] **Step 1: Add failing schema-version and union tests**
@@ -212,16 +208,7 @@ Create `activity.schema.json` with this root shape:
   "$id": "https://synaploom.dev/schemas/v1/activity.schema.json",
   "title": "ActivityDefinition",
   "type": "object",
-  "required": [
-    "schemaVersion",
-    "id",
-    "kind",
-    "title",
-    "prompt",
-    "config",
-    "evaluation",
-    "completion"
-  ],
+  "required": ["schemaVersion", "id", "kind", "title", "prompt", "config", "evaluation", "completion"],
   "properties": {
     "schemaVersion": { "const": "1.0" },
     "id": { "$ref": "course.schema.json#/$defs/id" },
@@ -325,7 +312,6 @@ git commit -m "feat: add course schema 1.2 activity contracts"
 ### Task 3: Load and validate activity sets from course packages
 
 **Files:**
-
 - Create: `internal/course/activity_source.go`
 - Create: `internal/course/activity_source_test.go`
 - Create: `internal/course/activity_validation.go`
@@ -336,7 +322,6 @@ git commit -m "feat: add course schema 1.2 activity contracts"
 - Modify: `packages/course-validator/src/index.test.ts`
 
 **Interfaces:**
-
 - Produces Go types `ActivitySetSource`, `ActivitySource`, and functions:
 
 ```go
@@ -426,7 +411,6 @@ git commit -m "feat: load and validate activity manifests"
 ### Task 4: Expand the typed lesson document contract
 
 **Files:**
-
 - Modify: `schemas/v1/lesson-document.schema.json`
 - Modify: `packages/contracts/src/index.ts`
 - Modify: `packages/protocol/src/index.ts`
@@ -435,7 +419,6 @@ git commit -m "feat: load and validate activity manifests"
 - Modify: `tests/conformance/contracts/conformance.test.ts`
 
 **Interfaces:**
-
 - Produces: `LessonDocument`, `LessonDocumentFragment`, `InlineNode`, and rich `LessonBlock` discriminated unions.
 
 - [ ] **Step 1: Add a failing rich-document round-trip fixture**
@@ -488,7 +471,6 @@ git commit -m "feat: define rich lesson document contracts"
 ### Task 5: Replace the Go Markdown subset parser with a canonical parser pipeline
 
 **Files:**
-
 - Modify: `go.mod`
 - Modify: `go.sum`
 - Replace: `internal/course/markdown.go`
@@ -501,7 +483,6 @@ git commit -m "feat: define rich lesson document contracts"
 - Create: `internal/course/testdata/markdown/*.golden.json`
 
 **Interfaces:**
-
 - Produces:
 
 ```go
@@ -579,7 +560,6 @@ git commit -m "feat: parse canonical rich lesson documents"
 ### Task 6: Convert the frontend lesson renderer into a pure typed renderer
 
 **Files:**
-
 - Modify: `packages/lesson-renderer/src/index.ts`
 - Modify: `packages/lesson-renderer/src/index.test.ts`
 - Create: `apps/web/src/features/lesson-content/LessonDocumentRenderer.tsx`
@@ -591,7 +571,6 @@ git commit -m "feat: parse canonical rich lesson documents"
 - Modify: `pnpm-lock.yaml`
 
 **Interfaces:**
-
 - Consumes: `LessonDocument` from the daemon.
 - Produces: `LessonDocumentRenderer({ document, renderActivity }): ReactNode`; `packages/lesson-renderer` exports only type guards and pure helpers, not production Markdown parsing.
 
@@ -648,14 +627,12 @@ git commit -m "feat: render typed rich lesson documents"
 ### Task 7: Add SQLite activity attempt persistence
 
 **Files:**
-
 - Create: `internal/storage/migrations/004_activity_engine.sql`
 - Create: `internal/storage/activity_repository.go`
 - Create: `internal/storage/activity_repository_test.go`
 - Modify: `internal/storage/migrate_test.go`
 
 **Interfaces:**
-
 - Produces:
 
 ```go
@@ -736,7 +713,6 @@ git commit -m "feat: persist activity attempts"
 ### Task 8: Implement the activity domain service and public views
 
 **Files:**
-
 - Create: `internal/activity/model.go`
 - Create: `internal/activity/public_view.go`
 - Create: `internal/activity/public_view_test.go`
@@ -745,7 +721,6 @@ git commit -m "feat: persist activity attempts"
 - Create: `internal/activity/errors.go`
 
 **Interfaces:**
-
 - Produces:
 
 ```go
@@ -800,7 +775,6 @@ git commit -m "feat: add activity attempt service"
 ### Task 9: Expose canonical activity APIs and typed browser client methods
 
 **Files:**
-
 - Create: `internal/server/activity_handlers.go`
 - Create: `internal/server/activity_handlers_test.go`
 - Modify: `internal/server/router.go`
@@ -810,7 +784,6 @@ git commit -m "feat: add activity attempt service"
 - Modify: `apps/web/src/shared/api/client.test.tsx`
 
 **Interfaces:**
-
 - Canonical owner-qualified API:
 
 ```text
@@ -886,7 +859,6 @@ git commit -m "feat: expose activity attempt APIs"
 ### Task 10: Implement choice and text evaluators
 
 **Files:**
-
 - Create: `internal/activity/evaluator.go`
 - Create: `internal/activity/evaluator_choice.go`
 - Create: `internal/activity/evaluator_choice_test.go`
@@ -894,7 +866,6 @@ git commit -m "feat: expose activity attempt APIs"
 - Create: `internal/activity/evaluator_text_test.go`
 
 **Interfaces:**
-
 - Produces evaluators for `single-choice`, `multiple-choice`, `true-false`, `short-answer`, and `fill-blanks`.
 
 - [ ] **Step 1: Add table-driven evaluator tests**
@@ -944,7 +915,6 @@ git commit -m "feat: evaluate choice and text activities"
 ### Task 11: Implement ordering, matching, numeric, and writing evaluators
 
 **Files:**
-
 - Create: `internal/activity/evaluator_ordering.go`
 - Create: `internal/activity/evaluator_ordering_test.go`
 - Create: `internal/activity/evaluator_matching.go`
@@ -957,7 +927,6 @@ git commit -m "feat: evaluate choice and text activities"
 - Create: `internal/activity/units.go`
 
 **Interfaces:**
-
 - Produces deterministic evaluators for the remaining non-coding v1 kinds.
 
 - [ ] **Step 1: Add evaluator tests**
@@ -996,7 +965,6 @@ git commit -m "feat: evaluate structured and open activities"
 ### Task 12: Aggregate activity-set progress and integrate progression requirements
 
 **Files:**
-
 - Create: `internal/activity/set_progress.go`
 - Create: `internal/activity/set_progress_test.go`
 - Modify: `internal/progression/model.go`
@@ -1007,7 +975,6 @@ git commit -m "feat: evaluate structured and open activities"
 - Modify: `internal/storage/hierarchical_progress_repository.go`
 
 **Interfaces:**
-
 - Produces `ActivitySetProgress` and progression requirement kind `activity-set`.
 
 - [ ] **Step 1: Add failing aggregation tests**
@@ -1048,7 +1015,6 @@ git commit -m "feat: drive progression from activity sets"
 ### Task 13: Build shared activity state and `ActivityHost`
 
 **Files:**
-
 - Create: `apps/web/src/features/activity-engine/types.ts`
 - Create: `apps/web/src/features/activity-engine/useActivityAttempt.ts`
 - Create: `apps/web/src/features/activity-engine/useActivityAttempt.test.tsx`
@@ -1058,7 +1024,6 @@ git commit -m "feat: drive progression from activity sets"
 - Modify: `apps/web/src/shared/api/client.ts`
 
 **Interfaces:**
-
 - Produces:
 
 ```ts
@@ -1105,7 +1070,6 @@ git commit -m "feat: add web activity host"
 ### Task 14: Implement the nine non-coding activity renderers
 
 **Files:**
-
 - Create: `apps/web/src/features/activity-engine/renderers/ChoiceActivity.tsx`
 - Create: `apps/web/src/features/activity-engine/renderers/TrueFalseActivity.tsx`
 - Create: `apps/web/src/features/activity-engine/renderers/ShortAnswerActivity.tsx`
@@ -1118,7 +1082,6 @@ git commit -m "feat: add web activity host"
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
-
 - Each renderer receives typed public config, current answer, disabled state, `onChange`, and `onSubmit` through a common internal renderer contract.
 
 - [ ] **Step 1: Add keyboard and answer-retention tests for every renderer**
@@ -1167,7 +1130,6 @@ git commit -m "feat: render multi-domain learning activities"
 ### Task 15: Embed activities into rich lessons and select workspace layouts
 
 **Files:**
-
 - Modify: `apps/web/src/features/lesson-content/LessonDocumentRenderer.tsx`
 - Modify: `apps/web/src/features/lesson-content/LessonContent.tsx`
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx`
@@ -1176,7 +1138,6 @@ git commit -m "feat: render multi-domain learning activities"
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
-
 - Produces layout modes `reading`, `inline-activity`, `focused-activity`, and `split-coding` derived from typed content/activity capabilities.
 
 - [ ] **Step 1: Add failing layout tests**
@@ -1240,7 +1201,6 @@ git commit -m "feat: embed activities in unified learning workspace"
 ### Task 16: Adapt the existing coding workspace into `kind: coding`
 
 **Files:**
-
 - Create: `internal/activity/coding_adapter.go`
 - Create: `internal/activity/coding_adapter_test.go`
 - Create: `apps/web/src/features/activity-engine/renderers/CodingActivity.tsx`
@@ -1251,7 +1211,6 @@ git commit -m "feat: embed activities in unified learning workspace"
 - Modify: `packages/protocol/src/index.ts`
 
 **Interfaces:**
-
 - Produces a legacy exercise adapter and a coding activity facade that reuses current workspace, files, actions, SSE, checks, and completion behavior.
 
 - [ ] **Step 1: Add compatibility tests**
@@ -1293,7 +1252,6 @@ git commit -m "feat: adapt coding workspace to activity engine"
 ### Task 17: Migrate chapter assessments to activity sets
 
 **Files:**
-
 - Create: `internal/course/assessment_adapter.go`
 - Create: `internal/course/assessment_adapter_test.go`
 - Modify: `internal/server/chapter_assessment_handlers.go`
@@ -1303,7 +1261,6 @@ git commit -m "feat: adapt coding workspace to activity engine"
 - Modify: `internal/progression/hierarchical_service.go`
 
 **Interfaces:**
-
 - Assessment payload becomes an ordered activity set plus policy and progress; legacy assessment action remains a compatibility adapter only.
 
 - [ ] **Step 1: Add failing assessment-engine tests**
@@ -1343,7 +1300,6 @@ git commit -m "feat: migrate assessments to activity sets"
 ### Task 18: Add a complete multi-domain Course Schema 1.2 example
 
 **Files:**
-
 - Create: `examples/multi-domain-foundations/course.json`
 - Create: `examples/multi-domain-foundations/lessons/programming/*`
 - Create: `examples/multi-domain-foundations/lessons/mathematics/*`
@@ -1354,7 +1310,6 @@ git commit -m "feat: migrate assessments to activity sets"
 - Create: `tests/e2e/multi-domain-runtime.spec.ts`
 
 **Interfaces:**
-
 - Demonstrates all ten kinds and all four workspace layouts in one valid Course Schema 1.2 package.
 
 - [ ] **Step 1: Write failing validation and browser acceptance tests**
@@ -1398,7 +1353,6 @@ git commit -m "feat: add multi-domain activity course"
 ### Task 19: Publish authoring, migration, security, and release documentation
 
 **Files:**
-
 - Create: `docs/authoring/rich-lesson-content.md`
 - Create: `docs/authoring/activity-engine.md`
 - Create: `docs/authoring/activity-kinds.md`
@@ -1411,7 +1365,6 @@ git commit -m "feat: add multi-domain activity course"
 - Modify: `package.json`
 
 **Interfaces:**
-
 - Build metadata and `doctor --json` advertise Course Schema `1.2.0`; release workflow validates old examples and the new multi-domain example.
 
 - [ ] **Step 1: Add failing documentation/release contract tests**

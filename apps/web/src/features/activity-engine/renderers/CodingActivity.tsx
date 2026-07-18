@@ -25,16 +25,17 @@ function lessonExercise(config: ExerciseManifest): NonNullable<LessonPayload['ex
   };
 }
 
-function LessonCodingActivity({ owner, activity, onProgressChanged }: Props): ReactNode {
+export function CodingActivity({ owner, activity, onProgressChanged }: Props): ReactNode {
   const api = useApi();
   const queryClient = useQueryClient();
   const lessonQuery = useQuery({
     queryKey: ['lesson', owner.ownerId],
     queryFn: () => api.getLesson(owner.ownerId),
+    enabled: owner.ownerKind === 'lessons',
   });
   const config = activity.config as ExerciseManifest;
   const exercise = useMemo(() => lessonExercise(config), [config]);
-  const source = lessonQuery.data;
+  const source = owner.ownerKind === 'lessons' ? lessonQuery.data : null;
   const lesson: LessonPayload = {
     id: owner.ownerId,
     title: source?.title ?? activity.title,
@@ -49,7 +50,9 @@ function LessonCodingActivity({ owner, activity, onProgressChanged }: Props): Re
   };
 
   const refresh = async (): Promise<void> => {
-    await queryClient.invalidateQueries({ queryKey: ['lesson', owner.ownerId] });
+    if (owner.ownerKind === 'lessons') {
+      await queryClient.invalidateQueries({ queryKey: ['lesson', owner.ownerId] });
+    }
     await onProgressChanged();
   };
 
@@ -58,21 +61,11 @@ function LessonCodingActivity({ owner, activity, onProgressChanged }: Props): Re
       lesson={lesson}
       workspaceTarget={{
         courseId: owner.courseId,
-        lessonId: owner.ownerId,
+        ownerKind: owner.ownerKind,
+        ownerId: owner.ownerId,
         activityId: activity.id,
       }}
       onActionComplete={() => void refresh()}
     />
   );
-}
-
-export function CodingActivity(props: Props): ReactNode {
-  if (props.owner.ownerKind !== 'lessons') {
-    return (
-      <div role="alert" className="syn-activity-host__placeholder" data-activity-kind="coding">
-        Không gian lập trình chưa khả dụng cho loại nội dung này.
-      </div>
-    );
-  }
-  return <LessonCodingActivity {...props} />;
 }

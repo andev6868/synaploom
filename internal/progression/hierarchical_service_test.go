@@ -123,3 +123,44 @@ func TestActivitySetProgressCompletesLessonThroughServiceComposition(t *testing.
 		t.Fatalf("activity-backed lesson did not complete: %+v", result.Evaluation.Lessons[lesson.ID])
 	}
 }
+
+func TestAssessmentActivitySetProgressCompletesChapterThroughServiceComposition(t *testing.T) {
+	lesson := progression.LessonRef{ID: "lesson", ChapterID: "c1", Position: 1, Required: true, ReadingRequired: true}
+	next := progression.LessonRef{ID: "next", ChapterID: "c2", Position: 1, Required: true, ReadingRequired: true}
+	assessment := progression.Assessment{
+		ID: "checkpoint", ChapterID: "c1", Position: 1, Required: true,
+		ActivitySetID: "checkpoint-set",
+	}
+	graph := progression.CourseGraph{
+		ID: "course", Version: "1",
+		Chapters: []progression.Chapter{
+			{ID: "c1", Position: 1, Required: true, Lessons: []progression.LessonRef{lesson}, Assessments: []progression.Assessment{assessment}},
+			{ID: "c2", Position: 2, Required: true, Lessons: []progression.LessonRef{next}},
+		},
+		LessonIndex: map[string]progression.LessonRef{lesson.ID: lesson, next.ID: next},
+	}
+	service, _ := newHierarchicalFixture(t, graph)
+	passed := true
+	service.SetActivityProgressProvider(staticActivityProgressProvider{
+		{OwnerKind: "assessment", OwnerID: assessment.ID, SetID: assessment.ActivitySetID}: {
+			Status: "COMPLETED", Passed: &passed, RequiredActivities: 1, CompletedRequiredActivities: 1,
+		},
+	})
+	result, err := service.AcknowledgeReading(context.Background(), lesson.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Evaluation.Chapters["c1"].Status != progression.StatusCompleted {
+		t.Fatalf("chapter status = %s", result.Evaluation.Chapters["c1"].Status)
+	}
+	if result.Evaluation.Lessons[next.ID].Status != progression.StatusAvailable {
+		t.Fatalf("next lesson status = %s", result.Evaluation.Lessons[next.ID].Status)
+	}
+	view, err := service.ChapterAssessment(context.Background(), "c1", assessment.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if view.Status != progression.StatusCompleted || len(view.Requirements) != 1 || !view.Requirements[0].Satisfied {
+		t.Fatalf("assessment view = %+v", view)
+	}
+}

@@ -1,12 +1,13 @@
 import type {
   ActivityOwner,
+  ActivitySetProgress,
   CourseNavigationPayload,
   LessonViewContext,
   NextActionPayload,
   PublicActivitySetPayload,
 } from '@synaploom/protocol';
 import { StatusBadge } from '@synaploom/ui';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { useApi } from '#src/app/providers/AppProviders';
 import { ActivityHost } from '#src/features/activity-engine/ActivityHost';
@@ -20,14 +21,80 @@ interface Props {
   readonly onAction: (action: NextActionPayload) => void;
 }
 
-function stringField(value: Record<string, unknown> | null, key: string): string | null {
-  const field = value?.[key];
-  return typeof field === 'string' && field.trim() ? field : null;
+interface AssessmentSetProps {
+  readonly owner: ActivityOwner;
+  readonly set: PublicActivitySetPayload;
+  readonly onProgressChanged: () => Promise<void>;
 }
 
-function numberField(value: Record<string, unknown> | null, key: string): number | null {
-  const field = value?.[key];
-  return typeof field === 'number' && Number.isFinite(field) ? field : null;
+function progressLabel(progress: ActivitySetProgress): string {
+  return `${progress.completedRequiredActivities}/${progress.requiredActivities} hoạt động bắt buộc đã hoàn thành`;
+}
+
+function scoreLabel(progress: ActivitySetProgress): string | null {
+  if (progress.score === null || progress.maxScore === null) return null;
+  return `Điểm hiện tại: ${progress.score}/${progress.maxScore}`;
+}
+
+function thresholdLabel(
+  progress: ActivitySetProgress,
+  set: PublicActivitySetPayload,
+): string | null {
+  const threshold = set.policy.passingScore;
+  if (threshold === null) return null;
+  if (progress.passed === true) return `Đã đạt ngưỡng ${threshold} điểm`;
+  return `Chưa đạt ngưỡng ${threshold} điểm`;
+}
+
+function AssessmentActivitySet({ owner, set, onProgressChanged }: AssessmentSetProps): ReactNode {
+  const api = useApi();
+  const progressQuery = useQuery({
+    queryKey: ['activity-set-progress', owner.courseId, owner.ownerKind, owner.ownerId, set.id],
+    queryFn: () => api.getActivitySetProgress(owner, set.id),
+  });
+  const progress = progressQuery.data;
+  const score = progress ? scoreLabel(progress) : null;
+  const threshold = progress ? thresholdLabel(progress, set) : null;
+
+  return (
+    <section className="syn-assessment-workspace__set" aria-labelledby={`assessment-set-${set.id}`}>
+      <header className="syn-assessment-workspace__set-heading">
+        <div>
+          <h2 id={`assessment-set-${set.id}`}>{set.title ?? 'Nội dung đánh giá'}</h2>
+          {set.policy.maxAttempts === null ? null : (
+            <p>Tối đa {set.policy.maxAttempts} lần cho mỗi hoạt động.</p>
+          )}
+        </div>
+        {progress?.passed === true ? <StatusBadge status="passed">Đạt</StatusBadge> : null}
+      </header>
+
+      {progressQuery.isLoading ? (
+        <p className="syn-assessment-workspace__state">Đang tải tiến độ đánh giá…</p>
+      ) : progressQuery.error ? (
+        <p className="syn-error" role="alert">
+          Không thể tải tiến độ đánh giá.
+        </p>
+      ) : progress ? (
+        <div className="syn-assessment-workspace__result" aria-live="polite">
+          <p>{progressLabel(progress)}</p>
+          {score ? <p>{score}</p> : null}
+          {threshold ? <p>{threshold}</p> : null}
+        </div>
+      ) : null}
+
+      <div className="syn-assessment-workspace__set-activities">
+        {set.activities.map((reference) => (
+          <ActivityHost
+            key={`${set.id}-${reference.activity.id}`}
+            owner={owner}
+            activity={reference.activity}
+            policy={set.policy}
+            onProgressChanged={onProgressChanged}
+          />
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export function AssessmentWorkspaceContent({
@@ -62,16 +129,11 @@ export function AssessmentWorkspaceContent({
       queryClient.invalidateQueries({
         queryKey: ['activity-sets', courseId, owner.ownerKind, assessmentId],
       }),
+      queryClient.invalidateQueries({
+        queryKey: ['activity-set-progress', courseId, owner.ownerKind, assessmentId],
+      }),
     ]);
   };
-  const check = useMutation({
-    mutationFn: () =>
-      api.recordChapterAssessment(chapterId, assessmentId, {
-        passed: true,
-        summary: 'Completed from assessment workspace.',
-      }),
-    onSuccess: invalidate,
-  });
 
   if (assessmentQuery.isLoading || activitySetsQuery.isLoading)
     return <div className="syn-assessment-workspace__state">Đang tải đánh giá chương…</div>;
@@ -91,14 +153,8 @@ export function AssessmentWorkspaceContent({
   const assessment = assessmentQuery.data;
   if (!assessment) return null;
 
-  const activitySets = (activitySetsQuery.data ?? []) as readonly PublicActivitySetPayload[];
-  const activityReferences = activitySets.flatMap((set) =>
-    set.activities.map((reference) => ({ ...reference, policy: set.policy, setId: set.id })),
-  );
-  const hasActivities = activityReferences.length > 0;
-  const latestSummary = stringField(assessment.latestResult, 'summary');
-  const latestScore = numberField(assessment.latestResult, 'score');
-  const bestScore = numberField(assessment.bestResult, 'score');
+  const activitySets = activitySetsQuery.data ?? [];
+  const hasActivities = activitySets.some((set) => set.activities.length > 0);
   const statusLabel = assessment.status === 'COMPLETED' ? 'Hoàn thành' : 'Đang đánh giá';
   const context: LessonViewContext = {
     chapterId,
@@ -127,45 +183,28 @@ export function AssessmentWorkspaceContent({
         </div>
       </div>
 
-      {latestSummary || latestScore !== null || bestScore !== null ? (
-        <section className="syn-assessment-workspace__result" aria-live="polite">
-          <h2>Kết quả đánh giá</h2>
-          {latestSummary ? <p>{latestSummary}</p> : null}
-          {latestScore !== null ? <p>Điểm gần nhất: {latestScore}</p> : null}
-          {bestScore !== null ? <p>Điểm cao nhất: {bestScore}</p> : null}
-        </section>
-      ) : null}
-
       {hasActivities ? (
         <section className="syn-assessment-workspace__activities" aria-label="Nội dung đánh giá">
-          {activityReferences.map((reference) => (
-            <ActivityHost
-              key={`${reference.setId}-${reference.activity.id}`}
+          {activitySets.map((set) => (
+            <AssessmentActivitySet
+              key={set.id}
               owner={owner}
-              activity={reference.activity}
-              policy={reference.policy}
+              set={set}
               onProgressChanged={invalidate}
             />
           ))}
         </section>
-      ) : assessment.status !== 'COMPLETED' ? (
-        <button
-          className="syn-assessment-workspace__check"
-          type="button"
-          disabled={check.isPending || assessment.status === 'LOCKED'}
-          onClick={() => check.mutate()}
-        >
-          {check.isPending
-            ? 'Đang kiểm tra…'
-            : (assessment.actions[0]?.label ?? 'Kiểm tra kết quả')}
-        </button>
-      ) : null}
+      ) : (
+        <p className="syn-error" role="alert">
+          Đánh giá này chưa có nội dung hoạt động hợp lệ.
+        </p>
+      )}
 
       <LessonRequirementFooter
         context={context}
         navigation={navigation}
         heading="Yêu cầu hoàn thành đánh giá"
-        busy={check.isPending}
+        busy={false}
         onAction={onAction}
       />
     </article>

@@ -159,14 +159,8 @@ func Evaluate(graph CourseGraph, snapshot ProgressSnapshot) Evaluation {
 		}
 		allRequiredAssessments := true
 		for _, assessment := range chapter.Assessments {
-			satisfied := practiceSatisfied(snapshot.Assessments[AssessmentKey{ChapterID: chapter.ID, AssessmentID: assessment.ID}], assessment.Rule)
-			progress := snapshot.Assessments[AssessmentKey{ChapterID: chapter.ID, AssessmentID: assessment.ID}]
-			var latestPassed *bool
-			if progress.LatestResult != nil {
-				value := progress.LatestResult.Passed
-				latestPassed = &value
-			}
-			creqs = append(creqs, RequirementView{ID: assessment.ID, Kind: "assessment", Required: assessment.Required, Satisfied: satisfied, Attempted: progress.LatestResult != nil, LatestPassed: latestPassed})
+			satisfied, attempted, latestPassed := evaluateAssessmentRequirement(snapshot, chapter.ID, assessment)
+			creqs = append(creqs, RequirementView{ID: assessment.ID, Kind: "assessment", Required: assessment.Required, Satisfied: satisfied, Attempted: attempted, LatestPassed: latestPassed})
 			if assessment.Required {
 				allRequiredAssessments = allRequiredAssessments && satisfied
 			}
@@ -192,4 +186,20 @@ func Evaluate(graph CourseGraph, snapshot ProgressSnapshot) Evaluation {
 		out.CurrentLessonID = snapshot.Course.CurrentLessonID
 	}
 	return out
+}
+
+func evaluateAssessmentRequirement(snapshot ProgressSnapshot, chapterID string, assessment Assessment) (bool, bool, *bool) {
+	if assessment.ActivitySetID != "" {
+		progress := snapshot.ActivitySets[ActivitySetKey{OwnerKind: "assessment", OwnerID: assessment.ID, SetID: assessment.ActivitySetID}]
+		attempted := progress.Status != "" && progress.Status != "NOT_STARTED"
+		satisfied := progress.Status == "COMPLETED" && progress.Passed != nil && *progress.Passed
+		return satisfied, attempted, progress.Passed
+	}
+	progress := snapshot.Assessments[AssessmentKey{ChapterID: chapterID, AssessmentID: assessment.ID}]
+	var latestPassed *bool
+	if progress.LatestResult != nil {
+		value := progress.LatestResult.Passed
+		latestPassed = &value
+	}
+	return practiceSatisfied(progress, assessment.Rule), progress.LatestResult != nil, latestPassed
 }

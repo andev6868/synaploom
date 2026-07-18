@@ -141,11 +141,15 @@ func configureRouter(ctx context.Context, service course.Service, sessions *serv
 	if filesystem, ok := service.(*course.FilesystemService); ok {
 		aware := &progressionAwareFilesystemService{FilesystemService: filesystem, progression: progress, graph: graph}
 		content = aware
-		sources, err := filesystem.ActivitySetSources(ctx)
+		lessonSources, err := filesystem.ActivitySetSources(ctx)
 		if err != nil {
-			return nil, fmt.Errorf("load activity catalog: %w", err)
+			return nil, fmt.Errorf("load lesson activity catalog: %w", err)
 		}
-		catalog, err := newFilesystemActivityCatalog(graph.ID, graph.Version, sources)
+		assessmentSources, err := filesystem.AssessmentActivitySetSources(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("load assessment activity catalog: %w", err)
+		}
+		catalog, err := newFilesystemActivityCatalog(graph.ID, graph.Version, lessonSources, assessmentSources)
 		if err != nil {
 			return nil, fmt.Errorf("configure activity catalog: %w", err)
 		}

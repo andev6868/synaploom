@@ -140,7 +140,7 @@ function activityOwnerPath(owner: ActivityOwner): string {
 }
 
 function codingWorkspacePath(target: CodingWorkspaceTarget): string {
-  return `/courses/${encodeURIComponent(target.courseId)}/lessons/${encodeURIComponent(target.lessonId)}/activities/${encodeURIComponent(target.activityId)}`;
+  return `/courses/${encodeURIComponent(target.courseId)}/${target.ownerKind}/${encodeURIComponent(target.ownerId)}/activities/${encodeURIComponent(target.activityId)}`;
 }
 
 /** Creates a client that can be substituted with a test double. */
