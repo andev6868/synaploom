@@ -110,6 +110,14 @@ type ActivityDraftRequestAnswer struct {
 	AdditionalProperties interface{} `mapstructure:",remain"`
 }
 
+type ActivityEmbedBlock struct {
+	// ActivityId corresponds to the JSON schema field "activityId".
+	ActivityId string `json:"activityId" yaml:"activityId" mapstructure:"activityId"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
 type ActivityEvaluationPolicy struct {
 	// Mode corresponds to the JSON schema field "mode".
 	Mode EvaluationPolicyMode `json:"mode" yaml:"mode" mapstructure:"mode"`
@@ -392,6 +400,67 @@ const AssessmentNavigationItemStatusCOMPLETED AssessmentNavigationItemStatus = "
 const AssessmentNavigationItemStatusINPROGRESS AssessmentNavigationItemStatus = "IN_PROGRESS"
 const AssessmentNavigationItemStatusLOCKED AssessmentNavigationItemStatus = "LOCKED"
 
+type AttachmentBlock struct {
+	// Description corresponds to the JSON schema field "description".
+	Description []InlineNode `json:"description,omitempty,omitzero" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// Label corresponds to the JSON schema field "label".
+	Label string `json:"label" yaml:"label" mapstructure:"label"`
+
+	// MediaType corresponds to the JSON schema field "mediaType".
+	MediaType *string `json:"mediaType,omitempty,omitzero" yaml:"mediaType,omitempty" mapstructure:"mediaType,omitempty"`
+
+	// Source corresponds to the JSON schema field "source".
+	Source string `json:"source" yaml:"source" mapstructure:"source"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type AudioBlock struct {
+	// Source corresponds to the JSON schema field "source".
+	Source string `json:"source" yaml:"source" mapstructure:"source"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title string `json:"title" yaml:"title" mapstructure:"title"`
+
+	// Transcript corresponds to the JSON schema field "transcript".
+	Transcript []LessonBlock `json:"transcript" yaml:"transcript" mapstructure:"transcript"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type BlockquoteBlock struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type CalloutBlock struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Kind corresponds to the JSON schema field "kind".
+	Kind CalloutBlockKind `json:"kind" yaml:"kind" mapstructure:"kind"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title *string `json:"title,omitempty,omitzero" yaml:"title,omitempty" mapstructure:"title,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type CalloutBlockKind string
+
+const CalloutBlockKindHint CalloutBlockKind = "hint"
+const CalloutBlockKindImportant CalloutBlockKind = "important"
+const CalloutBlockKindMisconception CalloutBlockKind = "misconception"
+const CalloutBlockKindNote CalloutBlockKind = "note"
+const CalloutBlockKindWarning CalloutBlockKind = "warning"
+
 type Chapter struct {
 	// Assessments corresponds to the JSON schema field "assessments".
 	Assessments []ChapterAssessment `json:"assessments" yaml:"assessments" mapstructure:"assessments"`
@@ -528,6 +597,53 @@ type CheckResult struct {
 	Passed bool `json:"passed" yaml:"passed" mapstructure:"passed"`
 }
 
+type CodeBlock struct {
+	// Code corresponds to the JSON schema field "code".
+	Code string `json:"code" yaml:"code" mapstructure:"code"`
+
+	// Filename corresponds to the JSON schema field "filename".
+	Filename *string `json:"filename,omitempty,omitzero" yaml:"filename,omitempty" mapstructure:"filename,omitempty"`
+
+	// HighlightedLines corresponds to the JSON schema field "highlightedLines".
+	HighlightedLines []int `json:"highlightedLines,omitempty,omitzero" yaml:"highlightedLines,omitempty" mapstructure:"highlightedLines,omitempty"`
+
+	// Language corresponds to the JSON schema field "language".
+	Language *string `json:"language,omitempty,omitzero" yaml:"language,omitempty" mapstructure:"language,omitempty"`
+
+	// LineNumbers corresponds to the JSON schema field "lineNumbers".
+	LineNumbers *bool `json:"lineNumbers,omitempty,omitzero" yaml:"lineNumbers,omitempty" mapstructure:"lineNumbers,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type CodeInline struct {
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+
+	// Value corresponds to the JSON schema field "value".
+	Value string `json:"value" yaml:"value" mapstructure:"value"`
+}
+
+type CompareBlock struct {
+	// Columns corresponds to the JSON schema field "columns".
+	Columns []CompareColumn `json:"columns" yaml:"columns" mapstructure:"columns"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title *string `json:"title,omitempty,omitzero" yaml:"title,omitempty" mapstructure:"title,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type CompareColumn struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title string `json:"title" yaml:"title" mapstructure:"title"`
+}
+
 type CompletionPolicyPassingScore *float64
 
 type CompletionRule interface{}
@@ -662,6 +778,39 @@ type CoursePayloadCompletedAt *string
 
 type CoursePayloadCurrentLessonId *string
 
+type DefinitionBlock struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title string `json:"title" yaml:"title" mapstructure:"title"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type DetailsBlock struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Open corresponds to the JSON schema field "open".
+	Open *bool `json:"open,omitempty,omitzero" yaml:"open,omitempty" mapstructure:"open,omitempty"`
+
+	// Summary corresponds to the JSON schema field "summary".
+	Summary []InlineNode `json:"summary" yaml:"summary" mapstructure:"summary"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type EmphasisInline struct {
+	// Children corresponds to the JSON schema field "children".
+	Children []InlineNode `json:"children" yaml:"children" mapstructure:"children"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
 type EvaluationPolicyMode string
 
 const EvaluationPolicyModeAutomatic EvaluationPolicyMode = "automatic"
@@ -751,14 +900,72 @@ type FailedToStart struct {
 	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
 }
 
-type FragmentBlocksElem struct {
-	// Type corresponds to the JSON schema field "type".
-	Type string `json:"type" yaml:"type" mapstructure:"type"`
+type FigureBlock struct {
+	// Alt corresponds to the JSON schema field "alt".
+	Alt string `json:"alt" yaml:"alt" mapstructure:"alt"`
 
-	AdditionalProperties interface{} `mapstructure:",remain"`
+	// Caption corresponds to the JSON schema field "caption".
+	Caption []InlineNode `json:"caption,omitempty,omitzero" yaml:"caption,omitempty" mapstructure:"caption,omitempty"`
+
+	// Credit corresponds to the JSON schema field "credit".
+	Credit *string `json:"credit,omitempty,omitzero" yaml:"credit,omitempty" mapstructure:"credit,omitempty"`
+
+	// Source corresponds to the JSON schema field "source".
+	Source string `json:"source" yaml:"source" mapstructure:"source"`
+
+	// SourceLabel corresponds to the JSON schema field "sourceLabel".
+	SourceLabel *string `json:"sourceLabel,omitempty,omitzero" yaml:"sourceLabel,omitempty" mapstructure:"sourceLabel,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type FootnoteDefinitionBlock struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Id corresponds to the JSON schema field "id".
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type FootnoteReferenceInline struct {
+	// Id corresponds to the JSON schema field "id".
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type HardBreakInline struct {
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type HeadingBlock struct {
+	// Children corresponds to the JSON schema field "children".
+	Children []InlineNode `json:"children" yaml:"children" mapstructure:"children"`
+
+	// Level corresponds to the JSON schema field "level".
+	Level int `json:"level" yaml:"level" mapstructure:"level"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
 }
 
 type Id string
+
+type InlineNode interface{}
+
+type KeyboardInline struct {
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+
+	// Value corresponds to the JSON schema field "value".
+	Value string `json:"value" yaml:"value" mapstructure:"value"`
+}
 
 type Killed struct {
 	// ExitCode corresponds to the JSON schema field "exitCode".
@@ -782,16 +989,11 @@ type Killed struct {
 
 type KilledExitCode *int
 
-type LessonBlock struct {
-	// Type corresponds to the JSON schema field "type".
-	Type string `json:"type" yaml:"type" mapstructure:"type"`
-
-	AdditionalProperties interface{} `mapstructure:",remain"`
-}
+type LessonBlock interface{}
 
 type LessonDocument struct {
 	// Blocks corresponds to the JSON schema field "blocks".
-	Blocks []LessonDocumentBlocksElem `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
 
 	// CourseId corresponds to the JSON schema field "courseId".
 	CourseId string `json:"courseId" yaml:"courseId" mapstructure:"courseId"`
@@ -809,16 +1011,9 @@ type LessonDocument struct {
 	Type LessonDocumentType `json:"type" yaml:"type" mapstructure:"type"`
 }
 
-type LessonDocumentBlocksElem struct {
-	// Type corresponds to the JSON schema field "type".
-	Type string `json:"type" yaml:"type" mapstructure:"type"`
-
-	AdditionalProperties interface{} `mapstructure:",remain"`
-}
-
 type LessonDocumentFragment struct {
 	// Blocks corresponds to the JSON schema field "blocks".
-	Blocks []FragmentBlocksElem `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
 }
 
 type LessonDocumentType string
@@ -1023,6 +1218,66 @@ type LinearLessonReference struct {
 	Position int `json:"position" yaml:"position" mapstructure:"position"`
 }
 
+type LinkInline struct {
+	// Children corresponds to the JSON schema field "children".
+	Children []InlineNode `json:"children" yaml:"children" mapstructure:"children"`
+
+	// External corresponds to the JSON schema field "external".
+	External *bool `json:"external,omitempty,omitzero" yaml:"external,omitempty" mapstructure:"external,omitempty"`
+
+	// Href corresponds to the JSON schema field "href".
+	Href string `json:"href" yaml:"href" mapstructure:"href"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title *string `json:"title,omitempty,omitzero" yaml:"title,omitempty" mapstructure:"title,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type ListBlock struct {
+	// Items corresponds to the JSON schema field "items".
+	Items []ListItem `json:"items" yaml:"items" mapstructure:"items"`
+
+	// Ordered corresponds to the JSON schema field "ordered".
+	Ordered bool `json:"ordered" yaml:"ordered" mapstructure:"ordered"`
+
+	// Start corresponds to the JSON schema field "start".
+	Start *int `json:"start,omitempty,omitzero" yaml:"start,omitempty" mapstructure:"start,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type ListItem struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Checked corresponds to the JSON schema field "checked".
+	Checked ListItemChecked `json:"checked,omitempty,omitzero" yaml:"checked,omitempty" mapstructure:"checked,omitempty"`
+}
+
+type ListItemChecked *bool
+
+type MathBlock struct {
+	// Label corresponds to the JSON schema field "label".
+	Label *string `json:"label,omitempty,omitzero" yaml:"label,omitempty" mapstructure:"label,omitempty"`
+
+	// Source corresponds to the JSON schema field "source".
+	Source string `json:"source" yaml:"source" mapstructure:"source"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type MathInline struct {
+	// Source corresponds to the JSON schema field "source".
+	Source string `json:"source" yaml:"source" mapstructure:"source"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
 type NavigationTarget struct {
 	// ChapterId corresponds to the JSON schema field "chapterId".
 	ChapterId NavigationTargetChapterId `json:"chapterId" yaml:"chapterId" mapstructure:"chapterId"`
@@ -1048,12 +1303,42 @@ const NavigationTargetTypeLESSON NavigationTargetType = "LESSON"
 
 type NextActionPayload interface{}
 
+type ObjectivesBlock struct {
+	// Items corresponds to the JSON schema field "items".
+	Items [][]InlineNode `json:"items" yaml:"items" mapstructure:"items"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title *string `json:"title,omitempty,omitzero" yaml:"title,omitempty" mapstructure:"title,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type ParagraphBlock struct {
+	// Children corresponds to the JSON schema field "children".
+	Children []InlineNode `json:"children" yaml:"children" mapstructure:"children"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
 type ProcessSessionPayload struct {
 	// EventsUrl corresponds to the JSON schema field "eventsUrl".
 	EventsUrl string `json:"eventsUrl" yaml:"eventsUrl" mapstructure:"eventsUrl"`
 
 	// SessionId corresponds to the JSON schema field "sessionId".
 	SessionId string `json:"sessionId" yaml:"sessionId" mapstructure:"sessionId"`
+}
+
+type ProofBlock struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title *string `json:"title,omitempty,omitzero" yaml:"title,omitempty" mapstructure:"title,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
 }
 
 type Request struct {
@@ -1094,8 +1379,6 @@ const RequirementViewKindReading RequirementViewKind = "reading"
 type RequirementViewLatestPassed *bool
 
 type SafePath string
-
-type ActivityAttemptFeedback_0 = ActivityFeedback
 
 type Started struct {
 	// LessonId corresponds to the JSON schema field "lessonId".
@@ -1145,6 +1428,126 @@ type Stdout struct {
 	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
 }
 
+type StrikethroughInline struct {
+	// Children corresponds to the JSON schema field "children".
+	Children []InlineNode `json:"children" yaml:"children" mapstructure:"children"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type StrongInline struct {
+	// Children corresponds to the JSON schema field "children".
+	Children []InlineNode `json:"children" yaml:"children" mapstructure:"children"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type SubscriptInline struct {
+	// Children corresponds to the JSON schema field "children".
+	Children []InlineNode `json:"children" yaml:"children" mapstructure:"children"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type SummaryBlock struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title *string `json:"title,omitempty,omitzero" yaml:"title,omitempty" mapstructure:"title,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type SuperscriptInline struct {
+	// Children corresponds to the JSON schema field "children".
+	Children []InlineNode `json:"children" yaml:"children" mapstructure:"children"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type TabItem struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Id corresponds to the JSON schema field "id".
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Label corresponds to the JSON schema field "label".
+	Label string `json:"label" yaml:"label" mapstructure:"label"`
+}
+
+type TableBlock struct {
+	// Alignments corresponds to the JSON schema field "alignments".
+	Alignments []TableBlockAlignmentsElem `json:"alignments" yaml:"alignments" mapstructure:"alignments"`
+
+	// Caption corresponds to the JSON schema field "caption".
+	Caption *string `json:"caption,omitempty,omitzero" yaml:"caption,omitempty" mapstructure:"caption,omitempty"`
+
+	// Header corresponds to the JSON schema field "header".
+	Header TableRow `json:"header" yaml:"header" mapstructure:"header"`
+
+	// Rows corresponds to the JSON schema field "rows".
+	Rows []TableRow `json:"rows" yaml:"rows" mapstructure:"rows"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type TableBlockAlignmentsElem struct {
+	Value interface{}
+}
+
+type TableCell struct {
+	// Children corresponds to the JSON schema field "children".
+	Children []InlineNode `json:"children" yaml:"children" mapstructure:"children"`
+}
+
+type TableRow struct {
+	// Cells corresponds to the JSON schema field "cells".
+	Cells []TableCell `json:"cells" yaml:"cells" mapstructure:"cells"`
+}
+
+type TabsBlock struct {
+	// Tabs corresponds to the JSON schema field "tabs".
+	Tabs []TabItem `json:"tabs" yaml:"tabs" mapstructure:"tabs"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type TextInline struct {
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+
+	// Value corresponds to the JSON schema field "value".
+	Value string `json:"value" yaml:"value" mapstructure:"value"`
+}
+
+type ThematicBreakBlock struct {
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type TheoremBlock struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Label corresponds to the JSON schema field "label".
+	Label *string `json:"label,omitempty,omitzero" yaml:"label,omitempty" mapstructure:"label,omitempty"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title string `json:"title" yaml:"title" mapstructure:"title"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
 type TimedOut struct {
 	// ExitCode corresponds to the JSON schema field "exitCode".
 	ExitCode TimedOutExitCode `json:"exitCode" yaml:"exitCode" mapstructure:"exitCode"`
@@ -1166,3 +1569,74 @@ type TimedOut struct {
 }
 
 type TimedOutExitCode *int
+
+type VideoBlock struct {
+	// Captions corresponds to the JSON schema field "captions".
+	Captions *string `json:"captions,omitempty,omitzero" yaml:"captions,omitempty" mapstructure:"captions,omitempty"`
+
+	// Poster corresponds to the JSON schema field "poster".
+	Poster *string `json:"poster,omitempty,omitzero" yaml:"poster,omitempty" mapstructure:"poster,omitempty"`
+
+	// Source corresponds to the JSON schema field "source".
+	Source string `json:"source" yaml:"source" mapstructure:"source"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title string `json:"title" yaml:"title" mapstructure:"title"`
+
+	// Transcript corresponds to the JSON schema field "transcript".
+	Transcript []LessonBlock `json:"transcript" yaml:"transcript" mapstructure:"transcript"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type VocabularyBlock struct {
+	// Items corresponds to the JSON schema field "items".
+	Items []VocabularyItem `json:"items" yaml:"items" mapstructure:"items"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title *string `json:"title,omitempty,omitzero" yaml:"title,omitempty" mapstructure:"title,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type VocabularyItem struct {
+	// Definition corresponds to the JSON schema field "definition".
+	Definition []LessonBlock `json:"definition" yaml:"definition" mapstructure:"definition"`
+
+	// Term corresponds to the JSON schema field "term".
+	Term []InlineNode `json:"term" yaml:"term" mapstructure:"term"`
+}
+
+type WalkthroughBlock struct {
+	// Steps corresponds to the JSON schema field "steps".
+	Steps []WalkthroughStep `json:"steps" yaml:"steps" mapstructure:"steps"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title *string `json:"title,omitempty,omitzero" yaml:"title,omitempty" mapstructure:"title,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type WalkthroughStep struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title string `json:"title" yaml:"title" mapstructure:"title"`
+}
+
+type WorkedExampleBlock struct {
+	// Blocks corresponds to the JSON schema field "blocks".
+	Blocks []LessonBlock `json:"blocks" yaml:"blocks" mapstructure:"blocks"`
+
+	// Title corresponds to the JSON schema field "title".
+	Title string `json:"title" yaml:"title" mapstructure:"title"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type ActivityAttemptFeedback_0 = ActivityFeedback

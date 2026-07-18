@@ -231,3 +231,10 @@ export function parseLessonViewContext(value: unknown): LessonViewContext {
   }
   return value as LessonViewContext;
 }
+
+export type {
+  InlineNode,
+  LessonBlock,
+  LessonDocument,
+  LessonDocumentFragment,
+} from '@synaploom/contracts';

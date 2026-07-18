@@ -108,6 +108,47 @@ export namespace ActivityAttemptSchema {
 
 // Generated from schemas/v1/activity-public.schema.json.
 export namespace ActivityPublicSchema {
+  export type LessonBlock =
+    | HeadingBlock
+    | ParagraphBlock
+    | BlockquoteBlock
+    | ListBlock
+    | CodeBlock
+    | ThematicBreakBlock
+    | TableBlock
+    | FootnoteDefinitionBlock
+    | MathBlock
+    | CalloutBlock
+    | DetailsBlock
+    | TabsBlock
+    | ObjectivesBlock
+    | DefinitionBlock
+    | TheoremBlock
+    | ProofBlock
+    | WorkedExampleBlock
+    | SummaryBlock
+    | VocabularyBlock
+    | CompareBlock
+    | WalkthroughBlock
+    | ActivityEmbedBlock
+    | FigureBlock
+    | AudioBlock
+    | VideoBlock
+    | AttachmentBlock;
+  export type InlineNode =
+    | TextInline
+    | EmphasisInline
+    | StrongInline
+    | StrikethroughInline
+    | CodeInline
+    | LinkInline
+    | HardBreakInline
+    | MathInline
+    | KeyboardInline
+    | SuperscriptInline
+    | SubscriptInline
+    | FootnoteReferenceInline;
+
   export interface ActivityPublicView {
     id: string;
     kind:
@@ -134,10 +175,235 @@ export namespace ActivityPublicSchema {
     feedback?: ActivityFeedbackPolicy;
   }
   export interface LessonDocumentFragment {
-    blocks: {
-      type: string;
-      [k: string]: unknown;
-    }[];
+    blocks: LessonBlock[];
+  }
+  export interface HeadingBlock {
+    type: 'heading';
+    level: number;
+    children: InlineNode[];
+  }
+  export interface TextInline {
+    type: 'text';
+    value: string;
+  }
+  export interface EmphasisInline {
+    type: 'emphasis';
+    children: InlineNode[];
+  }
+  export interface StrongInline {
+    type: 'strong';
+    children: InlineNode[];
+  }
+  export interface StrikethroughInline {
+    type: 'strikethrough';
+    children: InlineNode[];
+  }
+  export interface CodeInline {
+    type: 'code';
+    value: string;
+  }
+  export interface LinkInline {
+    type: 'link';
+    href: string;
+    title?: string;
+    external?: boolean;
+    children: InlineNode[];
+  }
+  export interface HardBreakInline {
+    type: 'hard-break';
+  }
+  export interface MathInline {
+    type: 'math';
+    source: string;
+  }
+  export interface KeyboardInline {
+    type: 'keyboard';
+    value: string;
+  }
+  export interface SuperscriptInline {
+    type: 'superscript';
+    children: InlineNode[];
+  }
+  export interface SubscriptInline {
+    type: 'subscript';
+    children: InlineNode[];
+  }
+  export interface FootnoteReferenceInline {
+    type: 'footnote-reference';
+    id: string;
+  }
+  export interface ParagraphBlock {
+    type: 'paragraph';
+    children: InlineNode[];
+  }
+  export interface BlockquoteBlock {
+    type: 'blockquote';
+    blocks: LessonBlock[];
+  }
+  export interface ListBlock {
+    type: 'list';
+    ordered: boolean;
+    start?: number;
+    items: ListItem[];
+  }
+  export interface ListItem {
+    checked?: boolean | null;
+    blocks: LessonBlock[];
+  }
+  export interface CodeBlock {
+    type: 'code';
+    language?: string;
+    code: string;
+    filename?: string;
+    lineNumbers?: boolean;
+    highlightedLines?: number[];
+  }
+  export interface ThematicBreakBlock {
+    type: 'thematic-break';
+  }
+  export interface TableBlock {
+    type: 'table';
+    caption?: string;
+    alignments: ('left' | 'center' | 'right' | null)[];
+    header: TableRow;
+    rows: TableRow[];
+  }
+  export interface TableRow {
+    cells: TableCell[];
+  }
+  export interface TableCell {
+    children: InlineNode[];
+  }
+  export interface FootnoteDefinitionBlock {
+    type: 'footnote-definition';
+    id: string;
+    blocks: LessonBlock[];
+  }
+  export interface MathBlock {
+    type: 'math';
+    source: string;
+    label?: string;
+  }
+  export interface CalloutBlock {
+    type: 'callout';
+    kind: 'note' | 'hint' | 'warning' | 'important' | 'misconception';
+    title?: string;
+    blocks: LessonBlock[];
+  }
+  export interface DetailsBlock {
+    type: 'details';
+    summary: InlineNode[];
+    open?: boolean;
+    blocks: LessonBlock[];
+  }
+  export interface TabsBlock {
+    type: 'tabs';
+    /**
+     * @minItems 1
+     */
+    tabs: [TabItem, ...TabItem[]];
+  }
+  export interface TabItem {
+    id: string;
+    label: string;
+    blocks: LessonBlock[];
+  }
+  export interface ObjectivesBlock {
+    type: 'objectives';
+    title?: string;
+    items: InlineNode[][];
+  }
+  export interface DefinitionBlock {
+    type: 'definition';
+    title: string;
+    blocks: LessonBlock[];
+  }
+  export interface TheoremBlock {
+    type: 'theorem';
+    title: string;
+    label?: string;
+    blocks: LessonBlock[];
+  }
+  export interface ProofBlock {
+    type: 'proof';
+    title?: string;
+    blocks: LessonBlock[];
+  }
+  export interface WorkedExampleBlock {
+    type: 'worked-example';
+    title: string;
+    blocks: LessonBlock[];
+  }
+  export interface SummaryBlock {
+    type: 'summary';
+    title?: string;
+    blocks: LessonBlock[];
+  }
+  export interface VocabularyBlock {
+    type: 'vocabulary';
+    title?: string;
+    items: VocabularyItem[];
+  }
+  export interface VocabularyItem {
+    term: InlineNode[];
+    definition: LessonBlock[];
+  }
+  export interface CompareBlock {
+    type: 'compare';
+    title?: string;
+    /**
+     * @minItems 2
+     */
+    columns: [CompareColumn, CompareColumn, ...CompareColumn[]];
+  }
+  export interface CompareColumn {
+    title: string;
+    blocks: LessonBlock[];
+  }
+  export interface WalkthroughBlock {
+    type: 'walkthrough';
+    title?: string;
+    /**
+     * @minItems 1
+     */
+    steps: [WalkthroughStep, ...WalkthroughStep[]];
+  }
+  export interface WalkthroughStep {
+    title: string;
+    blocks: LessonBlock[];
+  }
+  export interface ActivityEmbedBlock {
+    type: 'activity';
+    activityId: string;
+  }
+  export interface FigureBlock {
+    type: 'figure';
+    source: string;
+    alt: string;
+    caption?: InlineNode[];
+    credit?: string;
+    sourceLabel?: string;
+  }
+  export interface AudioBlock {
+    type: 'audio';
+    source: string;
+    title: string;
+    transcript: LessonBlock[];
+  }
+  export interface VideoBlock {
+    type: 'video';
+    source: string;
+    title: string;
+    captions?: string;
+    poster?: string;
+    transcript: LessonBlock[];
+  }
+  export interface AttachmentBlock {
+    type: 'attachment';
+    source: string;
+    label: string;
+    description?: InlineNode[];
+    mediaType?: string;
   }
   export interface ActivityCompletionPolicy {
     required: boolean;
@@ -201,12 +467,277 @@ export namespace ActivityDefinitionSchema {
     | 'numeric'
     | 'writing'
     | 'coding';
+  export type LessonBlock =
+    | HeadingBlock
+    | ParagraphBlock
+    | BlockquoteBlock
+    | ListBlock
+    | CodeBlock
+    | ThematicBreakBlock
+    | TableBlock
+    | FootnoteDefinitionBlock
+    | MathBlock
+    | CalloutBlock
+    | DetailsBlock
+    | TabsBlock
+    | ObjectivesBlock
+    | DefinitionBlock
+    | TheoremBlock
+    | ProofBlock
+    | WorkedExampleBlock
+    | SummaryBlock
+    | VocabularyBlock
+    | CompareBlock
+    | WalkthroughBlock
+    | ActivityEmbedBlock
+    | FigureBlock
+    | AudioBlock
+    | VideoBlock
+    | AttachmentBlock;
+  export type InlineNode =
+    | TextInline
+    | EmphasisInline
+    | StrongInline
+    | StrikethroughInline
+    | CodeInline
+    | LinkInline
+    | HardBreakInline
+    | MathInline
+    | KeyboardInline
+    | SuperscriptInline
+    | SubscriptInline
+    | FootnoteReferenceInline;
 
   export interface LessonDocumentFragment {
-    blocks: {
-      type: string;
-      [k: string]: unknown;
-    }[];
+    blocks: LessonBlock[];
+  }
+  export interface HeadingBlock {
+    type: 'heading';
+    level: number;
+    children: InlineNode[];
+  }
+  export interface TextInline {
+    type: 'text';
+    value: string;
+  }
+  export interface EmphasisInline {
+    type: 'emphasis';
+    children: InlineNode[];
+  }
+  export interface StrongInline {
+    type: 'strong';
+    children: InlineNode[];
+  }
+  export interface StrikethroughInline {
+    type: 'strikethrough';
+    children: InlineNode[];
+  }
+  export interface CodeInline {
+    type: 'code';
+    value: string;
+  }
+  export interface LinkInline {
+    type: 'link';
+    href: string;
+    title?: string;
+    external?: boolean;
+    children: InlineNode[];
+  }
+  export interface HardBreakInline {
+    type: 'hard-break';
+  }
+  export interface MathInline {
+    type: 'math';
+    source: string;
+  }
+  export interface KeyboardInline {
+    type: 'keyboard';
+    value: string;
+  }
+  export interface SuperscriptInline {
+    type: 'superscript';
+    children: InlineNode[];
+  }
+  export interface SubscriptInline {
+    type: 'subscript';
+    children: InlineNode[];
+  }
+  export interface FootnoteReferenceInline {
+    type: 'footnote-reference';
+    id: string;
+  }
+  export interface ParagraphBlock {
+    type: 'paragraph';
+    children: InlineNode[];
+  }
+  export interface BlockquoteBlock {
+    type: 'blockquote';
+    blocks: LessonBlock[];
+  }
+  export interface ListBlock {
+    type: 'list';
+    ordered: boolean;
+    start?: number;
+    items: ListItem[];
+  }
+  export interface ListItem {
+    checked?: boolean | null;
+    blocks: LessonBlock[];
+  }
+  export interface CodeBlock {
+    type: 'code';
+    language?: string;
+    code: string;
+    filename?: string;
+    lineNumbers?: boolean;
+    highlightedLines?: number[];
+  }
+  export interface ThematicBreakBlock {
+    type: 'thematic-break';
+  }
+  export interface TableBlock {
+    type: 'table';
+    caption?: string;
+    alignments: ('left' | 'center' | 'right' | null)[];
+    header: TableRow;
+    rows: TableRow[];
+  }
+  export interface TableRow {
+    cells: TableCell[];
+  }
+  export interface TableCell {
+    children: InlineNode[];
+  }
+  export interface FootnoteDefinitionBlock {
+    type: 'footnote-definition';
+    id: string;
+    blocks: LessonBlock[];
+  }
+  export interface MathBlock {
+    type: 'math';
+    source: string;
+    label?: string;
+  }
+  export interface CalloutBlock {
+    type: 'callout';
+    kind: 'note' | 'hint' | 'warning' | 'important' | 'misconception';
+    title?: string;
+    blocks: LessonBlock[];
+  }
+  export interface DetailsBlock {
+    type: 'details';
+    summary: InlineNode[];
+    open?: boolean;
+    blocks: LessonBlock[];
+  }
+  export interface TabsBlock {
+    type: 'tabs';
+    /**
+     * @minItems 1
+     */
+    tabs: [TabItem, ...TabItem[]];
+  }
+  export interface TabItem {
+    id: string;
+    label: string;
+    blocks: LessonBlock[];
+  }
+  export interface ObjectivesBlock {
+    type: 'objectives';
+    title?: string;
+    items: InlineNode[][];
+  }
+  export interface DefinitionBlock {
+    type: 'definition';
+    title: string;
+    blocks: LessonBlock[];
+  }
+  export interface TheoremBlock {
+    type: 'theorem';
+    title: string;
+    label?: string;
+    blocks: LessonBlock[];
+  }
+  export interface ProofBlock {
+    type: 'proof';
+    title?: string;
+    blocks: LessonBlock[];
+  }
+  export interface WorkedExampleBlock {
+    type: 'worked-example';
+    title: string;
+    blocks: LessonBlock[];
+  }
+  export interface SummaryBlock {
+    type: 'summary';
+    title?: string;
+    blocks: LessonBlock[];
+  }
+  export interface VocabularyBlock {
+    type: 'vocabulary';
+    title?: string;
+    items: VocabularyItem[];
+  }
+  export interface VocabularyItem {
+    term: InlineNode[];
+    definition: LessonBlock[];
+  }
+  export interface CompareBlock {
+    type: 'compare';
+    title?: string;
+    /**
+     * @minItems 2
+     */
+    columns: [CompareColumn, CompareColumn, ...CompareColumn[]];
+  }
+  export interface CompareColumn {
+    title: string;
+    blocks: LessonBlock[];
+  }
+  export interface WalkthroughBlock {
+    type: 'walkthrough';
+    title?: string;
+    /**
+     * @minItems 1
+     */
+    steps: [WalkthroughStep, ...WalkthroughStep[]];
+  }
+  export interface WalkthroughStep {
+    title: string;
+    blocks: LessonBlock[];
+  }
+  export interface ActivityEmbedBlock {
+    type: 'activity';
+    activityId: string;
+  }
+  export interface FigureBlock {
+    type: 'figure';
+    source: string;
+    alt: string;
+    caption?: InlineNode[];
+    credit?: string;
+    sourceLabel?: string;
+  }
+  export interface AudioBlock {
+    type: 'audio';
+    source: string;
+    title: string;
+    transcript: LessonBlock[];
+  }
+  export interface VideoBlock {
+    type: 'video';
+    source: string;
+    title: string;
+    captions?: string;
+    poster?: string;
+    transcript: LessonBlock[];
+  }
+  export interface AttachmentBlock {
+    type: 'attachment';
+    source: string;
+    label: string;
+    description?: InlineNode[];
+    mediaType?: string;
   }
   /**
    * This interface was referenced by `undefined`'s JSON-Schema
@@ -740,27 +1271,477 @@ export interface ExerciseManifest {
 
 // Generated from schemas/v1/lesson-document.schema.json.
 export namespace LessonDocumentSchema {
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "block".
+   */
+  export type LessonBlock =
+    | HeadingBlock
+    | ParagraphBlock
+    | BlockquoteBlock
+    | ListBlock
+    | CodeBlock
+    | ThematicBreakBlock
+    | TableBlock
+    | FootnoteDefinitionBlock
+    | MathBlock
+    | CalloutBlock
+    | DetailsBlock
+    | TabsBlock
+    | ObjectivesBlock
+    | DefinitionBlock
+    | TheoremBlock
+    | ProofBlock
+    | WorkedExampleBlock
+    | SummaryBlock
+    | VocabularyBlock
+    | CompareBlock
+    | WalkthroughBlock
+    | ActivityEmbedBlock
+    | FigureBlock
+    | AudioBlock
+    | VideoBlock
+    | AttachmentBlock;
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "inlineNode".
+   */
+  export type InlineNode =
+    | TextInline
+    | EmphasisInline
+    | StrongInline
+    | StrikethroughInline
+    | CodeInline
+    | LinkInline
+    | HardBreakInline
+    | MathInline
+    | KeyboardInline
+    | SuperscriptInline
+    | SubscriptInline
+    | FootnoteReferenceInline;
+
   export interface LessonDocument {
     id: string;
     courseId: string;
     position: number;
     title: string;
     type: 'theory' | 'practice' | 'mixed';
-    blocks: {
-      type: string;
-      [k: string]: unknown;
-    }[];
-    [k: string]: unknown;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "headingBlock".
+   */
+  export interface HeadingBlock {
+    type: 'heading';
+    level: number;
+    children: InlineNode[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "textInline".
+   */
+  export interface TextInline {
+    type: 'text';
+    value: string;
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "emphasisInline".
+   */
+  export interface EmphasisInline {
+    type: 'emphasis';
+    children: InlineNode[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "strongInline".
+   */
+  export interface StrongInline {
+    type: 'strong';
+    children: InlineNode[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "strikethroughInline".
+   */
+  export interface StrikethroughInline {
+    type: 'strikethrough';
+    children: InlineNode[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "codeInline".
+   */
+  export interface CodeInline {
+    type: 'code';
+    value: string;
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "linkInline".
+   */
+  export interface LinkInline {
+    type: 'link';
+    href: string;
+    title?: string;
+    external?: boolean;
+    children: InlineNode[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "hardBreakInline".
+   */
+  export interface HardBreakInline {
+    type: 'hard-break';
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "mathInline".
+   */
+  export interface MathInline {
+    type: 'math';
+    source: string;
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "keyboardInline".
+   */
+  export interface KeyboardInline {
+    type: 'keyboard';
+    value: string;
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "superscriptInline".
+   */
+  export interface SuperscriptInline {
+    type: 'superscript';
+    children: InlineNode[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "subscriptInline".
+   */
+  export interface SubscriptInline {
+    type: 'subscript';
+    children: InlineNode[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "footnoteReferenceInline".
+   */
+  export interface FootnoteReferenceInline {
+    type: 'footnote-reference';
+    id: string;
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "paragraphBlock".
+   */
+  export interface ParagraphBlock {
+    type: 'paragraph';
+    children: InlineNode[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "blockquoteBlock".
+   */
+  export interface BlockquoteBlock {
+    type: 'blockquote';
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "listBlock".
+   */
+  export interface ListBlock {
+    type: 'list';
+    ordered: boolean;
+    start?: number;
+    items: ListItem[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "listItem".
+   */
+  export interface ListItem {
+    checked?: boolean | null;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "codeBlock".
+   */
+  export interface CodeBlock {
+    type: 'code';
+    language?: string;
+    code: string;
+    filename?: string;
+    lineNumbers?: boolean;
+    highlightedLines?: number[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "thematicBreakBlock".
+   */
+  export interface ThematicBreakBlock {
+    type: 'thematic-break';
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "tableBlock".
+   */
+  export interface TableBlock {
+    type: 'table';
+    caption?: string;
+    alignments: ('left' | 'center' | 'right' | null)[];
+    header: TableRow;
+    rows: TableRow[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "tableRow".
+   */
+  export interface TableRow {
+    cells: TableCell[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "tableCell".
+   */
+  export interface TableCell {
+    children: InlineNode[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "footnoteDefinitionBlock".
+   */
+  export interface FootnoteDefinitionBlock {
+    type: 'footnote-definition';
+    id: string;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "mathBlock".
+   */
+  export interface MathBlock {
+    type: 'math';
+    source: string;
+    label?: string;
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "calloutBlock".
+   */
+  export interface CalloutBlock {
+    type: 'callout';
+    kind: 'note' | 'hint' | 'warning' | 'important' | 'misconception';
+    title?: string;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "detailsBlock".
+   */
+  export interface DetailsBlock {
+    type: 'details';
+    summary: InlineNode[];
+    open?: boolean;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "tabsBlock".
+   */
+  export interface TabsBlock {
+    type: 'tabs';
+    /**
+     * @minItems 1
+     */
+    tabs: [TabItem, ...TabItem[]];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "tabItem".
+   */
+  export interface TabItem {
+    id: string;
+    label: string;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "objectivesBlock".
+   */
+  export interface ObjectivesBlock {
+    type: 'objectives';
+    title?: string;
+    items: InlineNode[][];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "definitionBlock".
+   */
+  export interface DefinitionBlock {
+    type: 'definition';
+    title: string;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "theoremBlock".
+   */
+  export interface TheoremBlock {
+    type: 'theorem';
+    title: string;
+    label?: string;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "proofBlock".
+   */
+  export interface ProofBlock {
+    type: 'proof';
+    title?: string;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "workedExampleBlock".
+   */
+  export interface WorkedExampleBlock {
+    type: 'worked-example';
+    title: string;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "summaryBlock".
+   */
+  export interface SummaryBlock {
+    type: 'summary';
+    title?: string;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "vocabularyBlock".
+   */
+  export interface VocabularyBlock {
+    type: 'vocabulary';
+    title?: string;
+    items: VocabularyItem[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "vocabularyItem".
+   */
+  export interface VocabularyItem {
+    term: InlineNode[];
+    definition: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "compareBlock".
+   */
+  export interface CompareBlock {
+    type: 'compare';
+    title?: string;
+    /**
+     * @minItems 2
+     */
+    columns: [CompareColumn, CompareColumn, ...CompareColumn[]];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "compareColumn".
+   */
+  export interface CompareColumn {
+    title: string;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "walkthroughBlock".
+   */
+  export interface WalkthroughBlock {
+    type: 'walkthrough';
+    title?: string;
+    /**
+     * @minItems 1
+     */
+    steps: [WalkthroughStep, ...WalkthroughStep[]];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "walkthroughStep".
+   */
+  export interface WalkthroughStep {
+    title: string;
+    blocks: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "activityEmbedBlock".
+   */
+  export interface ActivityEmbedBlock {
+    type: 'activity';
+    activityId: string;
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "figureBlock".
+   */
+  export interface FigureBlock {
+    type: 'figure';
+    source: string;
+    alt: string;
+    caption?: InlineNode[];
+    credit?: string;
+    sourceLabel?: string;
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "audioBlock".
+   */
+  export interface AudioBlock {
+    type: 'audio';
+    source: string;
+    title: string;
+    transcript: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "videoBlock".
+   */
+  export interface VideoBlock {
+    type: 'video';
+    source: string;
+    title: string;
+    captions?: string;
+    poster?: string;
+    transcript: LessonBlock[];
+  }
+  /**
+   * This interface was referenced by `LessonDocument`'s JSON-Schema
+   * via the `definition` "attachmentBlock".
+   */
+  export interface AttachmentBlock {
+    type: 'attachment';
+    source: string;
+    label: string;
+    description?: InlineNode[];
+    mediaType?: string;
   }
   /**
    * This interface was referenced by `LessonDocument`'s JSON-Schema
    * via the `definition` "fragment".
    */
   export interface LessonDocumentFragment {
-    blocks: {
-      type: string;
-      [k: string]: unknown;
-    }[];
+    blocks: LessonBlock[];
   }
 }
 

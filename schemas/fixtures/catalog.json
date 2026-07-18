@@ -7,6 +7,10 @@
     {
       "schema": "process-event",
       "path": "process/started.json"
+    },
+    {
+      "schema": "lesson-document",
+      "path": "lesson-document/rich-document.json"
     }
   ],
   "invalid": [

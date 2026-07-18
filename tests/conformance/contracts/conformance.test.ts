@@ -39,4 +39,23 @@ describe('cross-language contract conformance', () => {
     },
     30_000,
   );
+  it('keeps rich lesson documents inert and round-trippable', () => {
+    const fixture = JSON.parse(
+      readFileSync('schemas/fixtures/lesson-document/rich-document.json', 'utf8'),
+    ) as unknown;
+    expect(JSON.parse(JSON.stringify(fixture))).toEqual(fixture);
+    const forbidden = new Set(['html', 'script', 'iframe']);
+    const visit = (value: unknown): void => {
+      if (Array.isArray(value)) {
+        value.forEach(visit);
+        return;
+      }
+      if (typeof value !== 'object' || value === null) return;
+      for (const [key, nested] of Object.entries(value)) {
+        expect(forbidden.has(key)).toBe(false);
+        visit(nested);
+      }
+    };
+    visit(fixture);
+  });
 });

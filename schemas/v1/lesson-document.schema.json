@@ -24,39 +24,1047 @@
     "blocks": {
       "type": "array",
       "items": {
-        "type": "object",
-        "required": ["type"],
-        "properties": {
-          "type": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": true
+        "$ref": "#/$defs/block"
       }
     }
   },
   "$defs": {
+    "textInline": {
+      "type": "object",
+      "required": ["type", "value"],
+      "properties": {
+        "type": {
+          "const": "text"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "title": "TextInline"
+    },
+    "emphasisInline": {
+      "type": "object",
+      "required": ["type", "children"],
+      "properties": {
+        "type": {
+          "const": "emphasis"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "EmphasisInline"
+    },
+    "strongInline": {
+      "type": "object",
+      "required": ["type", "children"],
+      "properties": {
+        "type": {
+          "const": "strong"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "StrongInline"
+    },
+    "strikethroughInline": {
+      "type": "object",
+      "required": ["type", "children"],
+      "properties": {
+        "type": {
+          "const": "strikethrough"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "StrikethroughInline"
+    },
+    "codeInline": {
+      "type": "object",
+      "required": ["type", "value"],
+      "properties": {
+        "type": {
+          "const": "code"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "title": "CodeInline"
+    },
+    "linkInline": {
+      "type": "object",
+      "required": ["type", "href", "children"],
+      "properties": {
+        "type": {
+          "const": "link"
+        },
+        "href": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string"
+        },
+        "external": {
+          "type": "boolean"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "LinkInline"
+    },
+    "hardBreakInline": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "const": "hard-break"
+        }
+      },
+      "additionalProperties": false,
+      "title": "HardBreakInline"
+    },
+    "mathInline": {
+      "type": "object",
+      "required": ["type", "source"],
+      "properties": {
+        "type": {
+          "const": "math"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "title": "MathInline"
+    },
+    "keyboardInline": {
+      "type": "object",
+      "required": ["type", "value"],
+      "properties": {
+        "type": {
+          "const": "keyboard"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "title": "KeyboardInline"
+    },
+    "superscriptInline": {
+      "type": "object",
+      "required": ["type", "children"],
+      "properties": {
+        "type": {
+          "const": "superscript"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "SuperscriptInline"
+    },
+    "subscriptInline": {
+      "type": "object",
+      "required": ["type", "children"],
+      "properties": {
+        "type": {
+          "const": "subscript"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "SubscriptInline"
+    },
+    "footnoteReferenceInline": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": {
+          "const": "footnote-reference"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "title": "FootnoteReferenceInline"
+    },
+    "inlineNode": {
+      "title": "InlineNode",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/textInline"
+        },
+        {
+          "$ref": "#/$defs/emphasisInline"
+        },
+        {
+          "$ref": "#/$defs/strongInline"
+        },
+        {
+          "$ref": "#/$defs/strikethroughInline"
+        },
+        {
+          "$ref": "#/$defs/codeInline"
+        },
+        {
+          "$ref": "#/$defs/linkInline"
+        },
+        {
+          "$ref": "#/$defs/hardBreakInline"
+        },
+        {
+          "$ref": "#/$defs/mathInline"
+        },
+        {
+          "$ref": "#/$defs/keyboardInline"
+        },
+        {
+          "$ref": "#/$defs/superscriptInline"
+        },
+        {
+          "$ref": "#/$defs/subscriptInline"
+        },
+        {
+          "$ref": "#/$defs/footnoteReferenceInline"
+        }
+      ]
+    },
+    "headingBlock": {
+      "type": "object",
+      "required": ["type", "level", "children"],
+      "properties": {
+        "type": {
+          "const": "heading"
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "HeadingBlock"
+    },
+    "paragraphBlock": {
+      "type": "object",
+      "required": ["type", "children"],
+      "properties": {
+        "type": {
+          "const": "paragraph"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "ParagraphBlock"
+    },
+    "blockquoteBlock": {
+      "type": "object",
+      "required": ["type", "blocks"],
+      "properties": {
+        "type": {
+          "const": "blockquote"
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "BlockquoteBlock"
+    },
+    "listBlock": {
+      "type": "object",
+      "required": ["type", "ordered", "items"],
+      "properties": {
+        "type": {
+          "const": "list"
+        },
+        "ordered": {
+          "type": "boolean"
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/listItem"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "ListBlock"
+    },
+    "codeBlock": {
+      "type": "object",
+      "required": ["type", "code"],
+      "properties": {
+        "type": {
+          "const": "code"
+        },
+        "language": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "lineNumbers": {
+          "type": "boolean"
+        },
+        "highlightedLines": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "CodeBlock"
+    },
+    "thematicBreakBlock": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "const": "thematic-break"
+        }
+      },
+      "additionalProperties": false,
+      "title": "ThematicBreakBlock"
+    },
+    "tableBlock": {
+      "type": "object",
+      "required": ["type", "alignments", "header", "rows"],
+      "properties": {
+        "type": {
+          "const": "table"
+        },
+        "caption": {
+          "type": "string"
+        },
+        "alignments": {
+          "type": "array",
+          "items": {
+            "enum": ["left", "center", "right", null]
+          }
+        },
+        "header": {
+          "$ref": "#/$defs/tableRow"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tableRow"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "TableBlock"
+    },
+    "footnoteDefinitionBlock": {
+      "type": "object",
+      "required": ["type", "id", "blocks"],
+      "properties": {
+        "type": {
+          "const": "footnote-definition"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "FootnoteDefinitionBlock"
+    },
+    "mathBlock": {
+      "type": "object",
+      "required": ["type", "source"],
+      "properties": {
+        "type": {
+          "const": "math"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "title": "MathBlock"
+    },
+    "calloutBlock": {
+      "type": "object",
+      "required": ["type", "kind", "blocks"],
+      "properties": {
+        "type": {
+          "const": "callout"
+        },
+        "kind": {
+          "enum": ["note", "hint", "warning", "important", "misconception"]
+        },
+        "title": {
+          "type": "string"
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "CalloutBlock"
+    },
+    "detailsBlock": {
+      "type": "object",
+      "required": ["type", "summary", "blocks"],
+      "properties": {
+        "type": {
+          "const": "details"
+        },
+        "summary": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        },
+        "open": {
+          "type": "boolean"
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "DetailsBlock"
+    },
+    "tabsBlock": {
+      "type": "object",
+      "required": ["type", "tabs"],
+      "properties": {
+        "type": {
+          "const": "tabs"
+        },
+        "tabs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/tabItem"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "TabsBlock"
+    },
+    "objectivesBlock": {
+      "type": "object",
+      "required": ["type", "items"],
+      "properties": {
+        "type": {
+          "const": "objectives"
+        },
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/inlineNode"
+            }
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "ObjectivesBlock"
+    },
+    "definitionBlock": {
+      "type": "object",
+      "required": ["type", "title", "blocks"],
+      "properties": {
+        "type": {
+          "const": "definition"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "DefinitionBlock"
+    },
+    "theoremBlock": {
+      "type": "object",
+      "required": ["type", "title", "blocks"],
+      "properties": {
+        "type": {
+          "const": "theorem"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "TheoremBlock"
+    },
+    "proofBlock": {
+      "type": "object",
+      "required": ["type", "blocks"],
+      "properties": {
+        "type": {
+          "const": "proof"
+        },
+        "title": {
+          "type": "string"
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "ProofBlock"
+    },
+    "workedExampleBlock": {
+      "type": "object",
+      "required": ["type", "title", "blocks"],
+      "properties": {
+        "type": {
+          "const": "worked-example"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "WorkedExampleBlock"
+    },
+    "summaryBlock": {
+      "type": "object",
+      "required": ["type", "blocks"],
+      "properties": {
+        "type": {
+          "const": "summary"
+        },
+        "title": {
+          "type": "string"
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "SummaryBlock"
+    },
+    "vocabularyBlock": {
+      "type": "object",
+      "required": ["type", "items"],
+      "properties": {
+        "type": {
+          "const": "vocabulary"
+        },
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/vocabularyItem"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "VocabularyBlock"
+    },
+    "compareBlock": {
+      "type": "object",
+      "required": ["type", "columns"],
+      "properties": {
+        "type": {
+          "const": "compare"
+        },
+        "title": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/compareColumn"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "CompareBlock"
+    },
+    "walkthroughBlock": {
+      "type": "object",
+      "required": ["type", "steps"],
+      "properties": {
+        "type": {
+          "const": "walkthrough"
+        },
+        "title": {
+          "type": "string"
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/walkthroughStep"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "WalkthroughBlock"
+    },
+    "activityEmbedBlock": {
+      "type": "object",
+      "required": ["type", "activityId"],
+      "properties": {
+        "type": {
+          "const": "activity"
+        },
+        "activityId": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "title": "ActivityEmbedBlock"
+    },
+    "figureBlock": {
+      "type": "object",
+      "required": ["type", "source", "alt"],
+      "properties": {
+        "type": {
+          "const": "figure"
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "caption": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        },
+        "credit": {
+          "type": "string"
+        },
+        "sourceLabel": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "title": "FigureBlock"
+    },
+    "audioBlock": {
+      "type": "object",
+      "required": ["type", "source", "title", "transcript"],
+      "properties": {
+        "type": {
+          "const": "audio"
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "transcript": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "AudioBlock"
+    },
+    "videoBlock": {
+      "type": "object",
+      "required": ["type", "source", "title", "transcript"],
+      "properties": {
+        "type": {
+          "const": "video"
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "captions": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "poster": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "transcript": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "VideoBlock"
+    },
+    "attachmentBlock": {
+      "type": "object",
+      "required": ["type", "source", "label"],
+      "properties": {
+        "type": {
+          "const": "attachment"
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        },
+        "mediaType": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "title": "AttachmentBlock"
+    },
+    "listItem": {
+      "type": "object",
+      "required": ["blocks"],
+      "properties": {
+        "checked": {
+          "type": ["boolean", "null"]
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "ListItem"
+    },
+    "tableCell": {
+      "type": "object",
+      "required": ["children"],
+      "properties": {
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "TableCell"
+    },
+    "tableRow": {
+      "type": "object",
+      "required": ["cells"],
+      "properties": {
+        "cells": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tableCell"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "TableRow"
+    },
+    "tabItem": {
+      "type": "object",
+      "required": ["id", "label", "blocks"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "TabItem"
+    },
+    "vocabularyItem": {
+      "type": "object",
+      "required": ["term", "definition"],
+      "properties": {
+        "term": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inlineNode"
+          }
+        },
+        "definition": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "VocabularyItem"
+    },
+    "compareColumn": {
+      "type": "object",
+      "required": ["title", "blocks"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "CompareColumn"
+    },
+    "walkthroughStep": {
+      "type": "object",
+      "required": ["title", "blocks"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "WalkthroughStep"
+    },
+    "block": {
+      "title": "LessonBlock",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/headingBlock"
+        },
+        {
+          "$ref": "#/$defs/paragraphBlock"
+        },
+        {
+          "$ref": "#/$defs/blockquoteBlock"
+        },
+        {
+          "$ref": "#/$defs/listBlock"
+        },
+        {
+          "$ref": "#/$defs/codeBlock"
+        },
+        {
+          "$ref": "#/$defs/thematicBreakBlock"
+        },
+        {
+          "$ref": "#/$defs/tableBlock"
+        },
+        {
+          "$ref": "#/$defs/footnoteDefinitionBlock"
+        },
+        {
+          "$ref": "#/$defs/mathBlock"
+        },
+        {
+          "$ref": "#/$defs/calloutBlock"
+        },
+        {
+          "$ref": "#/$defs/detailsBlock"
+        },
+        {
+          "$ref": "#/$defs/tabsBlock"
+        },
+        {
+          "$ref": "#/$defs/objectivesBlock"
+        },
+        {
+          "$ref": "#/$defs/definitionBlock"
+        },
+        {
+          "$ref": "#/$defs/theoremBlock"
+        },
+        {
+          "$ref": "#/$defs/proofBlock"
+        },
+        {
+          "$ref": "#/$defs/workedExampleBlock"
+        },
+        {
+          "$ref": "#/$defs/summaryBlock"
+        },
+        {
+          "$ref": "#/$defs/vocabularyBlock"
+        },
+        {
+          "$ref": "#/$defs/compareBlock"
+        },
+        {
+          "$ref": "#/$defs/walkthroughBlock"
+        },
+        {
+          "$ref": "#/$defs/activityEmbedBlock"
+        },
+        {
+          "$ref": "#/$defs/figureBlock"
+        },
+        {
+          "$ref": "#/$defs/audioBlock"
+        },
+        {
+          "$ref": "#/$defs/videoBlock"
+        },
+        {
+          "$ref": "#/$defs/attachmentBlock"
+        }
+      ]
+    },
     "fragment": {
-      "title": "LessonDocumentFragment",
       "type": "object",
       "required": ["blocks"],
       "properties": {
         "blocks": {
           "type": "array",
           "items": {
-            "type": "object",
-            "required": ["type"],
-            "properties": {
-              "type": {
-                "type": "string"
-              }
-            },
-            "additionalProperties": true
+            "$ref": "#/$defs/block"
           }
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "title": "LessonDocumentFragment"
     }
   },
-  "unevaluatedProperties": false
+  "additionalProperties": false
 }

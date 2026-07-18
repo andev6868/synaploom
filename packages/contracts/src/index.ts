@@ -333,37 +333,180 @@ export interface ActivitySetProgress {
 }
 
 /** Inline content accepted by the safe lesson renderer. */
-export type InlineContent =
+export type InlineNode =
   | { readonly type: 'text'; readonly value: string }
+  | { readonly type: 'emphasis'; readonly children: readonly InlineNode[] }
+  | { readonly type: 'strong'; readonly children: readonly InlineNode[] }
+  | { readonly type: 'strikethrough'; readonly children: readonly InlineNode[] }
   | { readonly type: 'code'; readonly value: string }
-  | { readonly type: 'strong'; readonly children: readonly InlineContent[] }
   | {
       readonly type: 'link';
       readonly href: string;
-      readonly children: readonly InlineContent[];
-    };
+      readonly title?: string;
+      readonly external?: boolean;
+      readonly children: readonly InlineNode[];
+    }
+  | { readonly type: 'hard-break' }
+  | { readonly type: 'math'; readonly source: string }
+  | { readonly type: 'keyboard'; readonly value: string }
+  | { readonly type: 'superscript'; readonly children: readonly InlineNode[] }
+  | { readonly type: 'subscript'; readonly children: readonly InlineNode[] }
+  | { readonly type: 'footnote-reference'; readonly id: string };
+
+/** @deprecated Use InlineNode. Kept for one compatibility window. */
+export type InlineContent = InlineNode;
+
+export interface ListItem {
+  readonly checked?: boolean | null;
+  readonly blocks: readonly LessonBlock[];
+}
+
+export interface TableCell {
+  readonly children: readonly InlineNode[];
+}
+
+export interface TableRow {
+  readonly cells: readonly TableCell[];
+}
+
+export interface TabItem {
+  readonly id: string;
+  readonly label: string;
+  readonly blocks: readonly LessonBlock[];
+}
 
 /** Typed lesson blocks. Author-provided HTML is never represented as executable markup. */
 export type LessonBlock =
   | {
       readonly type: 'heading';
       readonly level: 1 | 2 | 3 | 4 | 5 | 6;
-      readonly text: string;
+      readonly children: readonly InlineNode[];
     }
-  | { readonly type: 'paragraph'; readonly children: readonly InlineContent[] }
+  | { readonly type: 'paragraph'; readonly children: readonly InlineNode[] }
+  | { readonly type: 'blockquote'; readonly blocks: readonly LessonBlock[] }
   | {
       readonly type: 'list';
       readonly ordered: boolean;
-      readonly items: readonly string[];
+      readonly start?: number;
+      readonly items: readonly ListItem[];
     }
-  | { readonly type: 'code'; readonly language: string; readonly code: string }
+  | {
+      readonly type: 'code';
+      readonly language?: string;
+      readonly code: string;
+      readonly filename?: string;
+      readonly lineNumbers?: boolean;
+      readonly highlightedLines?: readonly number[];
+    }
+  | { readonly type: 'thematic-break' }
+  | {
+      readonly type: 'table';
+      readonly caption?: string;
+      readonly alignments: readonly ('left' | 'center' | 'right' | null)[];
+      readonly header: TableRow;
+      readonly rows: readonly TableRow[];
+    }
+  | {
+      readonly type: 'footnote-definition';
+      readonly id: string;
+      readonly blocks: readonly LessonBlock[];
+    }
+  | { readonly type: 'math'; readonly source: string; readonly label?: string }
   | {
       readonly type: 'callout';
-      readonly kind: 'note' | 'hint' | 'warning';
-      readonly children: readonly InlineContent[];
+      readonly kind: 'note' | 'hint' | 'warning' | 'important' | 'misconception';
+      readonly title?: string;
+      readonly blocks: readonly LessonBlock[];
     }
-  | { readonly type: 'image'; readonly source: string; readonly alt: string }
-  | { readonly type: 'assignment'; readonly steps: readonly string[] };
+  | {
+      readonly type: 'details';
+      readonly summary: readonly InlineNode[];
+      readonly open?: boolean;
+      readonly blocks: readonly LessonBlock[];
+    }
+  | { readonly type: 'tabs'; readonly tabs: readonly TabItem[] }
+  | {
+      readonly type: 'objectives';
+      readonly title?: string;
+      readonly items: readonly (readonly InlineNode[])[];
+    }
+  | { readonly type: 'definition'; readonly title: string; readonly blocks: readonly LessonBlock[] }
+  | {
+      readonly type: 'theorem';
+      readonly title: string;
+      readonly label?: string;
+      readonly blocks: readonly LessonBlock[];
+    }
+  | { readonly type: 'proof'; readonly title?: string; readonly blocks: readonly LessonBlock[] }
+  | {
+      readonly type: 'worked-example';
+      readonly title: string;
+      readonly blocks: readonly LessonBlock[];
+    }
+  | { readonly type: 'summary'; readonly title?: string; readonly blocks: readonly LessonBlock[] }
+  | {
+      readonly type: 'vocabulary';
+      readonly title?: string;
+      readonly items: readonly {
+        readonly term: readonly InlineNode[];
+        readonly definition: readonly LessonBlock[];
+      }[];
+    }
+  | {
+      readonly type: 'compare';
+      readonly title?: string;
+      readonly columns: readonly {
+        readonly title: string;
+        readonly blocks: readonly LessonBlock[];
+      }[];
+    }
+  | {
+      readonly type: 'walkthrough';
+      readonly title?: string;
+      readonly steps: readonly {
+        readonly title: string;
+        readonly blocks: readonly LessonBlock[];
+      }[];
+    }
+  | { readonly type: 'activity'; readonly activityId: string }
+  | {
+      readonly type: 'figure';
+      readonly source: string;
+      readonly alt: string;
+      readonly caption?: readonly InlineNode[];
+      readonly credit?: string;
+      readonly sourceLabel?: string;
+    }
+  | {
+      readonly type: 'audio';
+      readonly source: string;
+      readonly title: string;
+      readonly transcript: readonly LessonBlock[];
+    }
+  | {
+      readonly type: 'video';
+      readonly source: string;
+      readonly title: string;
+      readonly captions?: string;
+      readonly poster?: string;
+      readonly transcript: readonly LessonBlock[];
+    }
+  | {
+      readonly type: 'attachment';
+      readonly source: string;
+      readonly label: string;
+      readonly description?: readonly InlineNode[];
+      readonly mediaType?: string;
+    };
+
+export interface LessonDocument {
+  readonly id: string;
+  readonly courseId: string;
+  readonly position: number;
+  readonly title: string;
+  readonly type: LessonType;
+  readonly blocks: readonly LessonBlock[];
+}
 
 /** Fully normalized lesson loaded from an immutable course package. */
 export interface NormalizedLesson {

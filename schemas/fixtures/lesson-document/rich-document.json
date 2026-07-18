@@ -1,0 +1,221 @@
+{
+  "id": "rich-lesson",
+  "courseId": "multi-domain-foundations",
+  "position": 1,
+  "title": "Rich Lesson",
+  "type": "mixed",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "children": [{ "type": "text", "value": "Inline semantics" }]
+    },
+    {
+      "type": "paragraph",
+      "children": [
+        { "type": "text", "value": "Text " },
+        { "type": "emphasis", "children": [{ "type": "text", "value": "em" }] },
+        { "type": "strong", "children": [{ "type": "text", "value": "strong" }] },
+        { "type": "strikethrough", "children": [{ "type": "text", "value": "strike" }] },
+        { "type": "code", "value": "x" },
+        {
+          "type": "link",
+          "href": "https://example.com",
+          "external": true,
+          "children": [{ "type": "text", "value": "link" }]
+        },
+        { "type": "hard-break" },
+        { "type": "math", "source": "a^2+b^2=c^2" },
+        { "type": "keyboard", "value": "Enter" },
+        { "type": "superscript", "children": [{ "type": "text", "value": "2" }] },
+        { "type": "subscript", "children": [{ "type": "text", "value": "n" }] },
+        { "type": "footnote-reference", "id": "note-1" }
+      ]
+    },
+    {
+      "type": "blockquote",
+      "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Quote" }] }]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "checked": true,
+          "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Task" }] }]
+        },
+        {
+          "checked": null,
+          "blocks": [
+            {
+              "type": "list",
+              "ordered": true,
+              "start": 2,
+              "items": [
+                {
+                  "checked": null,
+                  "blocks": [
+                    { "type": "paragraph", "children": [{ "type": "text", "value": "Nested" }] }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "language": "ts",
+      "filename": "index.ts",
+      "lineNumbers": true,
+      "highlightedLines": [2],
+      "code": "const x = 1;\n"
+    },
+    { "type": "thematic-break" },
+    {
+      "type": "table",
+      "caption": "Values",
+      "alignments": ["left", "right"],
+      "header": {
+        "cells": [
+          { "children": [{ "type": "text", "value": "Name" }] },
+          { "children": [{ "type": "text", "value": "Value" }] }
+        ]
+      },
+      "rows": [
+        {
+          "cells": [
+            { "children": [{ "type": "text", "value": "x" }] },
+            { "children": [{ "type": "code", "value": "1" }] }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "footnote-definition",
+      "id": "note-1",
+      "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Footnote" }] }]
+    },
+    { "type": "math", "source": "\\int_0^1 x dx", "label": "eq-1" },
+    {
+      "type": "callout",
+      "kind": "important",
+      "title": "Remember",
+      "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Important" }] }]
+    },
+    {
+      "type": "details",
+      "summary": [{ "type": "text", "value": "More" }],
+      "open": false,
+      "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Details" }] }]
+    },
+    {
+      "type": "tabs",
+      "tabs": [
+        {
+          "id": "a",
+          "label": "A",
+          "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Tab A" }] }]
+        }
+      ]
+    },
+    {
+      "type": "objectives",
+      "title": "Objectives",
+      "items": [[{ "type": "text", "value": "Understand" }]]
+    },
+    {
+      "type": "definition",
+      "title": "Term",
+      "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Definition" }] }]
+    },
+    {
+      "type": "theorem",
+      "title": "Theorem",
+      "label": "T1",
+      "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Claim" }] }]
+    },
+    {
+      "type": "proof",
+      "title": "Proof",
+      "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Because" }] }]
+    },
+    {
+      "type": "worked-example",
+      "title": "Example",
+      "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Work" }] }]
+    },
+    {
+      "type": "summary",
+      "title": "Summary",
+      "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Done" }] }]
+    },
+    {
+      "type": "vocabulary",
+      "items": [
+        {
+          "term": [{ "type": "text", "value": "Word" }],
+          "definition": [
+            { "type": "paragraph", "children": [{ "type": "text", "value": "Meaning" }] }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "compare",
+      "columns": [
+        {
+          "title": "A",
+          "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Left" }] }]
+        },
+        {
+          "title": "B",
+          "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Right" }] }]
+        }
+      ]
+    },
+    {
+      "type": "walkthrough",
+      "steps": [
+        {
+          "title": "Step 1",
+          "blocks": [{ "type": "paragraph", "children": [{ "type": "text", "value": "Do it" }] }]
+        }
+      ]
+    },
+    {
+      "type": "figure",
+      "source": "media/figure.png",
+      "alt": "A labelled figure",
+      "caption": [{ "type": "text", "value": "Figure caption" }],
+      "credit": "Author",
+      "sourceLabel": "Local"
+    },
+    {
+      "type": "audio",
+      "source": "media/audio.mp3",
+      "title": "Listening",
+      "transcript": [
+        { "type": "paragraph", "children": [{ "type": "text", "value": "Audio transcript" }] }
+      ]
+    },
+    {
+      "type": "video",
+      "source": "media/video.mp4",
+      "title": "Watch",
+      "captions": "media/video.vtt",
+      "transcript": [
+        { "type": "paragraph", "children": [{ "type": "text", "value": "Video transcript" }] }
+      ]
+    },
+    {
+      "type": "attachment",
+      "source": "files/worksheet.pdf",
+      "label": "Worksheet",
+      "description": [{ "type": "text", "value": "Download" }],
+      "mediaType": "application/pdf"
+    },
+    { "type": "activity", "activityId": "question-1" }
+  ]
+}
