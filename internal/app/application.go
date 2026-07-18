@@ -8,12 +8,16 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/synaploom/synaploom/internal/buildinfo"
 	"github.com/synaploom/synaploom/internal/cli"
 	"github.com/synaploom/synaploom/internal/course"
 	"github.com/synaploom/synaploom/internal/diagnostics"
+	"github.com/synaploom/synaploom/internal/progression"
+	"github.com/synaploom/synaploom/internal/runner"
 	"github.com/synaploom/synaploom/internal/server"
+	"github.com/synaploom/synaploom/internal/storage"
 )
 
 func Run(ctx context.Context, command cli.Command) int {
@@ -84,9 +88,20 @@ func Run(ctx context.Context, command cli.Command) int {
 	}
 }
 func serve(ctx context.Context, service course.Service, port int) int {
+	runtime, err := OpenRuntime(ctx, diagnostics.DefaultHome())
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return cli.ExitOperational
+	}
+	defer runtime.Close()
 	sessions := server.NewSessionManager()
 	token, err := sessions.IssueBootstrapToken()
 	if err != nil {
+		return cli.ExitOperational
+	}
+	handler, err := configureRouter(ctx, service, sessions, runtime.Database)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		return cli.ExitOperational
 	}
 	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
@@ -94,11 +109,69 @@ func serve(ctx context.Context, service course.Service, port int) int {
 		fmt.Fprintln(os.Stderr, err)
 		return cli.ExitOperational
 	}
-	srv := &http.Server{Handler: server.NewRouter(service, sessions)}
+	srv := &http.Server{Handler: handler}
 	fmt.Fprintf(os.Stdout, "http://%s/bootstrap?token=%s\n", listener.Addr(), token)
 	go func() { <-ctx.Done(); _ = srv.Shutdown(context.Background()) }()
 	if err := srv.Serve(listener); err != nil && err != http.ErrServerClosed {
 		return cli.ExitOperational
 	}
 	return cli.ExitSuccess
+}
+
+type progressionGraphSource interface {
+	ProgressionGraph() (progression.CourseGraph, error)
+}
+
+func configureRouter(ctx context.Context, service course.Service, sessions *server.SessionManager, database *storage.Database) (http.Handler, error) {
+	source, ok := service.(progressionGraphSource)
+	if !ok {
+		return server.NewRouter(service, sessions), nil
+	}
+	graph, err := source.ProgressionGraph()
+	if err != nil {
+		return nil, fmt.Errorf("configure progression graph: %w", err)
+	}
+	progress := progression.NewService(database.SQL, storage.NewHierarchicalProgressRepository(), graph)
+	if _, err := progress.Initialize(ctx); err != nil {
+		return nil, fmt.Errorf("initialize progression: %w", err)
+	}
+	content := service
+	if filesystem, ok := service.(*course.FilesystemService); ok {
+		content = &progressionAwareFilesystemService{FilesystemService: filesystem, progression: progress, graph: graph}
+	}
+	return server.NewRouter(content, sessions, server.WithProgression(progress)), nil
+}
+
+type progressionAwareFilesystemService struct {
+	*course.FilesystemService
+	progression *progression.ServiceImpl
+	graph       progression.CourseGraph
+}
+
+func (s *progressionAwareFilesystemService) RecordActionResult(ctx context.Context, lessonID, actionID string, result runner.Result) error {
+	if err := s.FilesystemService.RecordActionResult(ctx, lessonID, actionID, result); err != nil {
+		return err
+	}
+	if actionID != "check" {
+		return nil
+	}
+	lesson, ok := s.graph.LessonIndex[lessonID]
+	if !ok || len(lesson.Practices) == 0 {
+		return nil
+	}
+	passed := result.ExitCode != nil && *result.ExitCode == 0 && result.Err == nil
+	_, err := s.progression.RecordLessonPracticeResult(ctx, lessonID, lesson.Practices[0].ID, progression.AttemptResult{
+		Passed: passed, CompletedAt: time.Now().UTC(), Summary: resultSummary(result),
+	})
+	return err
+}
+
+func resultSummary(result runner.Result) string {
+	if result.Err != nil {
+		return result.Err.Error()
+	}
+	if result.ExitCode != nil {
+		return fmt.Sprintf("exit code %d", *result.ExitCode)
+	}
+	return "completed"
 }
