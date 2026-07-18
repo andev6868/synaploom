@@ -61,5 +61,13 @@ describe('canonical navigation', () => {
       '',
       '/courses/perf%20course/chapters/runtime/assessments/capstone',
     );
+
+    navigateToLesson('perf course', '', 'event loop');
+    expect(pushState).toHaveBeenNthCalledWith(
+      3,
+      {},
+      '',
+      '/courses/perf%20course/lessons/event%20loop',
+    );
   });
 });

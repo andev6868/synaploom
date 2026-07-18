@@ -95,6 +95,13 @@ export function navigateToLesson(
     );
     return;
   }
+  if (!chapterOrLessonId.trim()) {
+    writePath(
+      `/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonOrReplace)}`,
+      replace,
+    );
+    return;
+  }
   writePath(
     `/courses/${encodeURIComponent(courseId)}/chapters/${encodeURIComponent(chapterOrLessonId)}/lessons/${encodeURIComponent(lessonOrReplace)}`,
     replace,

@@ -12,7 +12,10 @@ func TestReviewModeReturnsToCurrentLesson(t *testing.T) {
 	if nav.ViewMode != ViewModeReview {
 		t.Fatalf("mode=%s", nav.ViewMode)
 	}
-	if nav.NextAction.Type != NextActionReturnToCurrent || nav.NextAction.Target.ID != "l2" {
+	if nav.ReturnTarget == nil || nav.ReturnTarget.ChapterID != "c1" {
+		t.Fatalf("return target=%+v", nav.ReturnTarget)
+	}
+	if nav.NextAction.Type != NextActionReturnToCurrent || nav.NextAction.Target.ID != "l2" || nav.NextAction.Target.ChapterID != "c1" {
 		t.Fatalf("action=%+v", nav.NextAction)
 	}
 }

@@ -85,7 +85,7 @@ func BuildNavigation(graph CourseGraph, evaluation Evaluation, viewed ItemRef) (
 	nav := LearningNavigation{CourseID: graph.ID, CurrentLessonID: evaluation.CurrentLessonID, ViewedItemID: viewed.ID, ViewMode: ViewModeLearning}
 	if viewed.Kind == ItemLesson && viewed.ID != evaluation.CurrentLessonID && evaluation.Lessons[viewed.ID].Status == StatusCompleted {
 		nav.ViewMode = ViewModeReview
-		nav.ReturnTarget = &NavigationTarget{Type: string(ItemLesson), ID: evaluation.CurrentLessonID}
+		nav.ReturnTarget = &NavigationTarget{Type: string(ItemLesson), ID: evaluation.CurrentLessonID, ChapterID: chapterIDForLesson(graph, evaluation.CurrentLessonID)}
 	}
 	for _, chapter := range graph.Chapters {
 		ce := evaluation.Chapters[chapter.ID]
@@ -113,6 +113,20 @@ func BuildNavigation(graph CourseGraph, evaluation Evaluation, viewed ItemRef) (
 	return nav, nil
 }
 
+func chapterIDForLesson(graph CourseGraph, lessonID string) string {
+	if lesson, ok := graph.LessonIndex[lessonID]; ok {
+		return lesson.ChapterID
+	}
+	for _, chapter := range graph.Chapters {
+		for _, lesson := range chapter.Lessons {
+			if lesson.ID == lessonID {
+				return chapter.ID
+			}
+		}
+	}
+	return ""
+}
+
 func lockedError(itemID string, evaluation Evaluation, requirements []RequirementView) error {
 	blocking := make([]RequirementView, 0)
 	for _, req := range requirements {
@@ -127,7 +141,7 @@ func NextActionFor(graph CourseGraph, evaluation Evaluation, viewed ItemRef) Nex
 	if viewed.Kind == ItemLesson {
 		le, ok := evaluation.Lessons[viewed.ID]
 		if ok && le.Status == StatusCompleted && viewed.ID != evaluation.CurrentLessonID {
-			return NextAction{Type: NextActionReturnToCurrent, Target: ItemRef{Kind: ItemLesson, ID: evaluation.CurrentLessonID}, Label: "Quay lại bài đang học"}
+			return NextAction{Type: NextActionReturnToCurrent, Target: ItemRef{Kind: ItemLesson, ID: evaluation.CurrentLessonID, ChapterID: chapterIDForLesson(graph, evaluation.CurrentLessonID)}, Label: "Quay lại bài đang học"}
 		}
 		for _, req := range le.Requirements {
 			if req.Required && !req.Satisfied && req.Kind == "reading" {
@@ -149,7 +163,7 @@ func NextActionFor(graph CourseGraph, evaluation Evaluation, viewed ItemRef) Nex
 	}
 	if evaluation.CurrentLessonID != "" && evaluation.CurrentLessonID != viewed.ID {
 		if le := evaluation.Lessons[evaluation.CurrentLessonID]; le.Status == StatusAvailable {
-			return NextAction{Type: NextActionContinueToLesson, Target: ItemRef{Kind: ItemLesson, ID: evaluation.CurrentLessonID}, Label: "Tiếp tục bài tiếp theo"}
+			return NextAction{Type: NextActionContinueToLesson, Target: ItemRef{Kind: ItemLesson, ID: evaluation.CurrentLessonID, ChapterID: chapterIDForLesson(graph, evaluation.CurrentLessonID)}, Label: "Tiếp tục bài tiếp theo"}
 		}
 	}
 	for _, chapter := range graph.Chapters {

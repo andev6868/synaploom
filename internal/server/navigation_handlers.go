@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"strings"
+	"unicode"
 
 	"github.com/synaploom/synaploom/internal/course"
 	"github.com/synaploom/synaploom/internal/progression"
@@ -132,7 +134,7 @@ func navigationPayload(n progression.LearningNavigation) map[string]any {
 	}
 	var returnTarget any
 	if n.ReturnTarget != nil {
-		returnTarget = map[string]any{"type": n.ReturnTarget.Type, "id": n.ReturnTarget.ID, "chapterId": nil, "label": "Quay lại bài đang học"}
+		returnTarget = map[string]any{"type": n.ReturnTarget.Type, "id": n.ReturnTarget.ID, "chapterId": nullableString(n.ReturnTarget.ChapterID), "label": humanizeIdentifier(n.ReturnTarget.ID)}
 	}
 	return map[string]any{
 		"courseId": n.CourseID, "currentLessonId": nullableString(n.CurrentLessonID), "viewedItemId": n.ViewedItemID,
@@ -155,7 +157,7 @@ func lessonViewContextPayload(view progression.LessonView) map[string]any {
 	}
 	var returnTarget any
 	if view.Navigation.ReturnTarget != nil {
-		returnTarget = map[string]any{"type": view.Navigation.ReturnTarget.Type, "id": view.Navigation.ReturnTarget.ID, "chapterId": chapterID, "label": "Quay lại bài đang học"}
+		returnTarget = map[string]any{"type": view.Navigation.ReturnTarget.Type, "id": view.Navigation.ReturnTarget.ID, "chapterId": nullableString(view.Navigation.ReturnTarget.ChapterID), "label": humanizeIdentifier(view.Navigation.ReturnTarget.ID)}
 	}
 	return map[string]any{
 		"chapterId":        chapterID,
@@ -168,6 +170,19 @@ func lessonViewContextPayload(view progression.LessonView) map[string]any {
 		"returnTarget":     returnTarget,
 		"nextAction":       nextActionPayload(view.Navigation.NextAction),
 	}
+}
+
+func humanizeIdentifier(value string) string {
+	words := strings.Fields(strings.NewReplacer("-", " ", "_", " ").Replace(value))
+	for index, word := range words {
+		runes := []rune(word)
+		if len(runes) == 0 {
+			continue
+		}
+		runes[0] = unicode.ToUpper(runes[0])
+		words[index] = string(runes)
+	}
+	return strings.Join(words, " ")
 }
 
 func nextActionPayload(action progression.NextAction) map[string]any {

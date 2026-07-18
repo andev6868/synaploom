@@ -2,7 +2,7 @@ package progression
 
 import "fmt"
 
-type NavigationTarget struct{ Type, ID string }
+type NavigationTarget struct{ Type, ID, ChapterID string }
 
 type UnknownItemError struct{ ItemID string }
 
