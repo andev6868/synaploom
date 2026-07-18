@@ -75,10 +75,7 @@ export interface NavigationViewTarget {
 /** Typed client for the loopback-only Synaploom daemon. */
 export interface SynaploomApiClient {
   getCourse(): Promise<CoursePayload>;
-  getNavigation(
-    courseId: string,
-    viewed?: NavigationViewTarget,
-  ): Promise<CourseNavigationPayload>;
+  getNavigation(courseId: string, viewed?: NavigationViewTarget): Promise<CourseNavigationPayload>;
   getLessonView(
     courseId: string,
     chapterId: string,

@@ -1,8 +1,4 @@
-import type {
-  CourseNavigationPayload,
-  CoursePayload,
-  LessonPayload,
-} from '@synaploom/protocol';
+import type { CourseNavigationPayload, CoursePayload, LessonPayload } from '@synaploom/protocol';
 
 export interface LearningProgressSummary {
   readonly positionLabel: string;

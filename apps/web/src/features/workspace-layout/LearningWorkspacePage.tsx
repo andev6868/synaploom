@@ -74,12 +74,7 @@ export function LearningWorkspacePage({
     enabled: Boolean(navigationCourseId),
   });
   const canonicalLessonQuery = useQuery({
-    queryKey: [
-      'lesson-view',
-      lessonRoute?.courseId,
-      lessonRoute?.chapterId,
-      lessonRoute?.lessonId,
-    ],
+    queryKey: ['lesson-view', lessonRoute?.courseId, lessonRoute?.chapterId, lessonRoute?.lessonId],
     queryFn: () =>
       api.getLessonView(
         lessonRoute?.courseId as string,
@@ -91,9 +86,7 @@ export function LearningWorkspacePage({
   const legacyLessonQuery = useQuery({
     queryKey: ['lesson', lessonRoute?.lessonId ?? 'current'],
     queryFn: () =>
-      lessonRoute?.lessonId
-        ? api.getLesson(lessonRoute.lessonId)
-        : api.getCurrentLesson(),
+      lessonRoute?.lessonId ? api.getLesson(lessonRoute.lessonId) : api.getCurrentLesson(),
     enabled: route.kind === 'lesson' && !canonicalLesson,
   });
   const paneQuery = useQuery({
@@ -233,8 +226,7 @@ export function LearningWorkspacePage({
 
   const canonicalPayload = canonicalLessonQuery.data as CanonicalLessonPayload | undefined;
   const lesson = (canonicalLesson ? canonicalPayload?.lesson : legacyLessonQuery.data) as
-    | LessonPayload
-    | undefined;
+    LessonPayload | undefined;
   if (!lesson) return null;
 
   const context = canonicalPayload?.context;

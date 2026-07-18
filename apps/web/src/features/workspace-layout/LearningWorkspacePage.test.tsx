@@ -161,7 +161,6 @@ describe('LearningWorkspacePage', () => {
     expect(screen.queryByLabelText('Chế độ xem lại')).not.toBeInTheDocument();
   });
 
-
   it('renders an assessment inside the same top navigation and assistant shell', async () => {
     const assessmentNavigation: CourseNavigationPayload = {
       ...navigation,
@@ -226,5 +225,4 @@ describe('LearningWorkspacePage', () => {
     expect(screen.getByText('Trợ lý AI')).toBeVisible();
     expect(document.querySelector('.syn-assessment-page')).not.toBeInTheDocument();
   });
-
 });

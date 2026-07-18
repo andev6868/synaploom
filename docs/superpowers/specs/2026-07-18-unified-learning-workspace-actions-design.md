@@ -37,18 +37,18 @@ Requirement labels use learner-facing titles and never expose raw IDs. The foote
 
 Action copy follows these rules:
 
-| Backend action | Learner-facing action |
-|---|---|
-| `ACKNOWLEDGE_READING` | `Đánh dấu đã đọc` |
-| `START_REQUIRED_PRACTICE` | `Mở bài thực hành` |
-| `RETRY_REQUIRED_PRACTICE` | `Thử lại bài thực hành` |
-| `CONTINUE_TO_LESSON` | `Tiếp tục bài {lesson title}` |
-| `RETURN_TO_CURRENT_LESSON` | `Tiếp tục bài {lesson title}` |
-| `START_CHAPTER_ASSESSMENT` | `Bắt đầu đánh giá chương` |
-| `RETRY_CHAPTER_ASSESSMENT` | `Làm lại đánh giá chương` |
-| `CONTINUE_TO_CHAPTER` | `Tiếp tục chương {chapter title}` |
-| `VIEW_COURSE_SUMMARY` | no button; render `Bạn đã hoàn thành khóa học` |
-| `NONE` | no button |
+| Backend action             | Learner-facing action                          |
+| -------------------------- | ---------------------------------------------- |
+| `ACKNOWLEDGE_READING`      | `Đánh dấu đã đọc`                              |
+| `START_REQUIRED_PRACTICE`  | `Mở bài thực hành`                             |
+| `RETRY_REQUIRED_PRACTICE`  | `Thử lại bài thực hành`                        |
+| `CONTINUE_TO_LESSON`       | `Tiếp tục bài {lesson title}`                  |
+| `RETURN_TO_CURRENT_LESSON` | `Tiếp tục bài {lesson title}`                  |
+| `START_CHAPTER_ASSESSMENT` | `Bắt đầu đánh giá chương`                      |
+| `RETRY_CHAPTER_ASSESSMENT` | `Làm lại đánh giá chương`                      |
+| `CONTINUE_TO_CHAPTER`      | `Tiếp tục chương {chapter title}`              |
+| `VIEW_COURSE_SUMMARY`      | no button; render `Bạn đã hoàn thành khóa học` |
+| `NONE`                     | no button                                      |
 
 `RETURN_TO_CURRENT_LESSON` retains its protocol name for compatibility, but its UI meaning is “resume the current progression target,” not “go backward.” It must therefore use `Tiếp tục`, never `Quay lại`.
 

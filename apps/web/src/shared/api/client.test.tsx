@@ -82,13 +82,13 @@ describe('hierarchical API client', () => {
     ]);
   });
 
-
   it('requests navigation in the context of the viewed assessment', async () => {
-    const fetchImpl = vi.fn(async () =>
-      new Response('{}', {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      }),
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response('{}', {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
     );
     const client = createApiClient(fetchImpl as typeof fetch);
 

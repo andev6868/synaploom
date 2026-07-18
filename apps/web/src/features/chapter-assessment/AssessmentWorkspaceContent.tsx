@@ -117,7 +117,9 @@ export function AssessmentWorkspaceContent({
           disabled={check.isPending || assessment.status === 'LOCKED'}
           onClick={() => check.mutate()}
         >
-          {check.isPending ? 'Đang kiểm tra…' : (assessment.actions[0]?.label ?? 'Kiểm tra kết quả')}
+          {check.isPending
+            ? 'Đang kiểm tra…'
+            : (assessment.actions[0]?.label ?? 'Kiểm tra kết quả')}
         </button>
       ) : null}
 

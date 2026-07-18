@@ -50,8 +50,8 @@ Expected:
 Browser-console checks:
 
 ```js
-document.querySelector('.syn-review-banner')
-document.querySelector('.syn-breadcrumb')
+document.querySelector('.syn-review-banner');
+document.querySelector('.syn-breadcrumb');
 ```
 
 Both expressions must return `null`.
@@ -78,7 +78,7 @@ Expected:
 Browser-console check:
 
 ```js
-document.querySelector('.syn-assessment-page')
+document.querySelector('.syn-assessment-page');
 ```
 
 The expression must return `null`.

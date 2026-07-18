@@ -22,12 +22,14 @@
 ### Task 1: Shared Progression Action Presentation
 
 **Files:**
+
 - Create: `apps/web/src/features/lesson-progress/progression-action.ts`
 - Create: `apps/web/src/features/lesson-progress/progression-action.test.ts`
 - Modify: `apps/web/src/features/lesson-progress/LessonRequirementFooter.tsx`
 - Modify: `apps/web/src/features/lesson-progress/LessonRequirementFooter.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `NextActionPayload`, `CourseNavigationPayload` from `@synaploom/protocol`.
 - Produces: `resolveProgressionAction(action, navigation): ProgressionActionPresentation`.
 - Produces: `LessonRequirementFooter` accepting `navigation?: CourseNavigationPayload` and rendering either a real button, a course-complete status, or no action.
@@ -37,15 +39,16 @@
 Cover:
 
 ```ts
-expect(resolveProgressionAction(
-  { type: 'RETURN_TO_CURRENT_LESSON', chapterId: 'runtime', lessonId: 'event-loop' },
-  navigation,
-)).toEqual({ kind: 'button', label: 'Tiếp tục bài Event Loop', action });
+expect(
+  resolveProgressionAction(
+    { type: 'RETURN_TO_CURRENT_LESSON', chapterId: 'runtime', lessonId: 'event-loop' },
+    navigation,
+  ),
+).toEqual({ kind: 'button', label: 'Tiếp tục bài Event Loop', action });
 
-expect(resolveProgressionAction(
-  { type: 'VIEW_COURSE_SUMMARY', courseId: 'perf' },
-  navigation,
-)).toEqual({ kind: 'complete', message: 'Bạn đã hoàn thành khóa học' });
+expect(
+  resolveProgressionAction({ type: 'VIEW_COURSE_SUMMARY', courseId: 'perf' }, navigation),
+).toEqual({ kind: 'complete', message: 'Bạn đã hoàn thành khóa học' });
 ```
 
 Also verify missing target titles use `Tiếp tục bài học`, not the lesson ID.
@@ -89,6 +92,7 @@ Replace local label maps and `window.location.hash` assumptions. Render:
 - [x] **Step 5: Update footer DOM tests and run GREEN**
 
 Verify:
+
 - `RETURN_TO_CURRENT_LESSON` → `Tiếp tục bài Event Loop`.
 - `CONTINUE_TO_LESSON` → same destination-specific language.
 - `VIEW_COURSE_SUMMARY` → no button, completion status text.
@@ -106,6 +110,7 @@ git commit -m "fix: resolve progression actions from navigation"
 ### Task 2: Remove Redundant Lesson Navigation Elements
 
 **Files:**
+
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx`
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.test.tsx`
 - Delete: `apps/web/src/features/review-mode/ReviewBanner.tsx`
@@ -113,6 +118,7 @@ git commit -m "fix: resolve progression actions from navigation"
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
+
 - Consumes: existing lesson context and navigation payload.
 - Produces: lesson body with one `<h1>`, status badge `Đang xem lại` for review mode, no breadcrumb/banner, and footer receiving navigation data.
 
@@ -176,6 +182,7 @@ git commit -m "refactor: remove redundant lesson navigation chrome"
 ### Task 3: Unify Lesson and Assessment Routes in the Workspace Shell
 
 **Files:**
+
 - Modify: `apps/web/src/app/App.tsx`
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx`
 - Create: `apps/web/src/features/chapter-assessment/AssessmentWorkspaceContent.tsx`
@@ -185,12 +192,23 @@ git commit -m "refactor: remove redundant lesson navigation chrome"
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
+
 - Produces:
 
 ```ts
 export type LearningWorkspaceRoute =
-  | { readonly kind: 'lesson'; readonly courseId?: string; readonly chapterId?: string; readonly lessonId: string | null }
-  | { readonly kind: 'assessment'; readonly courseId: string; readonly chapterId: string; readonly assessmentId: string };
+  | {
+      readonly kind: 'lesson';
+      readonly courseId?: string;
+      readonly chapterId?: string;
+      readonly lessonId: string | null;
+    }
+  | {
+      readonly kind: 'assessment';
+      readonly courseId: string;
+      readonly chapterId: string;
+      readonly assessmentId: string;
+    };
 ```
 
 - `LearningWorkspacePage` accepts `route: LearningWorkspaceRoute`.
@@ -199,6 +217,7 @@ export type LearningWorkspaceRoute =
 - [x] **Step 1: Add failing App/workspace route tests**
 
 Verify an assessment route renders `LearningWorkspacePage` semantics including:
+
 - top navigation (`Điều hướng khóa học`),
 - AI assistant,
 - assessment `<h1>`,
@@ -225,6 +244,7 @@ Legacy/current lesson routes become `kind: 'lesson'` descriptors.
 - [x] **Step 4: Extract assessment content**
 
 Move query/mutation behavior from `ChapterAssessmentPage` into `AssessmentWorkspaceContent`. Render a full-width article with:
+
 - status/title,
 - learner-facing requirements,
 - latest/best result when present,
@@ -234,14 +254,15 @@ Move query/mutation behavior from `ChapterAssessmentPage` into `AssessmentWorksp
 After check success invalidate:
 
 ```ts
-['chapter-assessment', courseId, chapterId, assessmentId]
-['course-navigation', courseId]
-['course']
+['chapter-assessment', courseId, chapterId, assessmentId][('course-navigation', courseId)][
+  'course'
+];
 ```
 
 - [x] **Step 5: Make LearningWorkspacePage own common shell queries and navigation**
 
 For both route kinds:
+
 - load course and course navigation,
 - render one `AppHeader` and `LearningTopNavigation`,
 - render one `AssistantPanel`,
@@ -274,11 +295,13 @@ git commit -m "feat: render assessments in the learning workspace"
 ### Task 4: Correct Backend Terminal Progression Semantics
 
 **Files:**
+
 - Modify: `internal/progression/navigation.go`
 - Modify: `internal/progression/navigation_test.go`
 - Modify: any focused server test that expects `VIEW_COURSE_SUMMARY`.
 
 **Interfaces:**
+
 - `NextActionViewCourseSummary` remains declared for protocol compatibility.
 - `NextActionFor` returns `NextActionNone` when course status is completed.
 
@@ -329,10 +352,12 @@ git commit -m "fix: stop emitting synthetic course summary actions"
 ### Task 5: Integrated Verification and Documentation
 
 **Files:**
+
 - Create: `docs/testing/unified-learning-workspace-manual-verification.md`
 - Modify: `docs/superpowers/plans/2026-07-18-unified-learning-workspace-actions-implementation-plan.md` to mark completed checkboxes.
 
 **Interfaces:**
+
 - Produces a manual verification sequence for lesson, review, assessment, and course-complete flows.
 
 - [x] **Step 1: Run focused automated gates**
@@ -351,6 +376,7 @@ bash scripts/go/with-internal-toolchain.sh test ./internal/progression ./interna
 - [x] **Step 2: Write manual verification guide**
 
 Include:
+
 1. lesson 1 CTA reads `Tiếp tục bài Event Loop` after completion,
 2. review lesson has no banner/breadcrumb,
 3. assessment keeps top shell and AI assistant,

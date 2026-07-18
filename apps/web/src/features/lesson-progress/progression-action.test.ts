@@ -118,7 +118,6 @@ describe('resolveProgressionAction', () => {
     ).toEqual({ kind: 'complete', message: 'Bạn đã hoàn thành khóa học' });
   });
 
-
   it('recognizes a completed course even when the backend emits NONE', () => {
     const completedNavigation: CourseNavigationPayload = {
       ...navigation,

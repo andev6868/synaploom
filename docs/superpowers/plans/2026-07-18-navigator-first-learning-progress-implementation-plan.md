@@ -21,10 +21,12 @@
 ### Task 1: Extract explicit learning progress summary
 
 **Files:**
+
 - Create: `apps/web/src/features/learning-progress/progress-summary.ts`
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx`
 
 **Interfaces:**
+
 - Consumes: `CoursePayload`, `CourseNavigationPayload`, `LessonPayload` from `@synaploom/protocol`.
 - Produces: `buildLearningProgressSummary(...)` returning `{ positionLabel: string; completionLabel: string }`.
 
@@ -36,11 +38,13 @@
 ### Task 2: Convert navigator into a controlled drawer body
 
 **Files:**
+
 - Modify: `apps/web/src/features/learning-progress/types.ts`
 - Modify: `apps/web/src/features/learning-progress/SynLessonProgress.tsx`
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
+
 - Consumes: existing `CourseNavigationPayload` plus open lesson, assessment, and locked callbacks.
 - Produces: a presentation-only hierarchy with `id="course-learning-navigation"`.
 
@@ -53,10 +57,12 @@
 ### Task 3: Add drawer trigger and locked-requirement alert
 
 **Files:**
+
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx`
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
+
 - Consumes: `RequirementView[]` supplied by `SynLessonProgress`.
 - Produces: controlled `navigatorOpen` and `lockedRequirements` UI state.
 
@@ -69,9 +75,11 @@
 ### Task 4: Add verification guide and package handoff
 
 **Files:**
+
 - Create: `docs/testing/navigator-first-manual-verification.md`
 
 **Interfaces:**
+
 - Produces: exact manual and automated verification instructions for the user.
 
 - [x] **Step 1:** Document desktop, mobile, keyboard, locked item, assessment, and review scenarios.
