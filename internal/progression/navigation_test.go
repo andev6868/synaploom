@@ -54,3 +54,25 @@ func TestLockedLessonReturnsBlockingRequirements(t *testing.T) {
 		t.Fatalf("blocking=%v", locked.Blocking)
 	}
 }
+
+func TestCompletedCourseHasNoSyntheticSummaryAction(t *testing.T) {
+	g := evaluatorGraph()
+	e := Evaluation{
+		CourseStatus:    StatusCompleted,
+		CurrentLessonID: "",
+		Lessons: map[string]LessonEvaluation{
+			"l1": {LessonID: "l1", Status: StatusCompleted, Complete: true},
+			"l2": {LessonID: "l2", Status: StatusCompleted, Complete: true},
+			"l3": {LessonID: "l3", Status: StatusCompleted, Complete: true},
+		},
+		Chapters: map[string]ChapterEvaluation{
+			"c1": {ChapterID: "c1", Status: StatusCompleted},
+			"c2": {ChapterID: "c2", Status: StatusCompleted},
+		},
+	}
+
+	action := NextActionFor(g, e, ItemRef{Kind: ItemLesson, ID: "l3", ChapterID: "c2"})
+	if action.Type != NextActionNone {
+		t.Fatalf("got %s want %s", action.Type, NextActionNone)
+	}
+}

@@ -138,6 +138,9 @@ func lockedError(itemID string, evaluation Evaluation, requirements []Requiremen
 }
 
 func NextActionFor(graph CourseGraph, evaluation Evaluation, viewed ItemRef) NextAction {
+	if evaluation.CourseStatus == StatusCompleted {
+		return NextAction{Type: NextActionNone}
+	}
 	if viewed.Kind == ItemLesson {
 		le, ok := evaluation.Lessons[viewed.ID]
 		if ok && le.Status == StatusCompleted && viewed.ID != evaluation.CurrentLessonID {
@@ -191,9 +194,6 @@ func NextActionFor(graph CourseGraph, evaluation Evaluation, viewed ItemRef) Nex
 				}
 			}
 		}
-	}
-	if evaluation.CourseStatus == StatusCompleted {
-		return NextAction{Type: NextActionViewCourseSummary, Target: ItemRef{Kind: ItemCourse, ID: graph.ID}, Label: "Xem tổng kết khóa học"}
 	}
 	return NextAction{Type: NextActionNone}
 }
