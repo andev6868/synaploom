@@ -19,6 +19,7 @@
 ### Task 1: Header navigation component
 
 **Files:**
+
 - Create: `apps/web/src/features/learning-progress/LearningTopNavigation.tsx`
 - Modify: `apps/web/src/features/learning-progress/types.ts`
 - Test: `apps/web/src/features/learning-progress/LearningTopNavigation.test.tsx`
@@ -30,6 +31,7 @@
 ### Task 2: Application header integration
 
 **Files:**
+
 - Modify: `packages/ui/src/components/app-header/app-header.tsx`
 - Modify: `packages/ui/src/styles.css`
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx`
@@ -43,6 +45,7 @@
 ### Task 3: Reading-only adaptive layout
 
 **Files:**
+
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx`
 - Modify: `apps/web/src/application.css`
 - Test: `apps/web/src/features/workspace-layout/LearningWorkspacePage.test.tsx`

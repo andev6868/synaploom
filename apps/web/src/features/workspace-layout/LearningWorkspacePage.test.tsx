@@ -39,7 +39,7 @@ const navigation = {
   courseId: course.id,
   currentLessonId: lesson.id,
   viewedItemId: lesson.id,
-  viewMode: 'ACTIVE' as const,
+  viewMode: 'LEARNING' as const,
   returnTarget: null,
   nextAction: { type: 'NONE' as const },
   chapters: [
@@ -98,7 +98,8 @@ describe('LearningWorkspacePage', () => {
     );
     expect(await screen.findByRole('heading', { name: 'Main Thread', level: 1 })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Mục tiêu học tập' })).toBeVisible();
-    expect(screen.getByRole('button', { name: /Nội dung khóa học/i })).toBeEnabled();
+    expect(screen.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Nội dung' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Hoàn thành phần đọc' })).toBeEnabled();
   });
 });

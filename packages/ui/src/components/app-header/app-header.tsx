@@ -6,6 +6,7 @@ export interface AppHeaderProps {
   readonly courseTitle?: string;
   readonly lessonPosition?: number;
   readonly lessonCount?: number;
+  readonly navigation?: ReactNode;
   readonly trailing?: ReactNode;
 }
 
@@ -14,6 +15,7 @@ export function AppHeader({
   courseTitle,
   lessonCount,
   lessonPosition,
+  navigation,
   trailing,
 }: AppHeaderProps): ReactNode {
   return (
@@ -25,12 +27,16 @@ export function AppHeader({
         <strong>Synaploom</strong>
       </div>
       <div className="syn-app-header__context">
-        {courseTitle ? <span>{courseTitle}</span> : null}
-        {lessonPosition && lessonCount ? (
-          <span className="syn-app-header__position">
-            Bài {lessonPosition}/{lessonCount}
-          </span>
-        ) : null}
+        {navigation ?? (
+          <>
+            {courseTitle ? <span>{courseTitle}</span> : null}
+            {lessonPosition && lessonCount ? (
+              <span className="syn-app-header__position">
+                Bài {lessonPosition}/{lessonCount}
+              </span>
+            ) : null}
+          </>
+        )}
       </div>
       <div className="syn-app-header__trailing">{trailing}</div>
     </header>
