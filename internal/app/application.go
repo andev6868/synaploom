@@ -149,6 +149,7 @@ func configureRouter(ctx context.Context, service course.Service, sessions *serv
 			return nil, fmt.Errorf("configure activity catalog: %w", err)
 		}
 		activities := activity.NewService(catalog, storage.NewActivityRepository(database.SQL), activity.DefaultRegistry())
+		progress.SetActivityProgressProvider(activityProgressAdapter{service: activities, courseID: graph.ID, courseVersion: graph.Version})
 		options = append(options, server.WithActivities(activities))
 	}
 	return server.NewRouter(content, sessions, options...), nil

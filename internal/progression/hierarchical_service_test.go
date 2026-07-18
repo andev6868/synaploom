@@ -93,3 +93,33 @@ func TestFailedReviewAttemptDoesNotMoveCurrentLessonBackward(t *testing.T) {
 		t.Fatal("best pass was revoked")
 	}
 }
+
+type staticActivityProgressProvider map[progression.ActivitySetKey]progression.ActivitySetProgress
+
+func (p staticActivityProgressProvider) Progress(_ context.Context, key progression.ActivitySetKey) (progression.ActivitySetProgress, error) {
+	return p[key], nil
+}
+
+func TestActivitySetProgressCompletesLessonThroughServiceComposition(t *testing.T) {
+	lesson := progression.LessonRef{
+		ID: "activity-lesson", ChapterID: "c1", Position: 1, Required: true, ReadingRequired: true,
+		ActivitySets: []progression.ActivitySetRequirement{{ID: "practice", Required: true}},
+	}
+	graph := progression.CourseGraph{
+		ID: "course", Version: "1",
+		Chapters:    []progression.Chapter{{ID: "c1", Position: 1, Required: true, Lessons: []progression.LessonRef{lesson}}},
+		LessonIndex: map[string]progression.LessonRef{lesson.ID: lesson},
+	}
+	service, _ := newHierarchicalFixture(t, graph)
+	passed := true
+	service.SetActivityProgressProvider(staticActivityProgressProvider{
+		{OwnerKind: "lesson", OwnerID: lesson.ID, SetID: "practice"}: {Status: "COMPLETED", Passed: &passed},
+	})
+	result, err := service.AcknowledgeReading(context.Background(), lesson.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !result.Evaluation.Lessons[lesson.ID].Complete || result.Evaluation.Lessons[lesson.ID].Status != progression.StatusCompleted {
+		t.Fatalf("activity-backed lesson did not complete: %+v", result.Evaluation.Lessons[lesson.ID])
+	}
+}

@@ -146,54 +146,23 @@ func (s *ServiceImpl) SetProgress(ctx context.Context, owner OwnerIdentity, setI
 	if err != nil {
 		return ActivitySetProgress{}, mapStorageError(err)
 	}
-	progress := ActivitySetProgress{Status: "NOT_STARTED"}
-	var score, maxScore float64
-	var anyEvaluated bool
+	attempts := make([]ActivityAttempt, 0, len(records))
+	for _, record := range records {
+		attempt, err := attemptFromRecord(record)
+		if err != nil {
+			return ActivitySetProgress{}, err
+		}
+		attempts = append(attempts, attempt)
+	}
+	definitions := make(map[string]ActivityDefinition, len(set.Activities))
 	for _, reference := range set.Activities {
-		if reference.Required {
-			progress.RequiredActivities++
+		definition, _, err := s.catalog.Activity(ctx, owner, reference.ID)
+		if err != nil {
+			return ActivitySetProgress{}, err
 		}
-		passed := false
-		bestScore := 0.0
-		bestMax := 0.0
-		for _, record := range records {
-			if record.ActivityID != reference.ID || record.Status != storage.ActivityAttemptStatusEvaluated {
-				continue
-			}
-			anyEvaluated = true
-			if record.Score != nil && *record.Score >= bestScore {
-				bestScore = *record.Score
-			}
-			if record.MaxScore != nil && *record.MaxScore > bestMax {
-				bestMax = *record.MaxScore
-			}
-			if record.Passed != nil && *record.Passed {
-				passed = true
-			}
-		}
-		if reference.Required && passed {
-			progress.CompletedRequiredActivities++
-		}
-		score += bestScore
-		maxScore += bestMax
+		definitions[reference.ID] = definition
 	}
-	if anyEvaluated {
-		progress.Status = "IN_PROGRESS"
-		progress.Score = &score
-		progress.MaxScore = &maxScore
-	}
-	completed := progress.CompletedRequiredActivities == progress.RequiredActivities
-	passed := completed
-	if set.Policy.PassingScore != nil {
-		passed = completed && score >= *set.Policy.PassingScore
-	}
-	if completed {
-		progress.Status = "COMPLETED"
-	}
-	if anyEvaluated || completed {
-		progress.Passed = &passed
-	}
-	return progress, nil
+	return AggregateSetProgress(set, definitions, attempts)
 }
 
 func storageIdentity(identity AttemptIdentity) storage.AttemptIdentity {

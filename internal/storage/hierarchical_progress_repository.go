@@ -52,7 +52,7 @@ func (HierarchicalProgressRepository) Initialize(ctx context.Context, tx *sql.Tx
 }
 
 func (HierarchicalProgressRepository) Snapshot(ctx context.Context, q progression.Querier, courseID, version string) (progression.ProgressSnapshot, error) {
-	s := progression.ProgressSnapshot{Chapters: map[string]progression.ChapterProgress{}, Lessons: map[string]progression.LessonProgress{}, Practices: map[progression.PracticeKey]progression.PracticeProgress{}, Assessments: map[progression.AssessmentKey]progression.PracticeProgress{}}
+	s := progression.ProgressSnapshot{Chapters: map[string]progression.ChapterProgress{}, Lessons: map[string]progression.LessonProgress{}, Practices: map[progression.PracticeKey]progression.PracticeProgress{}, Assessments: map[progression.AssessmentKey]progression.PracticeProgress{}, ActivitySets: map[progression.ActivitySetKey]progression.ActivitySetProgress{}}
 	var courseStatus sql.NullString
 	if err := q.QueryRowContext(ctx, `SELECT current_lesson_id, CASE WHEN completed_at IS NULL THEN 'IN_PROGRESS' ELSE 'COMPLETED' END FROM course_progress WHERE course_id=? AND version=?`, courseID, version).Scan(&s.Course.CurrentLessonID, &courseStatus); err != nil {
 		return s, err

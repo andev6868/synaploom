@@ -14,6 +14,7 @@ const (
 
 type PracticeKey struct{ LessonID, PracticeID string }
 type AssessmentKey struct{ ChapterID, AssessmentID string }
+type ActivitySetKey struct{ OwnerKind, OwnerID, SetID string }
 
 type AttemptResult struct {
 	Passed      bool
@@ -23,6 +24,14 @@ type AttemptResult struct {
 }
 
 type PracticeProgress struct{ BestResult, LatestResult *AttemptResult }
+type ActivitySetProgress struct {
+	Status                      string
+	CompletedRequiredActivities int
+	RequiredActivities          int
+	Score                       *float64
+	MaxScore                    *float64
+	Passed                      *bool
+}
 type LessonProgress struct {
 	ReadingCompleted bool
 	Status           Status
@@ -34,11 +43,12 @@ type CourseProgress struct {
 }
 
 type ProgressSnapshot struct {
-	Course      CourseProgress
-	Chapters    map[string]ChapterProgress
-	Lessons     map[string]LessonProgress
-	Practices   map[PracticeKey]PracticeProgress
-	Assessments map[AssessmentKey]PracticeProgress
+	Course       CourseProgress
+	Chapters     map[string]ChapterProgress
+	Lessons      map[string]LessonProgress
+	Practices    map[PracticeKey]PracticeProgress
+	Assessments  map[AssessmentKey]PracticeProgress
+	ActivitySets map[ActivitySetKey]ActivitySetProgress
 }
 
 type RequirementView struct {
@@ -98,6 +108,15 @@ func EvaluateLesson(graph CourseGraph, snapshot ProgressSnapshot, lessonID strin
 		}
 		reqs = append(reqs, RequirementView{ID: practice.ID, Kind: "practice", Required: practice.Required, Satisfied: satisfied, Attempted: progress.LatestResult != nil, LatestPassed: latestPassed})
 		if practice.Required {
+			complete = complete && satisfied
+		}
+	}
+	for _, set := range lesson.ActivitySets {
+		progress := snapshot.ActivitySets[ActivitySetKey{OwnerKind: "lesson", OwnerID: lesson.ID, SetID: set.ID}]
+		satisfied := progress.Status == "COMPLETED" && progress.Passed != nil && *progress.Passed
+		attempted := progress.Status != "" && progress.Status != "NOT_STARTED"
+		reqs = append(reqs, RequirementView{ID: set.ID, Kind: "activity-set", Required: set.Required, Satisfied: satisfied, Attempted: attempted, LatestPassed: progress.Passed})
+		if set.Required {
 			complete = complete && satisfied
 		}
 	}

@@ -22,12 +22,21 @@ type Practice struct {
 	Rule     CompletionRule
 }
 
+// ActivitySetRequirement is the Course Schema 1.2 completion unit shared by
+// lesson practice and chapter assessment flows.
+type ActivitySetRequirement struct {
+	ID       string
+	Title    string
+	Required bool
+}
+
 // LessonDefinition contains lesson metadata loaded from lesson.md and exercise manifests.
 type LessonDefinition struct {
 	ID              string
 	Position        int
 	ReadingRequired bool
 	Practices       []Practice
+	ActivitySets    []ActivitySetRequirement
 }
 
 // LessonRef places a lesson definition inside a chapter.
@@ -38,6 +47,7 @@ type LessonRef struct {
 	Required        bool
 	ReadingRequired bool
 	Practices       []Practice
+	ActivitySets    []ActivitySetRequirement
 }
 
 // Assessment is a chapter-level assessment.
@@ -50,6 +60,7 @@ type Assessment struct {
 	Path              string
 	RequiresLessonIDs []string
 	Rule              CompletionRule
+	ActivitySetID     string
 }
 
 // Chapter is an ordered course chapter.

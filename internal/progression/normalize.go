@@ -166,6 +166,7 @@ func normalizeHierarchicalChapters(
 
 func lessonRef(chapterID string, position int, required bool, definition LessonDefinition) LessonRef {
 	practices := append([]Practice(nil), definition.Practices...)
+	activitySets := append([]ActivitySetRequirement(nil), definition.ActivitySets...)
 	return LessonRef{
 		ID:              definition.ID,
 		ChapterID:       chapterID,
@@ -173,6 +174,7 @@ func lessonRef(chapterID string, position int, required bool, definition LessonD
 		Required:        required,
 		ReadingRequired: definition.ReadingRequired,
 		Practices:       practices,
+		ActivitySets:    activitySets,
 	}
 }
 

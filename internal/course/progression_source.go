@@ -1,6 +1,7 @@
 package course
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -51,6 +52,25 @@ func (s *FilesystemService) ProgressionGraph() (progression.CourseGraph, error) 
 				Required: required,
 				Rule:     progression.CompletionRule{Type: progression.CompletionAllRequiredChecks},
 			}}
+		}
+		if len(frontMatter.ActivitySets) > 0 {
+			sets, err := LoadActivitySets(context.Background(), lessonDir, frontMatter.ActivitySets)
+			if err != nil {
+				return progression.CourseGraph{}, fmt.Errorf("load progression activity sets for %q: %w", lesson.ID, err)
+			}
+			for _, set := range sets {
+				required := false
+				for _, reference := range set.Definition.Activities {
+					required = required || reference.Required
+				}
+				title := string(set.Definition.Id)
+				if set.Definition.Title != nil {
+					title = *set.Definition.Title
+				}
+				definition.ActivitySets = append(definition.ActivitySets, progression.ActivitySetRequirement{
+					ID: string(set.Definition.Id), Title: title, Required: required,
+				})
+			}
 		}
 		definitions = append(definitions, definition)
 	}

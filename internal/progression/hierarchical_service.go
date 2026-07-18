@@ -12,14 +12,19 @@ var ErrRequirementUnsatisfied = errors.New("required lesson work is not satisfie
 type MutationResult struct{ Evaluation Evaluation }
 
 type ServiceImpl struct {
-	db    *sql.DB
-	store Store
-	graph CourseGraph
-	now   func() time.Time
+	db               *sql.DB
+	store            Store
+	graph            CourseGraph
+	now              func() time.Time
+	activityProgress ActivitySetProgressProvider
 }
 
 func NewService(db *sql.DB, store Store, graph CourseGraph) *ServiceImpl {
 	return &ServiceImpl{db: db, store: store, graph: graph, now: func() time.Time { return time.Now().UTC() }}
+}
+
+func (s *ServiceImpl) SetActivityProgressProvider(provider ActivitySetProgressProvider) {
+	s.activityProgress = provider
 }
 
 func (s *ServiceImpl) Initialize(ctx context.Context) (MutationResult, error) {
@@ -83,7 +88,7 @@ func (s *ServiceImpl) CompleteLesson(ctx context.Context, lessonID string) (Muta
 		return MutationResult{}, err
 	}
 	defer tx.Rollback()
-	snapshot, err := s.store.Snapshot(ctx, tx, s.graph.ID, s.graph.Version)
+	snapshot, err := s.snapshot(ctx, tx)
 	if err != nil {
 		return MutationResult{}, err
 	}
@@ -105,7 +110,7 @@ func (s *ServiceImpl) CompleteLesson(ctx context.Context, lessonID string) (Muta
 }
 
 func (s *ServiceImpl) Snapshot(ctx context.Context) (ProgressSnapshot, error) {
-	return s.store.Snapshot(ctx, s.db, s.graph.ID, s.graph.Version)
+	return s.snapshot(ctx, s.db)
 }
 
 func (s *ServiceImpl) mutate(ctx context.Context, fn func(*sql.Tx) error) (MutationResult, error) {
@@ -117,7 +122,7 @@ func (s *ServiceImpl) mutate(ctx context.Context, fn func(*sql.Tx) error) (Mutat
 	if err := fn(tx); err != nil {
 		return MutationResult{}, err
 	}
-	snapshot, err := s.store.Snapshot(ctx, tx, s.graph.ID, s.graph.Version)
+	snapshot, err := s.snapshot(ctx, tx)
 	if err != nil {
 		return MutationResult{}, err
 	}
@@ -129,6 +134,43 @@ func (s *ServiceImpl) mutate(ctx context.Context, fn func(*sql.Tx) error) (Mutat
 		return MutationResult{}, err
 	}
 	return MutationResult{Evaluation: evaluation}, nil
+}
+
+func (s *ServiceImpl) snapshot(ctx context.Context, query Querier) (ProgressSnapshot, error) {
+	snapshot, err := s.store.Snapshot(ctx, query, s.graph.ID, s.graph.Version)
+	if err != nil {
+		return ProgressSnapshot{}, err
+	}
+	if snapshot.ActivitySets == nil {
+		snapshot.ActivitySets = make(map[ActivitySetKey]ActivitySetProgress)
+	}
+	if s.activityProgress == nil {
+		return snapshot, nil
+	}
+	for _, chapter := range s.graph.Chapters {
+		for _, lesson := range chapter.Lessons {
+			for _, set := range lesson.ActivitySets {
+				key := ActivitySetKey{OwnerKind: "lesson", OwnerID: lesson.ID, SetID: set.ID}
+				progress, err := s.activityProgress.Progress(ctx, key)
+				if err != nil {
+					return ProgressSnapshot{}, err
+				}
+				snapshot.ActivitySets[key] = progress
+			}
+		}
+		for _, assessment := range chapter.Assessments {
+			if assessment.ActivitySetID == "" {
+				continue
+			}
+			key := ActivitySetKey{OwnerKind: "assessment", OwnerID: assessment.ID, SetID: assessment.ActivitySetID}
+			progress, err := s.activityProgress.Progress(ctx, key)
+			if err != nil {
+				return ProgressSnapshot{}, err
+			}
+			snapshot.ActivitySets[key] = progress
+		}
+	}
+	return snapshot, nil
 }
 
 // LessonView combines derived lesson progress with review-aware navigation context.
@@ -149,7 +191,7 @@ type ChapterAssessmentView struct {
 
 // Navigation returns a side-effect-free navigation projection for the viewed item.
 func (s *ServiceImpl) Navigation(ctx context.Context, viewed ItemRef) (LearningNavigation, error) {
-	snapshot, err := s.store.Snapshot(ctx, s.db, s.graph.ID, s.graph.Version)
+	snapshot, err := s.snapshot(ctx, s.db)
 	if err != nil {
 		return LearningNavigation{}, err
 	}
@@ -158,7 +200,7 @@ func (s *ServiceImpl) Navigation(ctx context.Context, viewed ItemRef) (LearningN
 
 // LessonView returns a side-effect-free lesson progress projection.
 func (s *ServiceImpl) LessonView(ctx context.Context, lessonID string) (LessonView, error) {
-	snapshot, err := s.store.Snapshot(ctx, s.db, s.graph.ID, s.graph.Version)
+	snapshot, err := s.snapshot(ctx, s.db)
 	if err != nil {
 		return LessonView{}, err
 	}
@@ -176,7 +218,7 @@ func (s *ServiceImpl) LessonView(ctx context.Context, lessonID string) (LessonVi
 
 // ChapterAssessment returns one side-effect-free assessment projection.
 func (s *ServiceImpl) ChapterAssessment(ctx context.Context, chapterID, assessmentID string) (ChapterAssessmentView, error) {
-	snapshot, err := s.store.Snapshot(ctx, s.db, s.graph.ID, s.graph.Version)
+	snapshot, err := s.snapshot(ctx, s.db)
 	if err != nil {
 		return ChapterAssessmentView{}, err
 	}
