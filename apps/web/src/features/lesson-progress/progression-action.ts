@@ -80,7 +80,15 @@ export function resolveProgressionAction(
     }
     case 'VIEW_COURSE_SUMMARY':
       return { kind: 'complete', message: 'Bạn đã hoàn thành khóa học' };
-    case 'NONE':
+    case 'NONE': {
+      const requiredChapters = navigation?.chapters.filter((chapter) => chapter.required) ?? [];
+      if (
+        requiredChapters.length > 0 &&
+        requiredChapters.every((chapter) => chapter.status === 'COMPLETED')
+      ) {
+        return { kind: 'complete', message: 'Bạn đã hoàn thành khóa học' };
+      }
       return { kind: 'none' };
+    }
   }
 }

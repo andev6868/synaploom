@@ -118,6 +118,23 @@ describe('resolveProgressionAction', () => {
     ).toEqual({ kind: 'complete', message: 'Bạn đã hoàn thành khóa học' });
   });
 
+
+  it('recognizes a completed course even when the backend emits NONE', () => {
+    const completedNavigation: CourseNavigationPayload = {
+      ...navigation,
+      nextAction: { type: 'NONE' },
+      chapters: navigation.chapters.map((chapter) => ({
+        ...chapter,
+        status: 'COMPLETED' as const,
+      })),
+    };
+
+    expect(resolveProgressionAction({ type: 'NONE' }, completedNavigation)).toEqual({
+      kind: 'complete',
+      message: 'Bạn đã hoàn thành khóa học',
+    });
+  });
+
   it('renders no presentation for NONE', () => {
     expect(resolveProgressionAction({ type: 'NONE' }, navigation)).toEqual({ kind: 'none' });
   });

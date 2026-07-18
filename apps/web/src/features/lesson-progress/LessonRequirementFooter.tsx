@@ -5,7 +5,7 @@ import type {
   RequirementView,
 } from '@synaploom/protocol';
 import type { ReactNode } from 'react';
-import { resolveProgressionAction } from './progression-action';
+import { resolveProgressionAction } from '#src/features/lesson-progress/progression-action';
 
 type Props = {
   readonly context: LessonViewContext;
