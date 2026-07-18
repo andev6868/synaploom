@@ -1,0 +1,192 @@
+[
+  {
+    "children": [
+      {
+        "type": "text",
+        "value": "Paragraph with "
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "emphasis"
+          }
+        ],
+        "type": "emphasis"
+      },
+      {
+        "type": "text",
+        "value": ", "
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "strong"
+          }
+        ],
+        "type": "strong"
+      },
+      {
+        "type": "text",
+        "value": ", "
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "strike"
+          }
+        ],
+        "type": "strikethrough"
+      },
+      {
+        "type": "text",
+        "value": ", "
+      },
+      {
+        "type": "code",
+        "value": "code"
+      },
+      {
+        "type": "text",
+        "value": ", "
+      },
+      {
+        "source": "x^2",
+        "type": "math"
+      },
+      {
+        "type": "text",
+        "value": ", and "
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "link"
+          }
+        ],
+        "external": true,
+        "href": "https://example.com",
+        "type": "link"
+      },
+      {
+        "type": "text",
+        "value": "."
+      }
+    ],
+    "type": "paragraph"
+  },
+  {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Quote"
+          }
+        ],
+        "type": "paragraph"
+      }
+    ],
+    "type": "blockquote"
+  },
+  {
+    "items": [
+      {
+        "blocks": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Task"
+              }
+            ],
+            "type": "paragraph"
+          },
+          {
+            "items": [
+              {
+                "blocks": [
+                  {
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "Nested"
+                      }
+                    ],
+                    "type": "paragraph"
+                  }
+                ],
+                "checked": null
+              }
+            ],
+            "ordered": false,
+            "type": "list"
+          }
+        ],
+        "checked": true
+      }
+    ],
+    "ordered": false,
+    "type": "list"
+  },
+  {
+    "alignments": [
+      "left",
+      "right"
+    ],
+    "header": {
+      "cells": [
+        {
+          "children": [
+            {
+              "type": "text",
+              "value": "Name"
+            }
+          ]
+        },
+        {
+          "children": [
+            {
+              "type": "text",
+              "value": "Value"
+            }
+          ]
+        }
+      ]
+    },
+    "rows": [
+      {
+        "cells": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "x"
+              }
+            ]
+          },
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "1"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "type": "table"
+  },
+  {
+    "type": "thematic-break"
+  },
+  {
+    "code": "fmt.Println(\"hello\")\n",
+    "language": "go",
+    "type": "code"
+  }
+]

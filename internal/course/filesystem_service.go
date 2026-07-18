@@ -142,25 +142,7 @@ func (s *FilesystemService) Lesson(_ context.Context, id string) (contracts.Less
 			readingAcknowledged = state.readingAcknowledged
 		}
 		s.mu.RUnlock()
-		blocks := make([]contracts.LessonBlock, 0, len(doc.Blocks))
-		for _, sourceBlock := range doc.Blocks {
-			properties, _ := sourceBlock.AdditionalProperties.(map[string]any)
-			convertedProperties := make(map[string]any, len(properties))
-			for key, value := range properties {
-				convertedProperties[key] = value
-			}
-			if sourceBlock.Type == "paragraph" {
-				text, _ := convertedProperties["text"].(string)
-				delete(convertedProperties, "text")
-				convertedProperties["children"] = []map[string]any{{"type": "text", "value": text}}
-			}
-			if sourceBlock.Type == "code" {
-				if _, ok := convertedProperties["language"]; !ok {
-					convertedProperties["language"] = ""
-				}
-			}
-			blocks = append(blocks, contracts.LessonBlock{Type: sourceBlock.Type, AdditionalProperties: convertedProperties})
-		}
+		blocks := doc.Blocks
 		exercise, err := loadLessonExercise(filepath.Dir(lessonPath), frontMatter.Exercise)
 		if err != nil {
 			return contracts.LessonPayload{}, err

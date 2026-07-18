@@ -26,7 +26,11 @@ func TestFilesystemServiceConvertsLessonBlocksForAPI(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(lesson.Blocks) == 0 || lesson.Blocks[0].Type == "" {
+	if len(lesson.Blocks) == 0 {
+		t.Fatalf("unexpected blocks %#v", lesson.Blocks)
+	}
+	block, ok := lesson.Blocks[0].(map[string]any)
+	if !ok || block["type"] == "" {
 		t.Fatalf("unexpected blocks %#v", lesson.Blocks)
 	}
 }
