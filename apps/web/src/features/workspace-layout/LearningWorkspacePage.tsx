@@ -16,7 +16,6 @@ import { LearningTopNavigation } from '#src/features/learning-progress/LearningT
 import { buildLearningProgressSummary } from '#src/features/learning-progress/progress-summary';
 import { PracticePanel } from '#src/features/practice-runner/PracticePanel';
 import { CompletionBar } from '#src/features/progression/CompletionBar';
-import { ReviewBanner } from '#src/features/review-mode/ReviewBanner';
 
 export function LearningWorkspacePage({
   requestedLessonId,
@@ -125,37 +124,27 @@ export function LearningWorkspacePage({
         break;
       }
       case 'VIEW_COURSE_SUMMARY':
-        window.location.hash = 'course-summary';
         break;
       case 'NONE':
         break;
     }
   };
 
+  const lessonStatusLabel =
+    context?.viewMode === 'REVIEW'
+      ? 'Đang xem lại'
+      : lesson.status === 'COMPLETED'
+        ? 'Hoàn thành'
+        : 'Đang học';
+
   const lessonPanel = (
     <section className="syn-lesson-panel">
       <ScrollArea className="syn-lesson-panel__scroll">
         <article className="syn-lesson-panel__article">
-          {context?.viewMode === 'REVIEW' && context.returnTarget ? (
-            <ReviewBanner
-              currentTitle={context.returnTarget.label}
-              onReturn={() => {
-                if (context.returnTarget?.chapterId)
-                  navigateToLesson(
-                    course.id,
-                    context.returnTarget.chapterId,
-                    context.returnTarget.id,
-                  );
-              }}
-            />
-          ) : null}
-          <nav className="syn-breadcrumb" aria-label="Breadcrumb">
-            {course.title} / Bài {lesson.position}
-          </nav>
           <div className="syn-lesson-panel__heading">
             <div>
               <StatusBadge status={lesson.status === 'COMPLETED' ? 'passed' : 'active'}>
-                {lesson.status === 'COMPLETED' ? 'Hoàn thành' : 'Đang học'}
+                {lessonStatusLabel}
               </StatusBadge>
               <h1>{lesson.title}</h1>
             </div>
@@ -166,7 +155,12 @@ export function LearningWorkspacePage({
           </div>
           <LessonContent blocks={lesson.blocks} />
           {context ? (
-            <LessonRequirementFooter context={context} busy={busy} onAction={onNextAction} />
+            <LessonRequirementFooter
+              context={context}
+              navigation={navigation}
+              busy={busy}
+              onAction={onNextAction}
+            />
           ) : (
             <CompletionBar
               lesson={lesson}

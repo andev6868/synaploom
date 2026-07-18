@@ -40,11 +40,6 @@ body,
   margin: 0 auto;
   padding: 2rem clamp(1.25rem, 3vw, 3rem) 4rem;
 }
-.syn-breadcrumb {
-  margin-bottom: 1.25rem;
-  color: var(--syn-color-text-muted);
-  font-size: 0.78rem;
-}
 .syn-lesson-panel__heading {
   display: flex;
   align-items: flex-start;
@@ -368,8 +363,7 @@ body,
   font-weight: 650;
 }
 
-.syn-requirement-footer,
-.syn-review-banner {
+.syn-requirement-footer {
   margin-top: 1.5rem;
   padding: 1rem;
   border: 1px solid var(--syn-color-border);
@@ -435,11 +429,11 @@ body,
   cursor: not-allowed;
   opacity: 0.6;
 }
-.syn-review-banner {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
+.syn-requirement-footer__complete {
+  justify-self: end;
+  margin: 0;
+  color: var(--syn-color-success);
+  font-weight: 700;
 }
 .syn-assessment-page {
   display: grid;

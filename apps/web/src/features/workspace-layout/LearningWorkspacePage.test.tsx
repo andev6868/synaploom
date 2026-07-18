@@ -102,4 +102,59 @@ describe('LearningWorkspacePage', () => {
     expect(screen.getByRole('button', { name: 'Nội dung' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Hoàn thành phần đọc' })).toBeEnabled();
   });
+
+  it('uses a compact review status without breadcrumb or review banner', async () => {
+    const reviewLesson = { ...lesson, status: 'COMPLETED' as const };
+    const reviewNavigation = {
+      ...navigation,
+      currentLessonId: 'event-loop',
+      viewedItemId: 'main-thread',
+      viewMode: 'REVIEW' as const,
+      returnTarget: {
+        type: 'LESSON' as const,
+        id: 'event-loop',
+        chapterId: 'runtime-fundamentals',
+        label: 'Event Loop',
+      },
+      nextAction: {
+        type: 'RETURN_TO_CURRENT_LESSON' as const,
+        chapterId: 'runtime-fundamentals',
+        lessonId: 'event-loop',
+      },
+    };
+    const api: SynaploomApiClient = {
+      ...fakeApi(),
+      getNavigation: () => Promise.resolve(reviewNavigation),
+      getLessonView: () =>
+        Promise.resolve({
+          lesson: reviewLesson,
+          context: {
+            chapterId: 'runtime-fundamentals',
+            status: 'COMPLETED' as const,
+            required: true,
+            readingCompleted: true,
+            requirements: [],
+            viewMode: 'REVIEW' as const,
+            currentLessonId: 'event-loop',
+            returnTarget: reviewNavigation.returnTarget,
+            nextAction: reviewNavigation.nextAction,
+          },
+        }),
+    };
+
+    render(
+      <AppProviders api={api}>
+        <LearningWorkspacePage
+          requestedCourseId={course.id}
+          requestedChapterId="runtime-fundamentals"
+          requestedLessonId="main-thread"
+        />
+      </AppProviders>,
+    );
+
+    expect(await screen.findByText('Đang xem lại')).toBeVisible();
+    expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Chế độ xem lại')).not.toBeInTheDocument();
+  });
+
 });
