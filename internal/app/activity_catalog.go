@@ -11,6 +11,7 @@ import (
 type activityCatalogOwner struct {
 	definitions map[string]activity.ActivityDefinition
 	sets        map[string]activity.ActivitySetDefinition
+	setOrder    []string
 	policies    map[string]activity.ActivitySetPolicy
 }
 
@@ -53,6 +54,9 @@ func newFilesystemActivityCatalog(courseID, version string, sources map[string][
 				}
 				owner.definitions[definition.ID] = definition
 			}
+			if _, exists := owner.sets[set.ID]; !exists {
+				owner.setOrder = append(owner.setOrder, set.ID)
+			}
 			owner.sets[set.ID] = set
 		}
 		catalog.owners[ownerID] = owner
@@ -82,4 +86,19 @@ func (c *filesystemActivityCatalog) ActivitySet(_ context.Context, owner activit
 		return activity.ActivitySetDefinition{}, activity.ErrActivitySetNotFound
 	}
 	return set, nil
+}
+
+func (c *filesystemActivityCatalog) ActivitySets(_ context.Context, owner activity.OwnerIdentity) ([]activity.ActivitySetDefinition, error) {
+	entry, ok := c.owners[owner]
+	if !ok {
+		return []activity.ActivitySetDefinition{}, nil
+	}
+	sets := make([]activity.ActivitySetDefinition, 0, len(entry.setOrder))
+	for _, id := range entry.setOrder {
+		set, ok := entry.sets[id]
+		if ok {
+			sets = append(sets, set)
+		}
+	}
+	return sets, nil
 }

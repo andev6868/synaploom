@@ -69,6 +69,7 @@ function fakeApi(record = vi.fn()): SynaploomApiClient {
         editable: [],
       }),
     recordChapterAssessment: record.mockResolvedValue({ navigation }),
+    getActivitySets: () => Promise.resolve([]),
     getActivity: () => Promise.reject(new Error('not used')),
     getCurrentActivityAttempt: () => Promise.resolve(null),
     saveActivityDraft: () => Promise.reject(new Error('not used')),

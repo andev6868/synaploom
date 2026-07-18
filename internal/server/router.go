@@ -84,6 +84,7 @@ func NewRouter(service course.Service, sessions *SessionManager, options ...Rout
 	api.HandleFunc("PUT /api/v1/preferences/pane-ratio", handlers.setPaneRatio)
 	if configuration.activities != nil {
 		activities := activityHandlers{content: service, activity: configuration.activities}
+		api.HandleFunc("GET /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activity-sets", activities.listSets)
 		api.HandleFunc("GET /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activities/{activityId}", activities.get)
 		api.HandleFunc("GET /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activities/{activityId}/attempts/current", activities.current)
 		api.HandleFunc("PUT /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activities/{activityId}/attempts/current/draft", activities.saveDraft)

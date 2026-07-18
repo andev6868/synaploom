@@ -18,6 +18,7 @@ type stubActivityService struct {
 	draft       activity.ActivityAttempt
 	submitted   activity.ActivityAttempt
 	progress    activity.ActivitySetProgress
+	sets        []activity.PublicActivitySetView
 	draftErr    error
 	submitErr   error
 	submitCalls int
@@ -25,6 +26,9 @@ type stubActivityService struct {
 
 func (s *stubActivityService) PublicActivity(context.Context, activity.OwnerIdentity, string) (activity.PublicActivityView, error) {
 	return s.public, nil
+}
+func (s *stubActivityService) PublicActivitySets(context.Context, activity.OwnerIdentity) ([]activity.PublicActivitySetView, error) {
+	return s.sets, nil
 }
 func (s *stubActivityService) CurrentAttempt(context.Context, activity.AttemptIdentity) (*activity.ActivityAttempt, error) {
 	return s.current, nil
@@ -93,6 +97,31 @@ func TestActivityGETReturnsAnswerKeyFreePublicView(t *testing.T) {
 	}
 	if bytes.Contains(response.Body.Bytes(), []byte("correctOptionId")) {
 		t.Fatalf("answer key leaked: %s", response.Body.String())
+	}
+}
+
+
+func TestActivitySetCatalogEndpointReturnsOrderedPublicSets(t *testing.T) {
+	stub := &stubActivityService{sets: []activity.PublicActivitySetView{{
+		ID: "practice", Title: "Practice", Policy: activity.ActivitySetPolicy{Purpose: activity.ActivityPurposePractice},
+		Activities: []activity.PublicActivityReference{{Required: true, Activity: activity.PublicActivityView{ID: "quiz", Kind: activity.ActivityKindSingleChoice, Title: "Quiz", Prompt: map[string]any{"blocks": []any{}}, Config: map[string]any{"options": []any{}}, Evaluation: activity.EvaluationPolicy{Mode: activity.EvaluationModeAutomatic, Points: 1}, Completion: activity.CompletionPolicy{Required: true}}}},
+	}}}
+	handler, sessions := newActivityRouterFixture(t, stub)
+	cookie := authenticatedCookie(t, handler, sessions)
+	request := httptest.NewRequest(http.MethodGet, "http://127.0.0.1/api/v1/courses/frontend-performance-foundations/lessons/main-thread/activity-sets", nil)
+	request.Host = "127.0.0.1:3210"
+	request.AddCookie(cookie)
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+	if response.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", response.Code, response.Body.String())
+	}
+	var sets []activity.PublicActivitySetView
+	if err := json.Unmarshal(response.Body.Bytes(), &sets); err != nil {
+		t.Fatal(err)
+	}
+	if len(sets) != 1 || sets[0].Activities[0].Activity.ID != "quiz" {
+		t.Fatalf("sets=%+v", sets)
 	}
 }
 

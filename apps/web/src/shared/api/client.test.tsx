@@ -160,6 +160,7 @@ describe('activity API client', () => {
       ownerId: 'intro lesson',
     };
 
+    await client.getActivitySets(owner);
     await client.getActivity(owner, 'quiz one');
     await client.getCurrentActivityAttempt(owner, 'quiz one');
     await client.saveActivityDraft(owner, 'quiz one', {
@@ -175,13 +176,14 @@ describe('activity API client', () => {
     await client.getActivitySetProgress(owner, 'practice set');
 
     expect(fetchImpl.mock.calls.map(([url]) => url)).toEqual([
+      '/api/v1/courses/multi%20domain/lessons/intro%20lesson/activity-sets',
       '/api/v1/courses/multi%20domain/lessons/intro%20lesson/activities/quiz%20one',
       '/api/v1/courses/multi%20domain/lessons/intro%20lesson/activities/quiz%20one/attempts/current',
       '/api/v1/courses/multi%20domain/lessons/intro%20lesson/activities/quiz%20one/attempts/current/draft',
       '/api/v1/courses/multi%20domain/lessons/intro%20lesson/activities/quiz%20one/attempts',
       '/api/v1/courses/multi%20domain/lessons/intro%20lesson/activity-sets/practice%20set/progress',
     ]);
-    expect(fetchImpl.mock.calls[2]?.[1]).toMatchObject({ method: 'PUT' });
-    expect(fetchImpl.mock.calls[3]?.[1]).toMatchObject({ method: 'POST' });
+    expect(fetchImpl.mock.calls[3]?.[1]).toMatchObject({ method: 'PUT' });
+    expect(fetchImpl.mock.calls[4]?.[1]).toMatchObject({ method: 'POST' });
   });
 });

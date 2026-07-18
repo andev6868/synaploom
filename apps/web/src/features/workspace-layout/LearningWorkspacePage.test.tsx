@@ -78,6 +78,7 @@ function fakeApi(): SynaploomApiClient {
     getChapterAssessment: () => Promise.reject(new Error('not used')),
     recordChapterAssessment: () => Promise.reject(new Error('not used')),
     getCourse: () => Promise.resolve(course),
+    getActivitySets: () => Promise.resolve([]),
     getActivity: () => Promise.reject(new Error('not used')),
     getCurrentActivityAttempt: () => Promise.resolve(null),
     saveActivityDraft: () => Promise.reject(new Error('not used')),

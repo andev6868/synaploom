@@ -2,6 +2,7 @@ import type {
   ActivityAnswer,
   ActivityAttempt,
   ActivityPublicView,
+  ActivitySetPolicy,
   ActivitySetProgress,
   CheckResult,
   LessonBlock,
@@ -14,6 +15,18 @@ export interface ActivityOwner {
   readonly courseId: string;
   readonly ownerKind: 'lessons' | 'assessments';
   readonly ownerId: string;
+}
+
+export interface PublicActivityReferencePayload {
+  readonly required: boolean;
+  readonly activity: ActivityPublicView;
+}
+
+export interface PublicActivitySetPayload {
+  readonly id: string;
+  readonly title?: string;
+  readonly policy: ActivitySetPolicy;
+  readonly activities: readonly PublicActivityReferencePayload[];
 }
 
 export interface SaveDraftPayload {

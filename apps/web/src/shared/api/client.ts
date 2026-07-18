@@ -16,6 +16,7 @@ import type {
   SaveDraftPayload,
   SubmitAttemptPayload,
   ProcessSessionPayload,
+  PublicActivitySetPayload,
   WorkspaceFilePayload,
 } from '@synaploom/protocol';
 import { isApiErrorPayload } from '@synaploom/protocol';
@@ -93,6 +94,7 @@ export interface SynaploomApiClient {
     assessmentId: string,
     result: { readonly passed: boolean; readonly score?: number; readonly summary?: string },
   ): Promise<{ readonly navigation: CourseNavigationPayload }>;
+  getActivitySets(owner: ActivityOwner): Promise<readonly PublicActivitySetPayload[]>;
   getActivity(owner: ActivityOwner, activityId: string): Promise<ActivityPublicView>;
   getCurrentActivityAttempt(
     owner: ActivityOwner,
@@ -170,6 +172,11 @@ export function createApiClient(
           `/chapters/${encodeURIComponent(chapterId)}/assessments/${encodeURIComponent(assessmentId)}/actions/check`,
         ),
         { method: 'POST', body: JSON.stringify(result) },
+      ),
+    getActivitySets: (owner) =>
+      request<readonly PublicActivitySetPayload[]>(
+        fetchImpl,
+        api(`${activityOwnerPath(owner)}/activity-sets`),
       ),
     getActivity: (owner, activityId) =>
       request<ActivityPublicView>(

@@ -73,3 +73,50 @@ func TestPublicActivityRedactsAnswerKeysForEveryKind(t *testing.T) {
 		})
 	}
 }
+
+func (c testCatalog) ActivitySets(_ context.Context, _ OwnerIdentity) ([]ActivitySetDefinition, error) {
+	sets := make([]ActivitySetDefinition, 0, len(c.sets))
+	for _, id := range []string{"practice", "assessment"} {
+		if set, ok := c.sets[id]; ok {
+			sets = append(sets, set)
+		}
+	}
+	for id, set := range c.sets {
+		if id != "practice" && id != "assessment" {
+			sets = append(sets, set)
+		}
+	}
+	return sets, nil
+}
+
+func TestPublicActivitySetsPreserveManifestOrderAndRedactAnswers(t *testing.T) {
+	definitions := map[string]ActivityDefinition{
+		"first": activityDefinition("first", ActivityKindSingleChoice, map[string]any{
+			"options": []any{map[string]any{"id": "a", "label": "A"}},
+			"correctOptionId": "secret",
+		}, EvaluationModeAutomatic),
+		"second": activityDefinition("second", ActivityKindWriting, map[string]any{
+			"minimumCharacters": 1, "maximumCharacters": 20, "answerFormat": "plain-text",
+		}, EvaluationModeSubmission),
+	}
+	set := ActivitySetDefinition{
+		ID: "practice", Title: "Practice", Policy: ActivitySetPolicy{Purpose: ActivityPurposePractice},
+		Activities: []ActivityReference{{ID: "second", Required: false}, {ID: "first", Required: true}},
+	}
+	service := NewService(testCatalog{definitions: definitions, sets: map[string]ActivitySetDefinition{"practice": set}}, nil, nil)
+
+	views, err := service.PublicActivitySets(context.Background(), OwnerIdentity{CourseID: "course", CourseVersion: "1", Kind: OwnerKindLesson, ID: "lesson"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(views) != 1 || len(views[0].Activities) != 2 || views[0].Activities[0].Activity.ID != "second" || views[0].Activities[1].Activity.ID != "first" {
+		t.Fatalf("views=%+v", views)
+	}
+	data, err := json.Marshal(views)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), "secret") || strings.Contains(string(data), "correctOptionId") {
+		t.Fatalf("answer key leaked: %s", data)
+	}
+}

@@ -12,6 +12,7 @@ import (
 
 type Service interface {
 	PublicActivity(context.Context, OwnerIdentity, string) (PublicActivityView, error)
+	PublicActivitySets(context.Context, OwnerIdentity) ([]PublicActivitySetView, error)
 	CurrentAttempt(context.Context, AttemptIdentity) (*ActivityAttempt, error)
 	SaveDraft(context.Context, SaveDraftCommand) (ActivityAttempt, error)
 	Submit(context.Context, SubmitCommand) (ActivityAttempt, error)
@@ -34,6 +35,34 @@ func (s *ServiceImpl) PublicActivity(ctx context.Context, owner OwnerIdentity, a
 		return PublicActivityView{}, err
 	}
 	return publicView(definition)
+}
+
+func (s *ServiceImpl) PublicActivitySets(ctx context.Context, owner OwnerIdentity) ([]PublicActivitySetView, error) {
+	catalog, ok := s.catalog.(ActivitySetCatalog)
+	if !ok {
+		return nil, ErrActivitySetNotFound
+	}
+	sets, err := catalog.ActivitySets(ctx, owner)
+	if err != nil {
+		return nil, err
+	}
+	views := make([]PublicActivitySetView, 0, len(sets))
+	for _, set := range sets {
+		view := PublicActivitySetView{ID: set.ID, Title: set.Title, Policy: set.Policy, Activities: make([]PublicActivityReference, 0, len(set.Activities))}
+		for _, reference := range set.Activities {
+			definition, _, err := s.catalog.Activity(ctx, owner, reference.ID)
+			if err != nil {
+				return nil, err
+			}
+			activityView, err := publicView(definition)
+			if err != nil {
+				return nil, err
+			}
+			view.Activities = append(view.Activities, PublicActivityReference{Required: reference.Required, Activity: activityView})
+		}
+		views = append(views, view)
+	}
+	return views, nil
 }
 
 func (s *ServiceImpl) CurrentAttempt(ctx context.Context, identity AttemptIdentity) (*ActivityAttempt, error) {

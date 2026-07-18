@@ -106,6 +106,22 @@ type Catalog interface {
 	ActivitySet(context.Context, OwnerIdentity, string) (ActivitySetDefinition, error)
 }
 
+type PublicActivityReference struct {
+	Required bool               `json:"required"`
+	Activity PublicActivityView `json:"activity"`
+}
+
+type PublicActivitySetView struct {
+	ID         string                    `json:"id"`
+	Title      string                    `json:"title,omitempty"`
+	Policy     ActivitySetPolicy         `json:"policy"`
+	Activities []PublicActivityReference `json:"activities"`
+}
+
+type ActivitySetCatalog interface {
+	ActivitySets(context.Context, OwnerIdentity) ([]ActivitySetDefinition, error)
+}
+
 type PublicActivityView struct {
 	ID         string           `json:"id"`
 	Kind       ActivityKind     `json:"kind"`

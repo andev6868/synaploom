@@ -51,6 +51,7 @@ function api(overrides: Partial<SynaploomApiClient> = {}): SynaploomApiClient {
     getLessonView: unused,
     getChapterAssessment: unused,
     recordChapterAssessment: unused,
+    getActivitySets: () => Promise.resolve([]),
     getActivity: unused,
     getCurrentActivityAttempt: () => Promise.resolve(null),
     saveActivityDraft: () => Promise.resolve(attempt('DRAFT')),
