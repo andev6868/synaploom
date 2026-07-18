@@ -1,23 +1,17 @@
-import type { LessonViewContext, NextActionPayload, RequirementView } from '@synaploom/protocol';
+import type {
+  CourseNavigationPayload,
+  LessonViewContext,
+  NextActionPayload,
+  RequirementView,
+} from '@synaploom/protocol';
 import type { ReactNode } from 'react';
+import { resolveProgressionAction } from './progression-action';
 
 type Props = {
   readonly context: LessonViewContext;
+  readonly navigation?: CourseNavigationPayload;
   readonly busy?: boolean;
   readonly onAction: (action: NextActionPayload) => void;
-};
-
-const labels: Record<NextActionPayload['type'], string | null> = {
-  ACKNOWLEDGE_READING: 'Hoàn thành bài học',
-  START_REQUIRED_PRACTICE: 'Đi đến bài thực hành',
-  RETRY_REQUIRED_PRACTICE: 'Thử lại bài thực hành',
-  CONTINUE_TO_LESSON: 'Tiếp tục bài tiếp theo',
-  START_CHAPTER_ASSESSMENT: 'Bắt đầu đánh giá chương',
-  RETRY_CHAPTER_ASSESSMENT: 'Thử lại đánh giá chương',
-  CONTINUE_TO_CHAPTER: 'Tiếp tục chương tiếp theo',
-  RETURN_TO_CURRENT_LESSON: 'Quay lại bài đang học',
-  VIEW_COURSE_SUMMARY: 'Xem tổng kết khóa học',
-  NONE: null,
 };
 
 function humanizeIdentifier(value: string): string {
@@ -37,17 +31,13 @@ function requirementLabel(requirement: RequirementView): string {
   return `Hoàn thành bài học “${title}”`;
 }
 
-function actionLabel(context: LessonViewContext): string | null {
-  if (context.nextAction.type === 'RETURN_TO_CURRENT_LESSON') {
-    const destination =
-      context.returnTarget?.label ?? humanizeIdentifier(context.nextAction.lessonId);
-    return `Quay lại bài ${destination}`;
-  }
-  return labels[context.nextAction.type];
-}
-
-export function LessonRequirementFooter({ context, busy = false, onAction }: Props): ReactNode {
-  const label = actionLabel(context);
+export function LessonRequirementFooter({
+  context,
+  navigation,
+  busy = false,
+  onAction,
+}: Props): ReactNode {
+  const presentation = resolveProgressionAction(context.nextAction, navigation);
   const required = context.requirements.filter((requirement) => requirement.required);
   const optional = context.requirements.filter((requirement) => !requirement.required);
 
@@ -74,15 +64,20 @@ export function LessonRequirementFooter({ context, busy = false, onAction }: Pro
           ))}
         </ul>
       </section>
-      {label ? (
+      {presentation.kind === 'button' ? (
         <button
           className="syn-requirement-footer__action"
           type="button"
           disabled={busy}
-          onClick={() => onAction(context.nextAction)}
+          onClick={() => onAction(presentation.action)}
         >
-          {label}
+          {presentation.label}
         </button>
+      ) : null}
+      {presentation.kind === 'complete' ? (
+        <p className="syn-requirement-footer__complete" role="status">
+          ✓ {presentation.message}
+        </p>
       ) : null}
     </footer>
   );
