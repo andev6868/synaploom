@@ -1137,3 +1137,69 @@ body,
 .syn-activity-host__prompt .syn-prose > :last-child {
   margin-bottom: 0;
 }
+
+.syn-practice-pane,
+.syn-activity-tray,
+.syn-workspace-pane-rail,
+.syn-inline-activity-launch,
+.syn-inline-activity-summary {
+  border: 1px solid var(--syn-color-border, #d8dde6);
+  border-radius: 0.75rem;
+  background: var(--syn-color-surface, #fff);
+}
+.syn-practice-pane {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+.syn-practice-pane__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--syn-color-border, #d8dde6);
+}
+.syn-practice-pane__header > div:last-child {
+  display: flex;
+  gap: 0.5rem;
+}
+.syn-practice-pane__body {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+}
+.syn-practice-pane__feedback,
+.syn-practice-pane__actions {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--syn-color-border, #d8dde6);
+}
+.syn-activity-tray {
+  padding: 0.75rem;
+}
+.syn-activity-tray ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.syn-activity-tray button {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.75rem;
+  text-align: left;
+}
+.syn-workspace-pane-rail,
+.syn-inline-activity-launch,
+.syn-inline-activity-summary {
+  padding: 0.75rem 1rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .syn-practice-pane,
+  .syn-workspace-pane-rail {
+    transition: none !important;
+  }
+}
