@@ -58,7 +58,7 @@ func TestAssessmentActivitySetCompletesChapterAndUnlocksNextChapter(t *testing.T
 	}
 	passed := true
 	snapshot := ProgressSnapshot{
-		Lessons: map[string]LessonProgress{lesson.ID: {ReadingCompleted: true}},
+		Lessons:   map[string]LessonProgress{lesson.ID: {ReadingCompleted: true}},
 		Practices: map[PracticeKey]PracticeProgress{}, Assessments: map[AssessmentKey]PracticeProgress{},
 		ActivitySets: map[ActivitySetKey]ActivitySetProgress{
 			{OwnerKind: "assessment", OwnerID: assessment.ID, SetID: assessment.ActivitySetID}: {
@@ -87,12 +87,12 @@ func TestFailedAssessmentActivitySetKeepsChapterAtAssessmentRequired(t *testing.
 	assessment := Assessment{ID: "checkpoint", ChapterID: "chapter", Position: 1, Required: true, ActivitySetID: "checkpoint-set"}
 	graph := CourseGraph{
 		ID: "course", Version: "1",
-		Chapters: []Chapter{{ID: "chapter", Position: 1, Required: true, Lessons: []LessonRef{lesson}, Assessments: []Assessment{assessment}}},
+		Chapters:    []Chapter{{ID: "chapter", Position: 1, Required: true, Lessons: []LessonRef{lesson}, Assessments: []Assessment{assessment}}},
 		LessonIndex: map[string]LessonRef{lesson.ID: lesson},
 	}
 	passed := false
 	snapshot := ProgressSnapshot{
-		Lessons: map[string]LessonProgress{lesson.ID: {ReadingCompleted: true}},
+		Lessons:   map[string]LessonProgress{lesson.ID: {ReadingCompleted: true}},
 		Practices: map[PracticeKey]PracticeProgress{}, Assessments: map[AssessmentKey]PracticeProgress{},
 		ActivitySets: map[ActivitySetKey]ActivitySetProgress{
 			{OwnerKind: "assessment", OwnerID: assessment.ID, SetID: assessment.ActivitySetID}: {

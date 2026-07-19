@@ -100,7 +100,6 @@ func TestActivityGETReturnsAnswerKeyFreePublicView(t *testing.T) {
 	}
 }
 
-
 func TestActivitySetCatalogEndpointReturnsOrderedPublicSets(t *testing.T) {
 	stub := &stubActivityService{sets: []activity.PublicActivitySetView{{
 		ID: "practice", Title: "Practice", Policy: activity.ActivitySetPolicy{Purpose: activity.ActivityPurposePractice},

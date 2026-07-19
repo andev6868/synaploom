@@ -271,10 +271,6 @@ func activityWorkspaceID(lessonID, activityID string) string {
 	return lessonID + "--" + activityID
 }
 
-func (s *FilesystemService) exerciseRuntime(lessonID string) (lessonExerciseRuntime, error) {
-	return s.exerciseRuntimeForActivity(context.Background(), lessonID, "")
-}
-
 func (s *FilesystemService) exerciseRuntimeForActivity(ctx context.Context, lessonID, activityID string) (lessonExerciseRuntime, error) {
 	for _, lesson := range s.lessons {
 		if lesson.ID != lessonID {
@@ -344,10 +340,6 @@ func (s *FilesystemService) exerciseRuntimeForActivity(ctx context.Context, less
 		return lessonExerciseRuntime{}, ErrExerciseNotFound
 	}
 	return lessonExerciseRuntime{}, ErrLessonNotFound
-}
-
-func (s *FilesystemService) prepareWorkspace(ctx context.Context, lessonID string) (lessonExerciseRuntime, string, error) {
-	return s.prepareWorkspaceForActivity(ctx, lessonID, "")
 }
 
 func (s *FilesystemService) prepareWorkspaceForActivity(ctx context.Context, lessonID, activityID string) (lessonExerciseRuntime, string, error) {

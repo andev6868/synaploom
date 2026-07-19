@@ -15,11 +15,11 @@ func TestMatchingEvaluatorScoresOneToOnePairs(t *testing.T) {
 		"correctMatches": map[string]any{"l1": "r1", "l2": "r2"},
 	})
 	registry := NewRegistry(NewMatchingEvaluator())
-	result, err := registry.Evaluate(context.Background(), definition, json.RawMessage(`{"kind":"matching","pairs":{"l1":"r1","l2":"r1"}}`))
+	_, err := registry.Evaluate(context.Background(), definition, json.RawMessage(`{"kind":"matching","pairs":{"l1":"r1","l2":"r1"}}`))
 	if !errors.Is(err, ErrMalformedAnswer) {
 		t.Fatalf("duplicate right-side match error = %v, want ErrMalformedAnswer", err)
 	}
-	result, err = registry.Evaluate(context.Background(), definition, json.RawMessage(`{"kind":"matching","pairs":{"l1":"r1","l2":"r2"}}`))
+	result, err := registry.Evaluate(context.Background(), definition, json.RawMessage(`{"kind":"matching","pairs":{"l1":"r1","l2":"r2"}}`))
 	if err != nil {
 		t.Fatal(err)
 	}

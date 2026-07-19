@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 )
 
 var directiveStart = regexp.MustCompile(`^:::([a-z][a-z0-9-]*)(?:\s+(.*))?$`)
@@ -143,6 +145,18 @@ func parseDirectiveAttributes(raw string) map[string]string {
 	return attributes
 }
 
+func directiveTitle(value string) string {
+	words := strings.Fields(strings.ReplaceAll(value, "-", " "))
+	for index, word := range words {
+		r, size := utf8.DecodeRuneInString(word)
+		if size == 0 {
+			continue
+		}
+		words[index] = string(unicode.ToUpper(r)) + word[size:]
+	}
+	return strings.Join(words, " ")
+}
+
 func (s *markdownState) directiveBlock(chunk markdownChunk) (any, bool) {
 	if _, ok := allowedDirectives[chunk.directive]; !ok {
 		return nil, false
@@ -186,7 +200,7 @@ func (s *markdownState) directiveBlock(chunk markdownChunk) (any, bool) {
 		return map[string]any{"type": "objectives", "title": title, "items": items}, true
 	case "definition", "theorem", "worked-example":
 		if title == "" {
-			title = strings.ReplaceAll(strings.Title(strings.ReplaceAll(chunk.directive, "-", " ")), " ", " ")
+			title = directiveTitle(chunk.directive)
 		}
 		return map[string]any{"type": chunk.directive, "title": title, "blocks": blocks}, true
 	case "proof", "summary":

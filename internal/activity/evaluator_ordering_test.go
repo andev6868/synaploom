@@ -66,7 +66,7 @@ func TestOrderingEvaluatorRejectsInvalidPermutation(t *testing.T) {
 func TestOrderingEvaluatorSerializesEmptyFeedbackDetailsAsArray(t *testing.T) {
 	t.Parallel()
 	definition := evaluatorDefinition(ActivityKindOrdering, 1, map[string]any{
-		"items": []any{map[string]any{"id": "a"}, map[string]any{"id": "b"}},
+		"items":        []any{map[string]any{"id": "a"}, map[string]any{"id": "b"}},
 		"correctOrder": []any{"a", "b"}, "evaluationMode": "exact",
 	})
 	result, err := NewRegistry(NewOrderingEvaluator()).Evaluate(

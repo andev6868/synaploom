@@ -92,7 +92,7 @@ func (c testCatalog) ActivitySets(_ context.Context, _ OwnerIdentity) ([]Activit
 func TestPublicActivitySetsPreserveManifestOrderAndRedactAnswers(t *testing.T) {
 	definitions := map[string]ActivityDefinition{
 		"first": activityDefinition("first", ActivityKindSingleChoice, map[string]any{
-			"options": []any{map[string]any{"id": "a", "label": "A"}},
+			"options":         []any{map[string]any{"id": "a", "label": "A"}},
 			"correctOptionId": "secret",
 		}, EvaluationModeAutomatic),
 		"second": activityDefinition("second", ActivityKindWriting, map[string]any{

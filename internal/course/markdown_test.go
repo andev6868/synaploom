@@ -171,3 +171,14 @@ $2x = 8$, vì vậy $x = 4$.
 		t.Fatalf("children=%#v", children)
 	}
 }
+
+func TestParseLessonDocumentHumanizesDirectiveTitle(t *testing.T) {
+	document, issues := ParseLessonDocument(":::worked-example\nExample body.\n:::\n", MarkdownParseOptions{Metadata: LessonMetadata{ID: "example", CourseID: "course", Position: 1, Title: "Example", Type: generated.LessonDocumentTypeMixed}})
+	if len(issues) != 0 {
+		t.Fatalf("issues=%#v", issues)
+	}
+	block := lessonBlockAt(t, document, 0)
+	if got := block["title"]; got != "Worked Example" {
+		t.Fatalf("title=%v, want Worked Example", got)
+	}
+}

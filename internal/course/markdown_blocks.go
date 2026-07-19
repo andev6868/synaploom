@@ -2,7 +2,6 @@ package course
 
 import (
 	"bytes"
-	"fmt"
 	"strings"
 
 	"github.com/yuin/goldmark/ast"
@@ -140,12 +139,4 @@ func inlinePlainText(nodes []any) string {
 		}
 	}
 	return builder.String()
-}
-
-func blockMap(raw any) (map[string]any, error) {
-	block, ok := raw.(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("unexpected lesson block %T", raw)
-	}
-	return block, nil
 }
