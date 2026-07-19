@@ -1,7 +1,6 @@
 import type { LessonBlock } from '@synaploom/contracts';
-import type { ActivityOwner, ActivityStatusPayload } from '@synaploom/protocol';
+import type { ActivityStatusPayload } from '@synaploom/protocol';
 import type { ReactNode } from 'react';
-import type { ActivityHostProps } from '#src/features/activity-engine/types';
 import { InlineActivitySlot } from '#src/features/learning-workspace/InlineActivitySlot';
 import type { LearningWorkspaceController } from '#src/features/learning-workspace/useLearningWorkspaceController';
 import {
@@ -67,24 +66,18 @@ export function collectEmbeddedActivityIds(blocks: readonly LessonBlock[]): read
 
 interface LessonActivitiesProps {
   readonly blocks: readonly LessonBlock[];
-  readonly owner: ActivityOwner;
   readonly activities: readonly ResolvedWorkspaceActivity[];
   readonly statuses: readonly ActivityStatusPayload[];
   readonly focusedActivityId: string | null;
   readonly controller: LearningWorkspaceController;
-  readonly onProgressChanged: () => Promise<void> | void;
-  readonly renderHost?: (props: ActivityHostProps) => ReactNode;
 }
 
 export function LessonActivities({
   blocks,
-  owner,
   activities,
   statuses,
   focusedActivityId,
   controller,
-  onProgressChanged,
-  renderHost,
 }: LessonActivitiesProps): ReactNode {
   const embeddedIds = collectEmbeddedActivityIds(blocks);
   const duplicates = embeddedIds.filter((id, index) => embeddedIds.indexOf(id) !== index);
@@ -111,14 +104,13 @@ export function LessonActivities({
   const renderItem = (item: ResolvedWorkspaceActivity): ReactNode => (
     <InlineActivitySlot
       item={item}
-      owner={owner}
       focused={item.activity.id === focusedActivityId}
       paneMode={controller.state.paneMode}
       status={findActivityStatus(statuses, item.activity.id)}
       onOpenPractice={openPractice}
-      onProgressChanged={onProgressChanged}
-      onPersistenceHandleChange={controller.registerPersistenceHandle}
-      {...(renderHost ? { renderHost } : {})}
+      onRegisterInlineHeading={(activityId, element) =>
+        controller.registerInlineHeading(activityId, element)
+      }
     />
   );
   const renderActivity = (activityId: string): ReactNode => {

@@ -1,5 +1,4 @@
 import type {
-  ActivityOwner,
   ActivityStatusPayload,
   ChapterAssessmentPayload,
   CourseNavigationPayload,
@@ -25,7 +24,6 @@ interface AssessmentWorkspaceContentProps {
   readonly focusedActivityId: string | null;
   readonly controller: LearningWorkspaceController;
   readonly onAction: (action: NextActionPayload) => void;
-  readonly onProgressChanged: () => Promise<void>;
 }
 
 function requiredProgress(
@@ -66,13 +64,7 @@ export function AssessmentWorkspaceContent({
   focusedActivityId,
   controller,
   onAction,
-  onProgressChanged,
 }: AssessmentWorkspaceContentProps): ReactNode {
-  const owner: ActivityOwner = {
-    courseId: navigation.courseId,
-    ownerKind: 'assessments',
-    ownerId: assessment.id,
-  };
   const progress = requiredProgress(activities, statuses);
   const score = scoreProgress(activities, statuses);
   const maxAttempts = activities.find((item) => item.policy.maxAttempts !== null)?.policy
@@ -124,13 +116,10 @@ export function AssessmentWorkspaceContent({
               <InlineActivitySlot
                 key={`${item.setId}-${item.activity.id}`}
                 item={item}
-                owner={owner}
                 focused={focusedActivityId === item.activity.id}
                 paneMode={controller.state.paneMode}
                 status={findActivityStatus(statuses, item.activity.id)}
                 onOpenPractice={(activityId) => controller.focusActivity(activityId)}
-                onProgressChanged={onProgressChanged}
-                onPersistenceHandleChange={controller.registerPersistenceHandle}
                 onRegisterInlineHeading={(activityId, element) =>
                   controller.registerInlineHeading(activityId, element)
                 }

@@ -31,21 +31,16 @@ const item: ResolvedWorkspaceActivity = {
     },
   },
 };
-const owner = { courseId: 'course', ownerKind: 'lessons' as const, ownerId: 'lesson' };
 
 it('never mounts an editable activity host', () => {
   const open = vi.fn(() => Promise.resolve());
   render(
     <InlineActivitySlot
       item={item}
-      owner={owner}
       focused={false}
       paneMode="collapsed"
       status={null}
       onOpenPractice={open}
-      onProgressChanged={vi.fn()}
-      onPersistenceHandleChange={vi.fn()}
-      renderHost={() => <input aria-label="editor" />}
     />,
   );
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
@@ -57,7 +52,6 @@ it('renders a read-only summary rather than a duplicate editor while focused', (
   render(
     <InlineActivitySlot
       item={item}
-      owner={owner}
       focused
       paneMode="split"
       status={{
@@ -69,9 +63,6 @@ it('renders a read-only summary rather than a duplicate editor while focused', (
         passed: null,
       }}
       onOpenPractice={vi.fn()}
-      onProgressChanged={vi.fn()}
-      onPersistenceHandleChange={vi.fn()}
-      renderHost={() => <input aria-label="editor" />}
     />,
   );
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();

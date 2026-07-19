@@ -91,12 +91,10 @@ function LessonWorkspaceComposition({
           {heading}
           <LessonActivities
             blocks={lesson.blocks}
-            owner={owner}
             activities={activities}
             statuses={statuses}
             focusedActivityId={controller.state.focusedActivityId}
             controller={controller}
-            onProgressChanged={onProgressChanged}
           />
           {renderFooter(onAction)}
         </article>
@@ -188,7 +186,6 @@ function AssessmentWorkspaceComposition({
           focusedActivityId={controller.state.focusedActivityId}
           controller={controller}
           onAction={onAction}
-          onProgressChanged={onProgressChanged}
         />
       </ScrollArea>
       <AssistantPanel />

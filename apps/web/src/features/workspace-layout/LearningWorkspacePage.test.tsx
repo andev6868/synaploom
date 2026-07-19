@@ -343,14 +343,14 @@ describe('LearningWorkspacePage', () => {
       screen.getByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
     ).toBeVisible();
     expect(
-      screen.getByText('Promise chạy trước timer đang mở trong khu vực thực hành.'),
+      screen.getByText('Activity đang mở trong khu vực thực hành.'),
     ).toBeVisible();
     expect(screen.getAllByRole('radio', { name: 'Đúng' })).toHaveLength(1);
     expect(screen.getByRole('heading', { name: 'Yêu cầu hoàn thành đánh giá' })).toBeVisible();
     expect(document.querySelector('.syn-assessment-workspace')).not.toBeInTheDocument();
   });
 
-  it('renders embedded non-coding activities inline with the lesson document', async () => {
+  it('renders embedded non-coding activity summaries with one Practice editor', async () => {
     const lessonWithActivity = {
       ...lesson,
       blocks: [...lesson.blocks, { type: 'activity' as const, activityId: 'main-thread-check' }],
@@ -407,14 +407,15 @@ describe('LearningWorkspacePage', () => {
       </AppProviders>,
     );
 
-    expect(await screen.findByRole('group', { name: 'Main Thread làm gì?' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Mở trong khu vực thực hành' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Main Thread làm gì?' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Thực hành bài này' })).toBeVisible();
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument();
     expect(
       screen.queryByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
     ).not.toBeInTheDocument();
   });
 
-  it('selects the split coding layout for a coding activity', async () => {
+  it('uses the shared split Practice layout for a coding activity', async () => {
     const api: SynaploomApiClient = {
       ...fakeApi(),
       listActivityFiles: () => Promise.resolve(['index.js']),
@@ -494,7 +495,7 @@ describe('LearningWorkspacePage', () => {
     );
 
     expect(
-      await screen.findByText('Main Thread Lab đang mở trong khu vực thực hành.'),
+      await screen.findByText('Activity đang mở trong khu vực thực hành.'),
     ).toBeVisible();
     expect(document.querySelector('h2[data-workspace-activity-heading="true"]')).toHaveTextContent(
       'Main Thread Lab',
@@ -504,6 +505,6 @@ describe('LearningWorkspacePage', () => {
     expect(
       screen.getByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
     ).toBeVisible();
-    expect(screen.getByText('Main Thread Lab đang mở trong khu vực thực hành.')).toBeVisible();
+    expect(screen.getByText('Activity đang mở trong khu vực thực hành.')).toBeVisible();
   });
 });

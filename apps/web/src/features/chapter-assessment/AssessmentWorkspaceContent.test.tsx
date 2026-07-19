@@ -217,7 +217,6 @@ function renderContent(workspaceController = controller(), items = activities): 
         focusedActivityId={workspaceController.state.focusedActivityId}
         controller={workspaceController}
         onAction={vi.fn()}
-        onProgressChanged={vi.fn().mockResolvedValue(undefined)}
       />
     </AppProviders>,
   );
@@ -236,12 +235,12 @@ describe('AssessmentWorkspaceContent', () => {
   it('renders focused activities as summaries and practice-only activities as launch cards', () => {
     renderContent(controller('event-loop-order'));
     expect(
-      screen.getByText('Promise chạy trước timer đang mở trong khu vực thực hành.'),
+      screen.getByText('Activity đang mở trong khu vực thực hành.'),
     ).toBeVisible();
     expect(
       screen.queryByRole('group', { name: 'Promise chạy trước timer' }),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Mở khu vực thực hành' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Thực hành bài này' })).toBeVisible();
     expect(screen.queryByRole('radio', { name: 'Đúng' })).not.toBeInTheDocument();
   });
 

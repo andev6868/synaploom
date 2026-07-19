@@ -70,7 +70,6 @@ it('renders embedded activities in document position and appends remaining activ
   render(
     <LessonActivities
       blocks={blocks}
-      owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
       activities={flattenWorkspaceActivities(sets)}
       statuses={[]}
       focusedActivityId={null}
@@ -84,17 +83,13 @@ it('renders embedded activities in document position and appends remaining activ
           restoreSplitPane: vi.fn(),
         } as unknown as LearningWorkspaceController
       }
-      onProgressChanged={vi.fn()}
-      renderHost={({ activity }) => (
-        <div data-testid={`activity-${activity.id}`}>{activity.title}</div>
-      )}
     />,
   );
 
   const before = screen.getByText('Before activity');
-  const embedded = screen.getByTestId('activity-embedded');
+  const embedded = screen.getByRole('heading', { name: 'Embedded question' }).closest('section') as HTMLElement;
   const after = screen.getByText('After activity');
-  const appended = screen.getByTestId('activity-appended');
+  const appended = screen.getByRole('heading', { name: 'Appended question' }).closest('section') as HTMLElement;
   expect(before.compareDocumentPosition(embedded) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(embedded.compareDocumentPosition(after) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(after.compareDocumentPosition(appended) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -113,7 +108,6 @@ it('fails closed before rendering when an activity is embedded more than once', 
   render(
     <LessonActivities
       blocks={blocks}
-      owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
       activities={flattenWorkspaceActivities(sets)}
       statuses={[]}
       focusedActivityId={null}
@@ -127,8 +121,6 @@ it('fails closed before rendering when an activity is embedded more than once', 
           restoreSplitPane: vi.fn(),
         } as unknown as LearningWorkspaceController
       }
-      onProgressChanged={vi.fn()}
-      renderHost={({ activity }) => <div>{activity.title}</div>}
     />,
   );
   expect(screen.getByRole('alert')).toHaveTextContent('được nhúng nhiều hơn một lần');
@@ -143,7 +135,6 @@ it('replaces a focused embedded activity with a summary at the same document pos
   render(
     <LessonActivities
       blocks={blocks}
-      owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
       activities={flattenWorkspaceActivities(sets)}
       statuses={[]}
       focusedActivityId="embedded"
@@ -157,14 +148,10 @@ it('replaces a focused embedded activity with a summary at the same document pos
           restoreSplitPane: vi.fn(),
         } as unknown as LearningWorkspaceController
       }
-      onProgressChanged={vi.fn()}
-      renderHost={({ activity }) => (
-        <div data-testid={`activity-${activity.id}`}>{activity.title}</div>
-      )}
     />,
   );
 
   expect(screen.getByText('Before focused activity')).toBeInTheDocument();
-  expect(screen.queryByTestId('activity-embedded')).not.toBeInTheDocument();
-  expect(screen.getByText('Embedded question đang tạm ẩn.')).toBeVisible();
+  expect(screen.getByRole('heading', { name: 'Embedded question' })).toBeVisible();
+  expect(screen.getByText('Activity đang tạm ẩn trong khu vực thực hành.')).toBeVisible();
 });
