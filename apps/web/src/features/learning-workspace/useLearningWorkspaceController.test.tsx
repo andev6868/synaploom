@@ -111,7 +111,7 @@ describe('useLearningWorkspaceController', () => {
     expect(result.current.state.focusedActivityId).toBe('quiz-a');
   });
 
-  it('blocks focus, collapse and return-inline when current save fails', async () => {
+  it('blocks focus and collapse when current save fails', async () => {
     const update = vi.fn();
     const { result } = renderHook(
       () =>
@@ -134,46 +134,19 @@ describe('useLearningWorkspaceController', () => {
     await act(async () => {
       await expect(result.current.collapsePracticePane()).rejects.toThrow('save failed');
     });
-    await act(async () => {
-      await expect(result.current.returnActivityInline()).rejects.toThrow('save failed');
-    });
     expect(update).not.toHaveBeenCalled();
     expect(result.current.state.focusedActivityId).toBe('quiz-a');
     expect(result.current.saveStatus).toBe('error');
   });
 
-  it('distinguishes collapse from returning inline', async () => {
-    const update = vi.fn(
-      async (_owner: ActivityOwner, payload: UpdateWorkspacePresentationPayload) =>
-        state({ ...payload, revision: payload.revision + 1 }),
-    );
+
+  it('does not expose a return-inline transition', () => {
+    const update = vi.fn();
     const { result } = renderHook(
-      () =>
-        useLearningWorkspaceController({
-          owner,
-          initialState: state({ focusedActivityId: 'quiz-a', paneMode: 'split' }),
-          activities,
-        }),
+      () => useLearningWorkspaceController({ owner, initialState: state(), activities }),
       { wrapper: wrapper(api(update)) },
     );
-    await act(() => result.current.collapsePracticePane());
-    expect(update).toHaveBeenLastCalledWith(
-      owner,
-      expect.objectContaining({
-        focusedActivityId: 'quiz-a',
-        paneMode: 'collapsed',
-        userCollapsed: true,
-      }),
-    );
-    await act(() => result.current.returnActivityInline());
-    expect(update).toHaveBeenLastCalledWith(
-      owner,
-      expect.objectContaining({
-        focusedActivityId: null,
-        paneMode: 'collapsed',
-        userCollapsed: false,
-      }),
-    );
+    expect('returnActivityInline' in result.current).toBe(false);
   });
 
   it('guards unsupported presentation transitions', async () => {
@@ -296,13 +269,6 @@ describe('useLearningWorkspaceController', () => {
     act(() => result.current.registerPracticeHeading('quiz-a', practiceHeading));
     await act(() => result.current.focusActivity('quiz-a'));
     expect(document.activeElement).toBe(practiceHeading);
-
-    const inlineHeading = document.createElement('h3');
-    inlineHeading.tabIndex = -1;
-    document.body.append(inlineHeading);
-    act(() => result.current.registerInlineHeading('quiz-a', inlineHeading));
-    await act(() => result.current.returnActivityInline());
-    expect(document.activeElement).toBe(inlineHeading);
     vi.unstubAllGlobals();
   });
 

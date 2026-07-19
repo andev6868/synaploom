@@ -52,7 +52,6 @@ it('mounts exactly one focused host and exposes explicit next and retry actions'
     registerInlineHeading: vi.fn(),
     collapsePracticePane: vi.fn(),
     expandPracticePane: vi.fn(),
-    returnActivityInline: vi.fn(),
   } as unknown as LearningWorkspaceController;
   render(
     <PracticePane

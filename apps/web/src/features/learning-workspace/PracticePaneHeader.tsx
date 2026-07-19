@@ -30,16 +30,6 @@ export function PracticePaneHeader({
         </h2>
       </div>
       <div>
-        {focusedActivity.activity.presentation.allowInline ? (
-          <button
-            type="button"
-            onClick={() => {
-              void controller.returnActivityInline().catch(() => undefined);
-            }}
-          >
-            Làm tại đây
-          </button>
-        ) : null}
         {focusedActivity.activity.presentation.supportsFullscreen ? (
           <button
             type="button"

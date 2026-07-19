@@ -17,7 +17,7 @@ import { SynaploomApiError } from '#src/shared/api/client';
 
 export type WorkspaceSaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'conflict';
 export type WorkspaceTransitionKind =
-  'focus' | 'return-inline' | 'collapse' | 'expand' | 'restore-split' | 'resize' | 'next';
+  'focus' | 'collapse' | 'expand' | 'restore-split' | 'resize' | 'next';
 
 export interface WorkspaceTransitionIntent {
   readonly kind: WorkspaceTransitionKind;
@@ -38,7 +38,6 @@ export interface LearningWorkspaceController {
   registerPracticeHeading(activityId: string, element: HTMLElement | null): void;
   registerInlineHeading(activityId: string, element: HTMLElement | null): void;
   focusActivity(activityId: string): Promise<void>;
-  returnActivityInline(): Promise<void>;
   collapsePracticePane(): Promise<void>;
   expandPracticePane(): Promise<void>;
   restoreSplitPane(): Promise<void>;
@@ -162,9 +161,7 @@ export function useLearningWorkspaceController({
         publishConflict(null);
         setSaveStatus('saved');
         lastIntentRef.current = null;
-        if (intent.kind === 'return-inline' && currentId) {
-          scheduleFocus(() => inlineHeadingsRef.current.get(currentId));
-        } else if (saved.focusedActivityId && saved.paneMode !== 'collapsed') {
+        if (saved.focusedActivityId && saved.paneMode !== 'collapsed') {
           scheduleFocus(() => practiceHeadingsRef.current.get(saved.focusedActivityId as string));
         }
         const eventName =
@@ -250,16 +247,6 @@ export function useLearningWorkspaceController({
     [activities, payload, transition],
   );
 
-  const returnActivityInline = useCallback(async (): Promise<void> => {
-    const current = findWorkspaceActivity(activities, stateRef.current.focusedActivityId);
-    if (current && !current.activity.presentation.allowInline) {
-      throw new Error('Hoạt động này không hỗ trợ chế độ inline.');
-    }
-    await transition({
-      kind: 'return-inline',
-      payload: payload({ focusedActivityId: null, paneMode: 'collapsed', userCollapsed: false }),
-    });
-  }, [activities, payload, transition]);
 
   const collapsePracticePane = useCallback(async (): Promise<void> => {
     await transition({
@@ -324,7 +311,6 @@ export function useLearningWorkspaceController({
     registerPracticeHeading,
     registerInlineHeading,
     focusActivity,
-    returnActivityInline,
     collapsePracticePane,
     expandPracticePane,
     restoreSplitPane,
