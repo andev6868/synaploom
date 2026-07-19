@@ -41,7 +41,7 @@ func TestOpenMigratesNodeDatabaseWithoutLosingProgress(t *testing.T) {
 	if err := database.SQL.QueryRow(`SELECT COUNT(*) FROM schema_migrations`).Scan(&applied); err != nil {
 		t.Fatal(err)
 	}
-	if applied != 4 {
+	if applied != 5 {
 		t.Fatalf("applied migrations=%d", applied)
 	}
 }
@@ -64,7 +64,7 @@ func TestOpenIsIdempotent(t *testing.T) {
 	if err := second.SQL.QueryRow(`SELECT COUNT(*) FROM schema_migrations`).Scan(&count); err != nil {
 		t.Fatal(err)
 	}
-	if count != 4 {
+	if count != 5 {
 		t.Fatalf("migration count=%d", count)
 	}
 }
@@ -79,5 +79,18 @@ func TestMigrationCreatesActivityAttemptsTable(t *testing.T) {
 	var got string
 	if err := db.SQL.QueryRowContext(ctx, `SELECT name FROM sqlite_master WHERE type='table' AND name='activity_attempts'`).Scan(&got); err != nil {
 		t.Fatalf("missing activity_attempts: %v", err)
+	}
+}
+
+func TestMigrationCreatesWorkspacePresentationTable(t *testing.T) {
+	ctx := context.Background()
+	db, err := Open(ctx, filepath.Join(t.TempDir(), "workspace-presentation.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	var got string
+	if err := db.SQL.QueryRowContext(ctx, `SELECT name FROM sqlite_master WHERE type='table' AND name='workspace_presentation_states'`).Scan(&got); err != nil {
+		t.Fatalf("missing workspace_presentation_states: %v", err)
 	}
 }
