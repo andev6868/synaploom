@@ -17,6 +17,13 @@ const activity: ActivityPublicView = {
   },
   evaluation: { mode: 'submission', points: 0 },
   completion: { required: true },
+  presentation: {
+    defaultSurface: 'inline',
+    allowInline: true,
+    allowPractice: true,
+    preferredWidth: 'compact',
+    supportsFullscreen: false,
+  },
 };
 
 it('shows outline prompts and announces the live character count', () => {

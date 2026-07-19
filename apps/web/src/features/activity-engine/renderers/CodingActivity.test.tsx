@@ -42,6 +42,13 @@ const activity: ActivityPublicView = {
   },
   evaluation: { mode: 'coding', points: 1 },
   completion: { required: true },
+  presentation: {
+    defaultSurface: 'inline',
+    allowInline: true,
+    allowPractice: true,
+    preferredWidth: 'compact',
+    supportsFullscreen: false,
+  },
 };
 
 const lesson: LessonPayload = {

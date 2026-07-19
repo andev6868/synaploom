@@ -12,6 +12,13 @@ const activity: ActivityPublicView = {
   config: { answerMode: 'expression', unit: 'm/s', requireUnit: true },
   evaluation: { mode: 'automatic', points: 1 },
   completion: { required: true },
+  presentation: {
+    defaultSurface: 'inline',
+    allowInline: true,
+    allowPractice: true,
+    preferredWidth: 'compact',
+    supportsFullscreen: false,
+  },
 };
 
 it('keeps the source expression and exposes the required unit selector', () => {

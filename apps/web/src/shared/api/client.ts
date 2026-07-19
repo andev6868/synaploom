@@ -2,6 +2,7 @@ import type { AiGenerateCommand, AiResponse } from '@synaploom/ai-contracts';
 import type { ProcessEvent } from '@synaploom/contracts';
 import type {
   ActivityAttempt,
+  ActivityStatusPayload,
   ActivityOwner,
   ActivityPublicView,
   ActivitySetProgress,
@@ -19,6 +20,8 @@ import type {
   ProcessSessionPayload,
   PublicActivitySetPayload,
   WorkspaceFilePayload,
+  UpdateWorkspacePresentationPayload,
+  WorkspacePresentationState,
 } from '@synaploom/protocol';
 import { isApiErrorPayload } from '@synaploom/protocol';
 
@@ -28,6 +31,7 @@ export class SynaploomApiError extends Error {
   readonly currentLessonId: string | undefined;
   readonly blockingRequirements: readonly RequirementView[] | undefined;
   readonly currentTarget: NavigationTarget | undefined;
+  readonly currentWorkspacePresentation: WorkspacePresentationState | undefined;
 
   constructor(
     code: string,
@@ -35,6 +39,7 @@ export class SynaploomApiError extends Error {
     currentLessonId?: string,
     blockingRequirements?: readonly RequirementView[],
     currentTarget?: NavigationTarget,
+    currentWorkspacePresentation?: WorkspacePresentationState,
   ) {
     super(message);
     this.name = 'SynaploomApiError';
@@ -42,19 +47,44 @@ export class SynaploomApiError extends Error {
     this.currentLessonId = currentLessonId;
     this.blockingRequirements = blockingRequirements;
     this.currentTarget = currentTarget;
+    this.currentWorkspacePresentation = currentWorkspacePresentation;
   }
+}
+
+function isWorkspacePresentationState(value: unknown): value is WorkspacePresentationState {
+  if (typeof value !== 'object' || value === null) return false;
+  const candidate = value as Record<string, unknown>;
+  return (
+    typeof candidate.courseId === 'string' &&
+    (candidate.ownerKind === 'lessons' || candidate.ownerKind === 'assessments') &&
+    typeof candidate.ownerId === 'string' &&
+    (candidate.focusedActivityId === null || typeof candidate.focusedActivityId === 'string') &&
+    (candidate.paneMode === 'collapsed' ||
+      candidate.paneMode === 'split' ||
+      candidate.paneMode === 'expanded') &&
+    typeof candidate.splitRatio === 'number' &&
+    typeof candidate.userCollapsed === 'boolean' &&
+    typeof candidate.revision === 'number' &&
+    typeof candidate.updatedAt === 'string'
+  );
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {
   const value: unknown = await response.json();
   if (!response.ok) {
     if (isApiErrorPayload(value)) {
+      const currentWorkspacePresentation = isWorkspacePresentationState(
+        value.details?.currentWorkspacePresentation,
+      )
+        ? value.details.currentWorkspacePresentation
+        : undefined;
       throw new SynaploomApiError(
         value.code,
         value.message,
         value.currentLessonId,
         value.blockingRequirements,
         value.currentTarget,
+        currentWorkspacePresentation,
       );
     }
     throw new SynaploomApiError('INVALID_RESPONSE', `Daemon returned HTTP ${response.status}.`);
@@ -96,6 +126,12 @@ export interface SynaploomApiClient {
     result: { readonly passed: boolean; readonly score?: number; readonly summary?: string },
   ): Promise<{ readonly navigation: CourseNavigationPayload }>;
   getActivitySets(owner: ActivityOwner): Promise<readonly PublicActivitySetPayload[]>;
+  getWorkspacePresentation(owner: ActivityOwner): Promise<WorkspacePresentationState>;
+  updateWorkspacePresentation(
+    owner: ActivityOwner,
+    payload: UpdateWorkspacePresentationPayload,
+  ): Promise<WorkspacePresentationState>;
+  getActivityStatuses(owner: ActivityOwner): Promise<readonly ActivityStatusPayload[]>;
   getActivity(owner: ActivityOwner, activityId: string): Promise<ActivityPublicView>;
   getCurrentActivityAttempt(
     owner: ActivityOwner,
@@ -190,6 +226,22 @@ export function createApiClient(
       request<readonly PublicActivitySetPayload[]>(
         fetchImpl,
         api(`${activityOwnerPath(owner)}/activity-sets`),
+      ),
+    getWorkspacePresentation: (owner) =>
+      request<WorkspacePresentationState>(
+        fetchImpl,
+        api(`${activityOwnerPath(owner)}/workspace-presentation`),
+      ),
+    updateWorkspacePresentation: (owner, payload) =>
+      request<WorkspacePresentationState>(
+        fetchImpl,
+        api(`${activityOwnerPath(owner)}/workspace-presentation`),
+        { method: 'PUT', body: JSON.stringify(payload) },
+      ),
+    getActivityStatuses: (owner) =>
+      request<readonly ActivityStatusPayload[]>(
+        fetchImpl,
+        api(`${activityOwnerPath(owner)}/activity-statuses`),
       ),
     getActivity: (owner, activityId) =>
       request<ActivityPublicView>(

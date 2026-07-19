@@ -12,6 +12,13 @@ const activity: ActivityPublicView = {
   config: {},
   evaluation: { mode: 'automatic', points: 1 },
   completion: { required: true },
+  presentation: {
+    defaultSurface: 'inline',
+    allowInline: true,
+    allowPractice: true,
+    preferredWidth: 'compact',
+    supportsFullscreen: false,
+  },
 };
 
 it('uses explicit true and false labels', () => {

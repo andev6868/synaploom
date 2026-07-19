@@ -27,6 +27,13 @@ const sets: readonly PublicActivitySetPayload[] = [
           config: {},
           evaluation: { mode: 'automatic', points: 1 },
           completion: { required: true },
+          presentation: {
+            defaultSurface: 'inline',
+            allowInline: true,
+            allowPractice: true,
+            preferredWidth: 'compact',
+            supportsFullscreen: false,
+          },
         },
       },
       {
@@ -39,6 +46,13 @@ const sets: readonly PublicActivitySetPayload[] = [
           config: { maximumLength: 40 },
           evaluation: { mode: 'automatic', points: 1 },
           completion: { required: false },
+          presentation: {
+            defaultSurface: 'inline',
+            allowInline: true,
+            allowPractice: true,
+            preferredWidth: 'compact',
+            supportsFullscreen: false,
+          },
         },
       },
     ],

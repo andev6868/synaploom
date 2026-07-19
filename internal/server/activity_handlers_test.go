@@ -19,6 +19,7 @@ type stubActivityService struct {
 	submitted   activity.ActivityAttempt
 	progress    activity.ActivitySetProgress
 	sets        []activity.PublicActivitySetView
+	statuses    []activity.ActivityStatus
 	draftErr    error
 	submitErr   error
 	submitCalls int
@@ -29,6 +30,9 @@ func (s *stubActivityService) PublicActivity(context.Context, activity.OwnerIden
 }
 func (s *stubActivityService) PublicActivitySets(context.Context, activity.OwnerIdentity) ([]activity.PublicActivitySetView, error) {
 	return s.sets, nil
+}
+func (s *stubActivityService) ActivityStatuses(context.Context, activity.OwnerIdentity) ([]activity.ActivityStatus, error) {
+	return s.statuses, nil
 }
 func (s *stubActivityService) CurrentAttempt(context.Context, activity.AttemptIdentity) (*activity.ActivityAttempt, error) {
 	return s.current, nil

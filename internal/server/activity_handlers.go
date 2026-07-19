@@ -27,6 +27,19 @@ type activitySubmitPayload struct {
 	RandomSeed     int64           `json:"randomSeed"`
 }
 
+func (h activityHandlers) statuses(w http.ResponseWriter, r *http.Request) {
+	owner, ok := h.owner(w, r)
+	if !ok {
+		return
+	}
+	statuses, err := h.activity.ActivityStatuses(r.Context(), owner)
+	if err != nil {
+		h.writeError(w, r, err)
+		return
+	}
+	writeJSON(w, statuses)
+}
+
 func (h activityHandlers) listSets(w http.ResponseWriter, r *http.Request) {
 	owner, ok := h.owner(w, r)
 	if !ok {

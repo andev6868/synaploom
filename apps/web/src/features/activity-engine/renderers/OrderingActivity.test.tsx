@@ -19,6 +19,13 @@ const activity: ActivityPublicView = {
   },
   evaluation: { mode: 'automatic', points: 3 },
   completion: { required: true },
+  presentation: {
+    defaultSurface: 'inline',
+    allowInline: true,
+    allowPractice: true,
+    preferredWidth: 'compact',
+    supportsFullscreen: false,
+  },
 };
 
 it('supports moving items with buttons and announces the new position', () => {

@@ -11,15 +11,17 @@ import (
 	"github.com/synaploom/synaploom/internal/ai"
 	"github.com/synaploom/synaploom/internal/course"
 	"github.com/synaploom/synaploom/internal/runner"
+	"github.com/synaploom/synaploom/internal/workspacepresentation"
 )
 
 type routerOptions struct {
-	actions     map[string]runner.Action
-	devEvents   <-chan course.DevEvent
-	aiProvider  ai.Provider
-	aiLocal     bool
-	progression LearningProgression
-	activities  activity.Service
+	actions               map[string]runner.Action
+	devEvents             <-chan course.DevEvent
+	aiProvider            ai.Provider
+	aiLocal               bool
+	progression           LearningProgression
+	activities            activity.Service
+	workspacePresentation workspacepresentation.Service
 }
 
 // RouterOption configures optional preview runtime capabilities.
@@ -43,6 +45,11 @@ func WithActions(actions map[string]runner.Action) RouterOption {
 // WithActivities enables owner-qualified activity and attempt routes.
 func WithActivities(service activity.Service) RouterOption {
 	return func(options *routerOptions) { options.activities = service }
+}
+
+// WithWorkspacePresentation enables owner-scoped workspace presentation routes.
+func WithWorkspacePresentation(service workspacepresentation.Service) RouterOption {
+	return func(options *routerOptions) { options.workspacePresentation = service }
 }
 
 // WithProgression enables hierarchical navigation and requirement-authoritative mutations.
@@ -88,8 +95,14 @@ func NewRouter(service course.Service, sessions *SessionManager, options ...Rout
 	}
 	api.HandleFunc("GET /api/v1/preferences/pane-ratio", handlers.getPaneRatio)
 	api.HandleFunc("PUT /api/v1/preferences/pane-ratio", handlers.setPaneRatio)
+	if configuration.workspacePresentation != nil {
+		workspace := workspacePresentationHandlers{service: configuration.workspacePresentation}
+		api.HandleFunc("GET /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/workspace-presentation", workspace.get)
+		api.HandleFunc("PUT /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/workspace-presentation", workspace.update)
+	}
 	if configuration.activities != nil {
 		activities := activityHandlers{content: service, activity: configuration.activities}
+		api.HandleFunc("GET /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activity-statuses", activities.statuses)
 		api.HandleFunc("GET /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activity-sets", activities.listSets)
 		api.HandleFunc("GET /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activities/{activityId}", activities.get)
 		api.HandleFunc("GET /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/activities/{activityId}/attempts/current", activities.current)

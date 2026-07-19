@@ -18,6 +18,13 @@ const activity: ActivityPublicView = {
   },
   evaluation: { mode: 'automatic', points: 2 },
   completion: { required: true },
+  presentation: {
+    defaultSurface: 'inline',
+    allowInline: true,
+    allowPractice: true,
+    preferredWidth: 'compact',
+    supportsFullscreen: false,
+  },
 };
 
 it('renders one labeled field per blank and retains each value', () => {

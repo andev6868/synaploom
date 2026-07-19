@@ -15,10 +15,12 @@ import (
 	"github.com/synaploom/synaploom/internal/cli"
 	"github.com/synaploom/synaploom/internal/course"
 	"github.com/synaploom/synaploom/internal/diagnostics"
+	"github.com/synaploom/synaploom/internal/logging"
 	"github.com/synaploom/synaploom/internal/progression"
 	"github.com/synaploom/synaploom/internal/runner"
 	"github.com/synaploom/synaploom/internal/server"
 	"github.com/synaploom/synaploom/internal/storage"
+	"github.com/synaploom/synaploom/internal/workspacepresentation"
 )
 
 func Run(ctx context.Context, command cli.Command) int {
@@ -156,9 +158,28 @@ func configureRouter(ctx context.Context, service course.Service, sessions *serv
 		activities := activity.NewService(catalog, storage.NewActivityRepository(database.SQL), activity.DefaultRegistry())
 		aware.activities = activities
 		progress.SetActivityProgressProvider(activityProgressAdapter{service: activities, courseID: graph.ID, courseVersion: graph.Version})
-		options = append(options, server.WithActivities(activities))
+		workspaceRepository := storage.NewWorkspacePresentationRepository(database.SQL)
+		workspaceEvents := logging.New(os.Stderr, 1000)
+		workspaceService := workspacepresentation.NewService(
+			workspaceRepository, activities,
+			staticCourseVersionResolver{courseID: graph.ID, version: graph.Version},
+			workspaceEvents,
+		)
+		options = append(options, server.WithActivities(activities), server.WithWorkspacePresentation(workspaceService))
 	}
 	return server.NewRouter(content, sessions, options...), nil
+}
+
+type staticCourseVersionResolver struct {
+	courseID string
+	version  string
+}
+
+func (r staticCourseVersionResolver) CourseVersion(_ context.Context, courseID string) (string, error) {
+	if courseID != r.courseID {
+		return "", fmt.Errorf("course %s is not active", courseID)
+	}
+	return r.version, nil
 }
 
 type progressionAwareFilesystemService struct {

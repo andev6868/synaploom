@@ -12,6 +12,13 @@ const activity: ActivityPublicView = {
   config: { maximumLength: 40 },
   evaluation: { mode: 'automatic', points: 1 },
   completion: { required: true },
+  presentation: {
+    defaultSurface: 'inline',
+    allowInline: true,
+    allowPractice: true,
+    preferredWidth: 'compact',
+    supportsFullscreen: false,
+  },
 };
 
 it('keeps the learner text in a labeled input', () => {

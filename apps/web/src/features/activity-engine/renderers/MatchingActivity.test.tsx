@@ -18,6 +18,13 @@ const activity: ActivityPublicView = {
   },
   evaluation: { mode: 'automatic', points: 1 },
   completion: { required: true },
+  presentation: {
+    defaultSurface: 'inline',
+    allowInline: true,
+    allowPractice: true,
+    preferredWidth: 'compact',
+    supportsFullscreen: false,
+  },
 };
 
 it('provides a select-based matching workflow', () => {

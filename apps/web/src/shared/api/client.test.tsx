@@ -254,3 +254,79 @@ describe('activity API client', () => {
     );
   });
 });
+
+describe('workspace presentation API client', () => {
+  it('uses owner-qualified paths and exact update payloads', async () => {
+    const state = {
+      courseId: 'course',
+      ownerKind: 'lessons',
+      ownerId: 'lesson-a',
+      focusedActivityId: 'quiz-a',
+      paneMode: 'split',
+      splitRatio: 0.45,
+      userCollapsed: false,
+      revision: 4,
+      updatedAt: '2026-07-19T00:00:00Z',
+    } as const;
+    const fetchImpl = vi.fn(
+      async (_input: RequestInfo | URL, _init?: RequestInit) =>
+        new Response(JSON.stringify(state), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+    );
+    const client = createApiClient(fetchImpl as typeof fetch);
+    const owner = { courseId: 'course', ownerKind: 'lessons' as const, ownerId: 'lesson-a' };
+    await client.getWorkspacePresentation(owner);
+    await client.updateWorkspacePresentation(owner, {
+      focusedActivityId: 'quiz-a',
+      paneMode: 'split',
+      splitRatio: 0.45,
+      userCollapsed: false,
+      revision: 3,
+    });
+    await client.getActivityStatuses(owner);
+    expect(fetchImpl.mock.calls.map(([url]) => url)).toEqual([
+      '/api/v1/courses/course/lessons/lesson-a/workspace-presentation',
+      '/api/v1/courses/course/lessons/lesson-a/workspace-presentation',
+      '/api/v1/courses/course/lessons/lesson-a/activity-statuses',
+    ]);
+    expect(JSON.parse(String(fetchImpl.mock.calls[1]?.[1]?.body))).toEqual({
+      focusedActivityId: 'quiz-a',
+      paneMode: 'split',
+      splitRatio: 0.45,
+      userCollapsed: false,
+      revision: 3,
+    });
+  });
+
+  it('parses current presentation defensively from conflict details', async () => {
+    const currentWorkspacePresentation = {
+      courseId: 'course',
+      ownerKind: 'lessons',
+      ownerId: 'lesson-a',
+      focusedActivityId: 'quiz-a',
+      paneMode: 'split',
+      splitRatio: 0.45,
+      userCollapsed: false,
+      revision: 4,
+      updatedAt: '2026-07-19T00:00:00Z',
+    } as const;
+    const fetchImpl = vi.fn(
+      async (_input: RequestInfo | URL, _init?: RequestInit) =>
+        new Response(
+          JSON.stringify({
+            code: 'WORKSPACE_PRESENTATION_CONFLICT',
+            message: 'conflict',
+            details: { currentWorkspacePresentation },
+          }),
+          { status: 409, headers: { 'content-type': 'application/json' } },
+        ),
+    );
+    const error = await createApiClient(fetchImpl as typeof fetch)
+      .getWorkspacePresentation({ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson-a' })
+      .catch((value: unknown) => value);
+    expect(error).toBeInstanceOf(SynaploomApiError);
+    expect(error).toMatchObject({ currentWorkspacePresentation: { revision: 4 } });
+  });
+});
