@@ -348,10 +348,10 @@ export function LearningWorkspacePage({
       {header}
       {workspaceLayout === 'split-coding' && practicePanel ? (
         <WorkspaceShell
-          defaultLessonSize={Math.round((paneQuery.data ?? 0.48) * 100)}
+          defaultLessonRatio={paneQuery.data ?? 0.48}
           lesson={lessonPanel}
           practice={practicePanel}
-          onLessonSizeChange={(percentage) => void api.setPaneRatio(percentage / 100)}
+          onLessonSizeChange={(ratio) => void api.setPaneRatio(ratio)}
         />
       ) : (
         <main className="syn-reading-workspace" data-layout={workspaceLayout}>

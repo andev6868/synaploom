@@ -63,7 +63,7 @@ describe('WorkspaceShell percentage sizing', () => {
 
     render(
       <WorkspaceShell
-        defaultLessonSize={48}
+        defaultLessonRatio={0.48}
         lesson="Lesson"
         practice="Practice"
         onLessonSizeChange={onLessonSizeChange}
@@ -90,6 +90,6 @@ describe('WorkspaceShell percentage sizing', () => {
       [lessonPanelId]: 60,
       [practicePanelId]: 40,
     });
-    expect(onLessonSizeChange).toHaveBeenCalledWith(60);
+    expect(onLessonSizeChange).toHaveBeenCalledWith(0.6);
   });
 });

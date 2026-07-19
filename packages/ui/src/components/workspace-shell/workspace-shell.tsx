@@ -21,8 +21,8 @@ export function clampWorkspaceRatio(value: number): number {
 export interface WorkspaceShellProps {
   readonly lesson: ReactNode;
   readonly practice: ReactNode;
-  readonly defaultLessonSize?: number;
-  readonly onLessonSizeChange?: (percentage: number) => void;
+  readonly defaultLessonRatio?: number;
+  readonly onLessonSizeChange?: (ratio: number) => void;
 }
 
 /**
@@ -32,7 +32,7 @@ export interface WorkspaceShellProps {
  * after a completed layout change, which prevents re-renders from interrupting an active drag.
  */
 export function WorkspaceShell({
-  defaultLessonSize = 48,
+  defaultLessonRatio = 0.48,
   lesson,
   onLessonSizeChange,
   practice,
@@ -41,8 +41,8 @@ export function WorkspaceShell({
   const lessonPanelId = `lesson-${instanceId}`;
   const practicePanelId = `practice-${instanceId}`;
   const initialLessonSize = useMemo(
-    () => clampWorkspaceRatio(defaultLessonSize),
-    [defaultLessonSize],
+    () => clampWorkspaceRatio(defaultLessonRatio * 100),
+    [defaultLessonRatio],
   );
   const defaultLayout = useMemo<Layout>(
     () => ({
@@ -56,7 +56,7 @@ export function WorkspaceShell({
     (layout: Layout) => {
       const lessonSize = layout[lessonPanelId];
       if (typeof lessonSize === 'number') {
-        onLessonSizeChange?.(clampWorkspaceRatio(lessonSize));
+        onLessonSizeChange?.(clampWorkspaceRatio(lessonSize) / 100);
       }
     },
     [lessonPanelId, onLessonSizeChange],
