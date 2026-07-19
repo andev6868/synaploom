@@ -5,6 +5,10 @@ import {
   parseLessonViewContext,
   type CoursePayload,
   type LessonPayload,
+  type ActivityStatusPayload,
+  type ApiErrorDetails,
+  type UpdateWorkspacePresentationPayload,
+  type WorkspacePresentationState,
 } from '#src/index';
 
 describe('local protocol contracts', () => {
@@ -66,4 +70,36 @@ it('generates protocol types from canonical schemas', () => {
   expect(generated).toContain('export interface CoursePayload');
   expect(generated).toContain('export type ProcessEvent');
   expect(generated).toContain('Generated from schemas/v1');
+});
+
+it('exposes owner-scoped workspace presentation protocol', () => {
+  const update: UpdateWorkspacePresentationPayload = {
+    focusedActivityId: 'event-loop-lab',
+    paneMode: 'split',
+    splitRatio: 0.45,
+    userCollapsed: false,
+    revision: 2,
+  };
+  const state: WorkspacePresentationState = {
+    courseId: 'frontend-performance-foundations',
+    ownerKind: 'lessons',
+    ownerId: 'event-loop',
+    updatedAt: '2026-07-19T00:00:00Z',
+    ...update,
+  };
+  const status: ActivityStatusPayload = {
+    activityId: 'event-loop-lab',
+    status: 'DRAFT',
+    attemptNumber: 1,
+    score: null,
+    maxScore: null,
+    passed: null,
+  };
+  const errorDetails: ApiErrorDetails = {
+    currentWorkspacePresentation: state,
+    diagnostic: 'stale revision',
+  };
+  expect(state.revision).toBe(2);
+  expect(status.status).toBe('DRAFT');
+  expect(errorDetails.currentWorkspacePresentation?.ownerId).toBe('event-loop');
 });

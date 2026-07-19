@@ -175,6 +175,35 @@ const ActivityKindSingleChoice ActivityKind = "single-choice"
 const ActivityKindTrueFalse ActivityKind = "true-false"
 const ActivityKindWriting ActivityKind = "writing"
 
+type ActivityPresentation struct {
+	// AllowInline corresponds to the JSON schema field "allowInline".
+	AllowInline bool `json:"allowInline" yaml:"allowInline" mapstructure:"allowInline"`
+
+	// AllowPractice corresponds to the JSON schema field "allowPractice".
+	AllowPractice bool `json:"allowPractice" yaml:"allowPractice" mapstructure:"allowPractice"`
+
+	// DefaultSurface corresponds to the JSON schema field "defaultSurface".
+	DefaultSurface ActivityPresentationDefaultSurface `json:"defaultSurface" yaml:"defaultSurface" mapstructure:"defaultSurface"`
+
+	// PreferredWidth corresponds to the JSON schema field "preferredWidth".
+	PreferredWidth ActivityPresentationPreferredWidth `json:"preferredWidth" yaml:"preferredWidth" mapstructure:"preferredWidth"`
+
+	// SupportsFullscreen corresponds to the JSON schema field "supportsFullscreen".
+	SupportsFullscreen bool `json:"supportsFullscreen" yaml:"supportsFullscreen" mapstructure:"supportsFullscreen"`
+}
+
+type ActivityPresentationDefaultSurface string
+
+const ActivityPresentationDefaultSurfaceAuto ActivityPresentationDefaultSurface = "auto"
+const ActivityPresentationDefaultSurfaceInline ActivityPresentationDefaultSurface = "inline"
+const ActivityPresentationDefaultSurfacePractice ActivityPresentationDefaultSurface = "practice"
+
+type ActivityPresentationPreferredWidth string
+
+const ActivityPresentationPreferredWidthCompact ActivityPresentationPreferredWidth = "compact"
+const ActivityPresentationPreferredWidthStandard ActivityPresentationPreferredWidth = "standard"
+const ActivityPresentationPreferredWidthWide ActivityPresentationPreferredWidth = "wide"
+
 type ActivityPublicView struct {
 	// Completion corresponds to the JSON schema field "completion".
 	Completion ActivityCompletionPolicy `json:"completion" yaml:"completion" mapstructure:"completion"`
@@ -193,6 +222,9 @@ type ActivityPublicView struct {
 
 	// Kind corresponds to the JSON schema field "kind".
 	Kind ActivityKind `json:"kind" yaml:"kind" mapstructure:"kind"`
+
+	// Presentation corresponds to the JSON schema field "presentation".
+	Presentation ActivityPresentation `json:"presentation" yaml:"presentation" mapstructure:"presentation"`
 
 	// Prompt corresponds to the JSON schema field "prompt".
 	Prompt LessonDocumentFragment `json:"prompt" yaml:"prompt" mapstructure:"prompt"`
@@ -340,6 +372,32 @@ type ActivitySetPublicView struct {
 
 type ActivitySetPublicViewActivitiesElem map[string]interface{}
 
+type ActivityStatusPayload struct {
+	// ActivityId corresponds to the JSON schema field "activityId".
+	ActivityId string `json:"activityId" yaml:"activityId" mapstructure:"activityId"`
+
+	// AttemptNumber corresponds to the JSON schema field "attemptNumber".
+	AttemptNumber int `json:"attemptNumber" yaml:"attemptNumber" mapstructure:"attemptNumber"`
+
+	// MaxScore corresponds to the JSON schema field "maxScore".
+	MaxScore ActivityStatusPayloadMaxScore `json:"maxScore" yaml:"maxScore" mapstructure:"maxScore"`
+
+	// Passed corresponds to the JSON schema field "passed".
+	Passed ActivityStatusPayloadPassed `json:"passed" yaml:"passed" mapstructure:"passed"`
+
+	// Score corresponds to the JSON schema field "score".
+	Score ActivityStatusPayloadScore `json:"score" yaml:"score" mapstructure:"score"`
+
+	// Status corresponds to the JSON schema field "status".
+	Status ActivityWorkspaceStatus `json:"status" yaml:"status" mapstructure:"status"`
+}
+
+type ActivityStatusPayloadMaxScore *float64
+
+type ActivityStatusPayloadPassed *bool
+
+type ActivityStatusPayloadScore *float64
+
 type ActivitySubmitRequest struct {
 	// Answer corresponds to the JSON schema field "answer".
 	Answer ActivitySubmitRequestAnswer `json:"answer" yaml:"answer" mapstructure:"answer"`
@@ -354,6 +412,14 @@ type ActivitySubmitRequestAnswer struct {
 
 	AdditionalProperties interface{} `mapstructure:",remain"`
 }
+
+type ActivityWorkspaceStatus string
+
+const ActivityWorkspaceStatusAVAILABLE ActivityWorkspaceStatus = "AVAILABLE"
+const ActivityWorkspaceStatusDRAFT ActivityWorkspaceStatus = "DRAFT"
+const ActivityWorkspaceStatusFAILED ActivityWorkspaceStatus = "FAILED"
+const ActivityWorkspaceStatusINPROGRESS ActivityWorkspaceStatus = "IN_PROGRESS"
+const ActivityWorkspaceStatusPASSED ActivityWorkspaceStatus = "PASSED"
 
 type ApiErrorDetails map[string]interface{}
 
@@ -1322,6 +1388,12 @@ type ParagraphBlock struct {
 	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
 }
 
+type PracticePaneMode string
+
+const PracticePaneModeCollapsed PracticePaneMode = "collapsed"
+const PracticePaneModeExpanded PracticePaneMode = "expanded"
+const PracticePaneModeSplit PracticePaneMode = "split"
+
 type ProcessSessionPayload struct {
 	// EventsUrl corresponds to the JSON schema field "eventsUrl".
 	EventsUrl string `json:"eventsUrl" yaml:"eventsUrl" mapstructure:"eventsUrl"`
@@ -1570,6 +1642,25 @@ type TimedOut struct {
 
 type TimedOutExitCode *int
 
+type UpdateWorkspacePresentationPayload struct {
+	// FocusedActivityId corresponds to the JSON schema field "focusedActivityId".
+	FocusedActivityId UpdateWorkspacePresentationPayloadFocusedActivityId `json:"focusedActivityId" yaml:"focusedActivityId" mapstructure:"focusedActivityId"`
+
+	// PaneMode corresponds to the JSON schema field "paneMode".
+	PaneMode PracticePaneMode `json:"paneMode" yaml:"paneMode" mapstructure:"paneMode"`
+
+	// Revision corresponds to the JSON schema field "revision".
+	Revision int `json:"revision" yaml:"revision" mapstructure:"revision"`
+
+	// SplitRatio corresponds to the JSON schema field "splitRatio".
+	SplitRatio float64 `json:"splitRatio" yaml:"splitRatio" mapstructure:"splitRatio"`
+
+	// UserCollapsed corresponds to the JSON schema field "userCollapsed".
+	UserCollapsed bool `json:"userCollapsed" yaml:"userCollapsed" mapstructure:"userCollapsed"`
+}
+
+type UpdateWorkspacePresentationPayloadFocusedActivityId *string
+
 type VideoBlock struct {
 	// Captions corresponds to the JSON schema field "captions".
 	Captions *string `json:"captions,omitempty,omitzero" yaml:"captions,omitempty" mapstructure:"captions,omitempty"`
@@ -1609,6 +1700,8 @@ type VocabularyItem struct {
 	Term []InlineNode `json:"term" yaml:"term" mapstructure:"term"`
 }
 
+type ActivityAttemptFeedback_0 = ActivityFeedback
+
 type WalkthroughBlock struct {
 	// Steps corresponds to the JSON schema field "steps".
 	Steps []WalkthroughStep `json:"steps" yaml:"steps" mapstructure:"steps"`
@@ -1639,4 +1732,40 @@ type WorkedExampleBlock struct {
 	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
 }
 
-type ActivityAttemptFeedback_0 = ActivityFeedback
+type WorkspacePresentationContracts map[string]interface{}
+
+type WorkspacePresentationState struct {
+	// CourseId corresponds to the JSON schema field "courseId".
+	CourseId string `json:"courseId" yaml:"courseId" mapstructure:"courseId"`
+
+	// FocusedActivityId corresponds to the JSON schema field "focusedActivityId".
+	FocusedActivityId WorkspacePresentationStateFocusedActivityId `json:"focusedActivityId" yaml:"focusedActivityId" mapstructure:"focusedActivityId"`
+
+	// OwnerId corresponds to the JSON schema field "ownerId".
+	OwnerId string `json:"ownerId" yaml:"ownerId" mapstructure:"ownerId"`
+
+	// OwnerKind corresponds to the JSON schema field "ownerKind".
+	OwnerKind WorkspacePresentationStateOwnerKind `json:"ownerKind" yaml:"ownerKind" mapstructure:"ownerKind"`
+
+	// PaneMode corresponds to the JSON schema field "paneMode".
+	PaneMode PracticePaneMode `json:"paneMode" yaml:"paneMode" mapstructure:"paneMode"`
+
+	// Revision corresponds to the JSON schema field "revision".
+	Revision int `json:"revision" yaml:"revision" mapstructure:"revision"`
+
+	// SplitRatio corresponds to the JSON schema field "splitRatio".
+	SplitRatio float64 `json:"splitRatio" yaml:"splitRatio" mapstructure:"splitRatio"`
+
+	// UpdatedAt corresponds to the JSON schema field "updatedAt".
+	UpdatedAt string `json:"updatedAt" yaml:"updatedAt" mapstructure:"updatedAt"`
+
+	// UserCollapsed corresponds to the JSON schema field "userCollapsed".
+	UserCollapsed bool `json:"userCollapsed" yaml:"userCollapsed" mapstructure:"userCollapsed"`
+}
+
+type WorkspacePresentationStateFocusedActivityId *string
+
+type WorkspacePresentationStateOwnerKind string
+
+const WorkspacePresentationStateOwnerKindAssessments WorkspacePresentationStateOwnerKind = "assessments"
+const WorkspacePresentationStateOwnerKindLessons WorkspacePresentationStateOwnerKind = "lessons"

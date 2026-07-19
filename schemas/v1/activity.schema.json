@@ -44,6 +44,9 @@
     },
     "feedback": {
       "$ref": "#/$defs/feedbackPolicy"
+    },
+    "presentation": {
+      "$ref": "#/$defs/activityPresentation"
     }
   },
   "allOf": [
@@ -223,6 +226,35 @@
           "items": {
             "$ref": "#/$defs/activityReference"
           }
+        }
+      },
+      "additionalProperties": false
+    },
+    "activityPresentation": {
+      "title": "ActivityPresentation",
+      "type": "object",
+      "required": [
+        "defaultSurface",
+        "allowInline",
+        "allowPractice",
+        "preferredWidth",
+        "supportsFullscreen"
+      ],
+      "properties": {
+        "defaultSurface": {
+          "enum": ["inline", "practice", "auto"]
+        },
+        "allowInline": {
+          "type": "boolean"
+        },
+        "allowPractice": {
+          "type": "boolean"
+        },
+        "preferredWidth": {
+          "enum": ["compact", "standard", "wide"]
+        },
+        "supportsFullscreen": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false

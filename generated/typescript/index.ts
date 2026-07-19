@@ -173,6 +173,7 @@ export namespace ActivityPublicSchema {
     };
     completion: ActivityCompletionPolicy;
     feedback?: ActivityFeedbackPolicy;
+    presentation: ActivityPresentation;
   }
   export interface LessonDocumentFragment {
     blocks: LessonBlock[];
@@ -412,6 +413,13 @@ export namespace ActivityPublicSchema {
   export interface ActivityFeedbackPolicy {
     showExplanation?: boolean;
   }
+  export interface ActivityPresentation {
+    defaultSurface: 'inline' | 'practice' | 'auto';
+    allowInline: boolean;
+    allowPractice: boolean;
+    preferredWidth: 'compact' | 'standard' | 'wide';
+    supportsFullscreen: boolean;
+  }
   /**
    * This interface was referenced by `ActivityPublicView`'s JSON-Schema
    * via the `definition` "activitySetPublicView".
@@ -451,6 +459,7 @@ export namespace ActivityDefinitionSchema {
     evaluation: ActivityEvaluationPolicy;
     completion: ActivityCompletionPolicy;
     feedback?: ActivityFeedbackPolicy;
+    presentation?: ActivityPresentation;
   };
   /**
    * This interface was referenced by `undefined`'s JSON-Schema
@@ -761,6 +770,17 @@ export namespace ActivityDefinitionSchema {
    */
   export interface ActivityFeedbackPolicy {
     showExplanation?: boolean;
+  }
+  /**
+   * This interface was referenced by `undefined`'s JSON-Schema
+   * via the `definition` "activityPresentation".
+   */
+  export interface ActivityPresentation {
+    defaultSurface: 'inline' | 'practice' | 'auto';
+    allowInline: boolean;
+    allowPractice: boolean;
+    preferredWidth: 'compact' | 'standard' | 'wide';
+    supportsFullscreen: boolean;
   }
   /**
    * This interface was referenced by `undefined`'s JSON-Schema
@@ -1807,6 +1827,62 @@ export interface FailedToStart {
   [k: string]: unknown;
 }
 
+// Generated from schemas/v1/workspace-presentation.schema.json.
+export namespace WorkspacePresentationSchema {
+  /**
+   * This interface was referenced by `WorkspacePresentationContracts`'s JSON-Schema
+   * via the `definition` "practicePaneMode".
+   */
+  export type PracticePaneMode = 'collapsed' | 'split' | 'expanded';
+  /**
+   * This interface was referenced by `WorkspacePresentationContracts`'s JSON-Schema
+   * via the `definition` "activityWorkspaceStatus".
+   */
+  export type ActivityWorkspaceStatus = 'AVAILABLE' | 'DRAFT' | 'IN_PROGRESS' | 'PASSED' | 'FAILED';
+
+  export interface WorkspacePresentationContracts {
+    [k: string]: unknown;
+  }
+  /**
+   * This interface was referenced by `WorkspacePresentationContracts`'s JSON-Schema
+   * via the `definition` "workspacePresentationState".
+   */
+  export interface WorkspacePresentationState {
+    courseId: string;
+    ownerKind: 'lessons' | 'assessments';
+    ownerId: string;
+    focusedActivityId: string | null;
+    paneMode: PracticePaneMode;
+    splitRatio: number;
+    userCollapsed: boolean;
+    revision: number;
+    updatedAt: string;
+  }
+  /**
+   * This interface was referenced by `WorkspacePresentationContracts`'s JSON-Schema
+   * via the `definition` "updateWorkspacePresentationPayload".
+   */
+  export interface UpdateWorkspacePresentationPayload {
+    focusedActivityId: string | null;
+    paneMode: PracticePaneMode;
+    splitRatio: number;
+    userCollapsed: boolean;
+    revision: number;
+  }
+  /**
+   * This interface was referenced by `WorkspacePresentationContracts`'s JSON-Schema
+   * via the `definition` "activityStatusPayload".
+   */
+  export interface ActivityStatusPayload {
+    activityId: string;
+    status: ActivityWorkspaceStatus;
+    attemptNumber: number;
+    score: number | null;
+    maxScore: number | null;
+    passed: boolean | null;
+  }
+}
+
 // Stable aliases for namespaced rich-content and activity contracts.
 export type ActivityAnswer = ActivityAttemptSchema.ActivityAnswer;
 export type ActivityAttempt = ActivityAttemptSchema.ActivityAttempt;
@@ -1816,6 +1892,7 @@ export type ActivitySetProgress = ActivityAttemptSchema.ActivitySetProgress;
 export type ActivityPublicView = ActivityPublicSchema.ActivityPublicView;
 export type ActivityDefinition = ActivityDefinitionSchema.ActivityDefinition;
 export type ActivityKind = ActivityDefinitionSchema.ActivityKind;
+export type ActivityPresentation = ActivityDefinitionSchema.ActivityPresentation;
 export type ActivityEvaluationPolicy = ActivityDefinitionSchema.ActivityEvaluationPolicy;
 export type ActivityCompletionPolicy = ActivityDefinitionSchema.ActivityCompletionPolicy;
 export type ActivityFeedbackPolicy = ActivityDefinitionSchema.ActivityFeedbackPolicy;
@@ -1824,3 +1901,9 @@ export type ActivityReference = ActivityDefinitionSchema.ActivityReference;
 export type ActivitySetDefinition = ActivityDefinitionSchema.ActivitySetDefinition;
 export type LessonDocument = LessonDocumentSchema.LessonDocument;
 export type LessonDocumentFragment = LessonDocumentSchema.LessonDocumentFragment;
+export type PracticePaneMode = WorkspacePresentationSchema.PracticePaneMode;
+export type WorkspacePresentationState = WorkspacePresentationSchema.WorkspacePresentationState;
+export type UpdateWorkspacePresentationPayload =
+  WorkspacePresentationSchema.UpdateWorkspacePresentationPayload;
+export type ActivityWorkspaceStatus = WorkspacePresentationSchema.ActivityWorkspaceStatus;
+export type ActivityStatusPayload = WorkspacePresentationSchema.ActivityStatusPayload;

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.synaploom.dev/v1/workspace-presentation.schema.json",
+  "title": "WorkspacePresentationContracts",
+  "type": "object",
+  "$defs": {
+    "practicePaneMode": {
+      "title": "PracticePaneMode",
+      "enum": ["collapsed", "split", "expanded"]
+    },
+    "workspacePresentationState": {
+      "title": "WorkspacePresentationState",
+      "type": "object",
+      "required": [
+        "courseId",
+        "ownerKind",
+        "ownerId",
+        "focusedActivityId",
+        "paneMode",
+        "splitRatio",
+        "userCollapsed",
+        "revision",
+        "updatedAt"
+      ],
+      "properties": {
+        "courseId": { "type": "string", "minLength": 1 },
+        "ownerKind": { "enum": ["lessons", "assessments"] },
+        "ownerId": { "type": "string", "minLength": 1 },
+        "focusedActivityId": { "type": ["string", "null"] },
+        "paneMode": { "$ref": "#/$defs/practicePaneMode" },
+        "splitRatio": { "type": "number", "minimum": 0.32, "maximum": 0.68 },
+        "userCollapsed": { "type": "boolean" },
+        "revision": { "type": "integer", "minimum": 0 },
+        "updatedAt": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "updateWorkspacePresentationPayload": {
+      "title": "UpdateWorkspacePresentationPayload",
+      "type": "object",
+      "required": ["focusedActivityId", "paneMode", "splitRatio", "userCollapsed", "revision"],
+      "properties": {
+        "focusedActivityId": { "type": ["string", "null"] },
+        "paneMode": { "$ref": "#/$defs/practicePaneMode" },
+        "splitRatio": { "type": "number" },
+        "userCollapsed": { "type": "boolean" },
+        "revision": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "activityWorkspaceStatus": {
+      "title": "ActivityWorkspaceStatus",
+      "enum": ["AVAILABLE", "DRAFT", "IN_PROGRESS", "PASSED", "FAILED"]
+    },
+    "activityStatusPayload": {
+      "title": "ActivityStatusPayload",
+      "type": "object",
+      "required": ["activityId", "status", "attemptNumber", "score", "maxScore", "passed"],
+      "properties": {
+        "activityId": { "type": "string", "minLength": 1 },
+        "status": { "$ref": "#/$defs/activityWorkspaceStatus" },
+        "attemptNumber": { "type": "integer", "minimum": 0 },
+        "score": { "type": ["number", "null"] },
+        "maxScore": { "type": ["number", "null"] },
+        "passed": { "type": ["boolean", "null"] }
+      },
+      "additionalProperties": false
+    }
+  }
+}

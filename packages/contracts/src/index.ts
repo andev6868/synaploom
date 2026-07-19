@@ -98,6 +98,17 @@ export type ActivityKind =
   | 'writing'
   | 'coding';
 
+export type ActivitySurface = 'inline' | 'practice' | 'auto';
+export type ActivityPreferredWidth = 'compact' | 'standard' | 'wide';
+
+export interface ActivityPresentation {
+  readonly defaultSurface: ActivitySurface;
+  readonly allowInline: boolean;
+  readonly allowPractice: boolean;
+  readonly preferredWidth: ActivityPreferredWidth;
+  readonly supportsFullscreen: boolean;
+}
+
 export interface ActivitySetPolicy {
   readonly purpose: 'practice' | 'assessment';
   readonly maxAttempts: number | null;
@@ -235,6 +246,7 @@ export interface ActivityDefinition {
   readonly evaluation: ActivityEvaluationPolicy;
   readonly completion: ActivityCompletionPolicy;
   readonly feedback?: ActivityFeedbackPolicy;
+  readonly presentation?: ActivityPresentation;
 }
 
 export type ActivityPublicConfig =
@@ -261,6 +273,7 @@ export interface ActivityPublicView {
   readonly evaluation: ActivityEvaluationPolicy;
   readonly completion: ActivityCompletionPolicy;
   readonly feedback?: ActivityFeedbackPolicy;
+  readonly presentation: ActivityPresentation;
 }
 
 export interface ActivityReference {
@@ -275,6 +288,39 @@ export interface ActivitySetDefinition {
   readonly title?: string;
   readonly policy: ActivitySetPolicy;
   readonly activities: readonly ActivityReference[];
+}
+
+export type PracticePaneMode = 'collapsed' | 'split' | 'expanded';
+
+export interface WorkspacePresentationState {
+  readonly courseId: string;
+  readonly ownerKind: 'lessons' | 'assessments';
+  readonly ownerId: string;
+  readonly focusedActivityId: string | null;
+  readonly paneMode: PracticePaneMode;
+  readonly splitRatio: number;
+  readonly userCollapsed: boolean;
+  readonly revision: number;
+  readonly updatedAt: string;
+}
+
+export interface UpdateWorkspacePresentationPayload {
+  readonly focusedActivityId: string | null;
+  readonly paneMode: PracticePaneMode;
+  readonly splitRatio: number;
+  readonly userCollapsed: boolean;
+  readonly revision: number;
+}
+
+export type ActivityWorkspaceStatus = 'AVAILABLE' | 'DRAFT' | 'IN_PROGRESS' | 'PASSED' | 'FAILED';
+
+export interface ActivityStatusPayload {
+  readonly activityId: string;
+  readonly status: ActivityWorkspaceStatus;
+  readonly attemptNumber: number;
+  readonly score: number | null;
+  readonly maxScore: number | null;
+  readonly passed: boolean | null;
 }
 
 export type ActivityAnswer =

@@ -4,6 +4,8 @@ import {
   COURSE_SCHEMA_VERSION,
   type CourseManifest,
   type ActivityDefinition,
+  type ActivityPresentation,
+  type ActivityPublicView,
   type LessonStatus,
   type ProcessEvent,
 } from '#src/index';
@@ -40,4 +42,18 @@ test('represents course and runtime contracts', () => {
   assert.equal(activity.kind, 'true-false');
   assert.equal(status, 'AVAILABLE');
   assert.equal(event.type, 'process.started');
+});
+
+test('exposes authored and normalized activity presentation contracts', () => {
+  const presentation: ActivityPresentation = {
+    defaultSurface: 'practice',
+    allowInline: true,
+    allowPractice: true,
+    preferredWidth: 'wide',
+    supportsFullscreen: true,
+  };
+  const authored = { presentation } as ActivityDefinition;
+  const publicView = { presentation } as ActivityPublicView;
+  assert.deepEqual(authored.presentation, presentation);
+  assert.equal(publicView.presentation.defaultSurface, 'practice');
 });

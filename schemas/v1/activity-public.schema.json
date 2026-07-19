@@ -3,7 +3,16 @@
   "$id": "https://schemas.synaploom.dev/v1/activity-public.schema.json",
   "title": "ActivityPublicView",
   "type": "object",
-  "required": ["id", "kind", "title", "prompt", "config", "evaluation", "completion"],
+  "required": [
+    "id",
+    "kind",
+    "title",
+    "prompt",
+    "config",
+    "evaluation",
+    "completion",
+    "presentation"
+  ],
   "properties": {
     "id": {
       "$ref": "course.schema.json#/$defs/id"
@@ -41,6 +50,9 @@
     },
     "feedback": {
       "$ref": "activity.schema.json#/$defs/feedbackPolicy"
+    },
+    "presentation": {
+      "$ref": "activity.schema.json#/$defs/activityPresentation"
     }
   },
   "additionalProperties": false,

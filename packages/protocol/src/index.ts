@@ -4,12 +4,25 @@ import type {
   ActivityPublicView,
   ActivitySetPolicy,
   ActivitySetProgress,
+  ActivityStatusPayload,
+  ActivityWorkspaceStatus,
   CheckResult,
   LessonBlock,
   LessonStatus,
   LessonType,
   ProcessEvent,
+  PracticePaneMode,
+  UpdateWorkspacePresentationPayload,
+  WorkspacePresentationState,
 } from '@synaploom/contracts';
+
+export type {
+  ActivityStatusPayload,
+  ActivityWorkspaceStatus,
+  PracticePaneMode,
+  UpdateWorkspacePresentationPayload,
+  WorkspacePresentationState,
+};
 
 export interface ActivityOwner {
   readonly courseId: string;
@@ -110,9 +123,16 @@ export interface WorkspaceFilePayload {
 }
 
 /** Stable local API error response. */
+export interface ApiErrorDetails {
+  readonly currentWorkspacePresentation?: WorkspacePresentationState;
+  readonly [key: string]: unknown;
+}
+
 export interface ApiErrorPayload {
   readonly code: string;
   readonly message: string;
+  readonly requestId?: string;
+  readonly details?: ApiErrorDetails;
   readonly currentLessonId?: string;
   readonly blockingRequirements?: readonly RequirementView[];
   readonly currentTarget?: NavigationTarget;
