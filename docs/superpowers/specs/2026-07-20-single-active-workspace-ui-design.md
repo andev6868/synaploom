@@ -1,8 +1,8 @@
 # Single Active Workspace UI Design
 
-**Status:** Approved visual direction; written specification awaiting final review  
-**Date:** 2026-07-20  
-**Target:** Dual-Surface Learning Workspace refinement  
+**Status:** Approved
+**Date:** 2026-07-20
+**Target:** Dual-Surface Learning Workspace refinement
 **Supersedes:** Inline-editing and return-inline behavior in `2026-07-19-dual-surface-learning-workspace-design.md`
 
 ## 1. Decision
