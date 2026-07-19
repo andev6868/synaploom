@@ -41,7 +41,12 @@ export default defineConfig({
   testDir: './tests/e2e',
   timeout: 120_000,
   fullyParallel: false,
-  projects: [{ name: 'go-runtime', testMatch: /(?:go|multi-domain)-runtime\.spec\.ts/ }],
+  projects: [
+    {
+      name: 'go-runtime',
+      testMatch: /(?:go|multi-domain|dual-surface-workspace)-runtime\.spec\.ts/,
+    },
+  ],
   use: {
     headless: true,
     launchOptions: await launchOptions(),

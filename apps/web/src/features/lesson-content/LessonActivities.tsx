@@ -117,9 +117,7 @@ export function LessonActivities({
       status={findActivityStatus(statuses, item.activity.id)}
       onOpenPractice={openPractice}
       onProgressChanged={onProgressChanged}
-      onPersistenceHandleChange={(activityId, handle) =>
-        controller.registerPersistenceHandle(activityId, handle)
-      }
+      onPersistenceHandleChange={controller.registerPersistenceHandle}
       {...(renderHost ? { renderHost } : {})}
     />
   );

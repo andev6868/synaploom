@@ -130,9 +130,7 @@ export function AssessmentWorkspaceContent({
                 status={findActivityStatus(statuses, item.activity.id)}
                 onOpenPractice={(activityId) => controller.focusActivity(activityId)}
                 onProgressChanged={onProgressChanged}
-                onPersistenceHandleChange={(activityId, handle) =>
-                  controller.registerPersistenceHandle(activityId, handle)
-                }
+                onPersistenceHandleChange={controller.registerPersistenceHandle}
                 onRegisterInlineHeading={(activityId, element) =>
                   controller.registerInlineHeading(activityId, element)
                 }

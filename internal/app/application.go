@@ -61,19 +61,8 @@ func Run(ctx context.Context, command cli.Command) int {
 		}
 		return cli.ExitSuccess
 	case "start":
-		root := filepath.Join(diagnostics.DefaultHome(), "courses", command.CourseID)
-		versions, err := os.ReadDir(root)
-		if err != nil || len(versions) == 0 {
-			fmt.Fprintln(os.Stderr, "course not installed")
-			return cli.ExitOperational
-		}
-		selected := ""
-		for _, e := range versions {
-			if e.IsDir() && e.Name() > selected {
-				selected = e.Name()
-			}
-		}
-		svc, err := course.OpenFilesystemService(filepath.Join(root, selected))
+		home := diagnostics.DefaultHome()
+		svc, err := openInstalledCourse(home, command.CourseID)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return cli.ExitOperational
@@ -90,6 +79,28 @@ func Run(ctx context.Context, command cli.Command) int {
 		return cli.ExitUsage
 	}
 }
+
+func openInstalledCourse(home, courseID string) (*course.FilesystemService, error) {
+	root := filepath.Join(home, "courses", courseID)
+	versions, err := os.ReadDir(root)
+	if err != nil || len(versions) == 0 {
+		return nil, fmt.Errorf("course not installed")
+	}
+	selected := ""
+	for _, entry := range versions {
+		if entry.IsDir() && entry.Name() > selected {
+			selected = entry.Name()
+		}
+	}
+	if selected == "" {
+		return nil, fmt.Errorf("course not installed")
+	}
+	return course.OpenFilesystemServiceWithWorkspace(
+		filepath.Join(root, selected),
+		filepath.Join(home, "workspaces"),
+	)
+}
+
 func serve(ctx context.Context, service course.Service, port int) int {
 	runtime, err := OpenRuntime(ctx, diagnostics.DefaultHome())
 	if err != nil {

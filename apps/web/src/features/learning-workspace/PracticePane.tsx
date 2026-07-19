@@ -38,9 +38,7 @@ export function PracticePane({
     activity: focused.activity,
     policy: focused.policy,
     onProgressChanged,
-    onPersistenceHandleChange: (activityId, handle) => {
-      controller.registerPersistenceHandle(activityId, handle);
-    },
+    onPersistenceHandleChange: controller.registerPersistenceHandle,
   };
   return (
     <section className="syn-practice-pane" aria-label="Khu vực thực hành">

@@ -16,6 +16,7 @@ interface Props {
   readonly onPersistenceHandleChange?: (
     activityId: string,
     handle: ActivityPersistenceHandle | null,
+    removedHandle?: ActivityPersistenceHandle,
   ) => void;
 }
 
@@ -73,7 +74,7 @@ export function CodingActivity({
 
   useEffect(() => {
     onPersistenceHandleChange?.(activity.id, persistenceHandle);
-    return () => onPersistenceHandleChange?.(activity.id, null);
+    return () => onPersistenceHandleChange?.(activity.id, null, persistenceHandle);
   }, [activity.id, onPersistenceHandleChange, persistenceHandle]);
 
   const refresh = async (): Promise<void> => {

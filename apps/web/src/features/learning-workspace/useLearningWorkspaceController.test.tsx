@@ -249,6 +249,34 @@ describe('useLearningWorkspaceController', () => {
       expect.objectContaining({ focusedActivityId: 'reflection' }),
     );
   });
+  it('does not let a stale renderer cleanup remove the replacement persistence handle', async () => {
+    const calls: string[] = [];
+    const update = vi.fn(
+      async (_owner: ActivityOwner, payload: UpdateWorkspacePresentationPayload) =>
+        state({ ...payload, revision: payload.revision + 1 }),
+    );
+    const { result } = renderHook(
+      () =>
+        useLearningWorkspaceController({
+          owner,
+          initialState: state({ focusedActivityId: 'coding-lab', paneMode: 'split' }),
+          activities,
+        }),
+      { wrapper: wrapper(api(update)) },
+    );
+    const oldHandle = dirtyHandle(calls, 'old');
+    const replacementHandle = dirtyHandle(calls, 'replacement');
+    act(() => {
+      result.current.registerPersistenceHandle('coding-lab', oldHandle);
+      result.current.registerPersistenceHandle('coding-lab', replacementHandle);
+      result.current.registerPersistenceHandle('coding-lab', null, oldHandle);
+    });
+
+    await act(() => result.current.collapsePracticePane());
+
+    expect(calls).toEqual(['save:replacement']);
+  });
+
   it('moves focus through registered headings only after successful transitions', async () => {
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
       callback(0);

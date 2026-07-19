@@ -30,7 +30,11 @@ export interface LearningWorkspaceController {
   readonly error: Error | null;
   readonly conflictState: WorkspacePresentationState | null;
   readonly focusedActivity: ResolvedWorkspaceActivity | null;
-  registerPersistenceHandle(activityId: string, handle: ActivityPersistenceHandle | null): void;
+  readonly registerPersistenceHandle: (
+    activityId: string,
+    handle: ActivityPersistenceHandle | null,
+    removedHandle?: ActivityPersistenceHandle,
+  ) => void;
   registerPracticeHeading(activityId: string, element: HTMLElement | null): void;
   registerInlineHeading(activityId: string, element: HTMLElement | null): void;
   focusActivity(activityId: string): Promise<void>;
@@ -90,9 +94,18 @@ export function useLearningWorkspaceController({
   }, []);
 
   const registerPersistenceHandle = useCallback(
-    (activityId: string, handle: ActivityPersistenceHandle | null): void => {
-      if (handle) handlesRef.current.set(activityId, handle);
-      else handlesRef.current.delete(activityId);
+    (
+      activityId: string,
+      handle: ActivityPersistenceHandle | null,
+      removedHandle?: ActivityPersistenceHandle,
+    ): void => {
+      if (handle) {
+        handlesRef.current.set(activityId, handle);
+        return;
+      }
+      if (!removedHandle || handlesRef.current.get(activityId) === removedHandle) {
+        handlesRef.current.delete(activityId);
+      }
     },
     [],
   );

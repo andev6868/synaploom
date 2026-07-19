@@ -25,6 +25,7 @@ export interface ActivityHostProps {
   readonly onPersistenceHandleChange?: (
     activityId: string,
     handle: ActivityPersistenceHandle | null,
+    removedHandle?: ActivityPersistenceHandle,
   ) => void;
 }
 
