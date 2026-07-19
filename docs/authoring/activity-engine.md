@@ -56,3 +56,7 @@ courses/:courseId/assessments/:assessmentId/activities/:activityId/attempts/curr
 6. Preview with the native runtime and test keyboard-only completion.
 
 See `activity-kinds.md` for exact v1 configurations and the multi-domain example for a complete package.
+
+## Dual-surface presentation
+
+Activity definitions may include optional `presentation` metadata. The normalized public activity always exposes `defaultSurface`, `allowInline`, `allowPractice`, `preferredWidth`, and `supportsFullscreen`. See [Dual-Surface Learning Workspace](dual-surface-workspace.md) for precedence, one-editable-instance behavior, and save-before-switch transitions. Presentation state is separate from Activity Engine attempts: drafts and evaluations remain authoritative here, while focus, pane mode, ratio, `focusedActivityId`, and `userCollapsed` are persisted by the workspace presentation service.

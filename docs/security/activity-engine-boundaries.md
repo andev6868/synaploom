@@ -27,3 +27,7 @@ AI cannot mark an activity passed, unlock progression, choose an authoritative s
 ## Operational controls
 
 Runtime HTTP binds to loopback, uses a one-time bootstrap token and HTTP-only session cookie, and returns structured error codes. Release verification must include contract generation, Go tests, DOM accessibility tests, multi-domain browser acceptance, native artifact checks, and validation of legacy plus 1.2 example courses.
+
+## Workspace presentation boundary
+
+Workspace presentation persistence contains layout state only: owner/profile identifiers, `focusedActivityId`, pane mode, split ratio, `userCollapsed`, revision, and timestamp. Structured workspace events use an explicit allowlist and must not include answers, source code, essay text, prompts, evaluator feedback bodies, tokens, or keys. Save-before-switch calls Activity Engine persistence first; a failed save blocks the presentation mutation so the editable renderer and learner content remain mounted.

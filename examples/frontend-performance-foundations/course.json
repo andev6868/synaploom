@@ -3,7 +3,7 @@
   "schemaVersion": "1.1.0",
   "id": "frontend-performance-foundations",
   "title": "Frontend Performance Foundations",
-  "description": "Nền tảng về main thread, Event Loop và khả năng phản hồi của giao diện.",
+  "description": "Nền tảng về main thread, Event Loop và khả năng phản hồi của giao diện, minh họa legacy coding adapter trong Dual-Surface Learning Workspace.",
   "version": "1.1.0",
   "language": "vi",
   "author": "Synaploom Contributors",
@@ -13,9 +13,18 @@
       "title": "JavaScript Runtime",
       "required": true,
       "lessons": [
-        { "id": "main-thread", "required": true },
-        { "id": "event-loop", "required": true },
-        { "id": "rendering-pipeline", "required": false }
+        {
+          "id": "main-thread",
+          "required": true
+        },
+        {
+          "id": "event-loop",
+          "required": true
+        },
+        {
+          "id": "rendering-pipeline",
+          "required": false
+        }
       ],
       "assessments": [
         {
@@ -24,7 +33,9 @@
           "required": true,
           "path": "assessments/runtime-capstone",
           "requiresLessons": ["main-thread", "event-loop"],
-          "completion": { "type": "all-required-checks" }
+          "completion": {
+            "type": "all-required-checks"
+          }
         }
       ]
     }

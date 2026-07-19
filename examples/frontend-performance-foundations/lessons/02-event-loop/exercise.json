@@ -2,7 +2,7 @@
   "$schema": "https://synaploom.local/schemas/exercise-v1.json",
   "schemaVersion": "1.0",
   "id": "event-loop-order",
-  "title": "Quan sát thứ tự Event Loop",
+  "title": "Quan sát thứ tự Event Loop trong khu vực thực hành",
   "runtime": {
     "kind": "local",
     "requires": ["node"]

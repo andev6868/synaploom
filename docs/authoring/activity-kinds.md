@@ -183,3 +183,7 @@ Numeric input is transported as a string so decimal and expression syntax is not
 The browser submits an allowlisted action ID, never a command string. The Go runtime resolves the executable and arguments, runs inside an isolated owner/activity workspace, bounds output and time, and records the execution ID as the attempt idempotency key.
 
 Activity Engine v1 does not yet include speech scoring, recording, diagram hotspots, geometry construction, peer review, AI rubric grading, or general-purpose simulations. Those capabilities require separate privacy, sandbox, accessibility, and evaluator designs.
+
+## Presentation defaults across kinds
+
+Compact `true-false`, `short-answer`, `fill-blanks`, and `numeric` activities default inline. `single-choice` and `multiple-choice` use collection-size heuristics; long option sets may resolve to Practice Pane. `ordering` and `matching` similarly move to Practice Pane for larger collections. `writing` and `coding` default to practice with `preferredWidth: "wide"` and fullscreen capability. Authors may override a system default with valid `allowInline`, `allowPractice`, `preferredWidth`, and `supportsFullscreen` metadata, while learner-persisted collapse remains authoritative.

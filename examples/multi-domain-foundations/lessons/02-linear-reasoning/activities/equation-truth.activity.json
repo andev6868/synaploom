@@ -29,5 +29,12 @@
   },
   "feedback": {
     "showExplanation": true
+  },
+  "presentation": {
+    "defaultSurface": "inline",
+    "allowInline": true,
+    "allowPractice": true,
+    "preferredWidth": "compact",
+    "supportsFullscreen": false
   }
 }

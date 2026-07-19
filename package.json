@@ -41,7 +41,8 @@
     "course:validate": "bash scripts/go/with-internal-toolchain.sh run ./cmd/synaploom course validate",
     "validate:multi-domain": "pnpm course:validate examples/multi-domain-foundations",
     "test:activity-engine": "pnpm exec vitest run --project dom apps/web/src/features/activity-engine apps/web/src/features/lesson-content apps/web/src/features/chapter-assessment --maxWorkers=2 && bash scripts/go/with-internal-toolchain.sh test ./internal/activity ./internal/course ./internal/server ./internal/progression ./internal/storage",
-    "test:activity-engine-docs": "node --experimental-strip-types --test tests/activity-engine-docs.spec.ts"
+    "test:activity-engine-docs": "node --experimental-strip-types --test tests/activity-engine-docs.spec.ts",
+    "test:workspace-presentation-docs": "node --experimental-strip-types --test tests/workspace-presentation-docs.spec.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

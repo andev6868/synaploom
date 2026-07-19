@@ -1,7 +1,10 @@
 {
   "id": "runtime-capstone",
-  "title": "Runtime Performance Diagnosis",
-  "workspace": { "starter": "starter", "editable": ["performance-report.md"] },
+  "title": "Runtime Performance Diagnosis trong khu vực thực hành",
+  "workspace": {
+    "starter": "starter",
+    "editable": ["performance-report.md"]
+  },
   "actions": {
     "check": {
       "label": "Kiểm tra báo cáo",
