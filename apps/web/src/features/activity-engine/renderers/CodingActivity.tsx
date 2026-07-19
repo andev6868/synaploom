@@ -1,14 +1,22 @@
 import type { ActivityPublicView, ExerciseManifest } from '@synaploom/contracts';
 import type { ActivityOwner, LessonPayload } from '@synaploom/protocol';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, type ReactNode } from 'react';
+import type { ActivityPersistenceHandle } from '#src/features/activity-engine/types';
 import { useApi } from '#src/app/providers/AppProviders';
-import { PracticePanel } from '#src/features/practice-runner/PracticePanel';
+import {
+  PracticePanel,
+  type PracticePanelHandle,
+} from '#src/features/practice-runner/PracticePanel';
 
 interface Props {
   readonly owner: ActivityOwner;
   readonly activity: ActivityPublicView;
   readonly onProgressChanged: () => Promise<void> | void;
+  readonly onPersistenceHandleChange?: (
+    activityId: string,
+    handle: ActivityPersistenceHandle | null,
+  ) => void;
 }
 
 function lessonExercise(config: ExerciseManifest): NonNullable<LessonPayload['exercise']> {
@@ -25,8 +33,14 @@ function lessonExercise(config: ExerciseManifest): NonNullable<LessonPayload['ex
   };
 }
 
-export function CodingActivity({ owner, activity, onProgressChanged }: Props): ReactNode {
+export function CodingActivity({
+  owner,
+  activity,
+  onProgressChanged,
+  onPersistenceHandleChange,
+}: Props): ReactNode {
   const api = useApi();
+  const panelRef = useRef<PracticePanelHandle>(null);
   const queryClient = useQueryClient();
   const lessonQuery = useQuery({
     queryKey: ['lesson', owner.ownerId],
@@ -49,6 +63,19 @@ export function CodingActivity({ owner, activity, onProgressChanged }: Props): R
     exercise,
   };
 
+  const persistenceHandle = useMemo<ActivityPersistenceHandle>(
+    () => ({
+      isDirty: () => panelRef.current?.isDirty() ?? false,
+      saveIfDirty: async () => panelRef.current?.saveIfDirty(),
+    }),
+    [],
+  );
+
+  useEffect(() => {
+    onPersistenceHandleChange?.(activity.id, persistenceHandle);
+    return () => onPersistenceHandleChange?.(activity.id, null);
+  }, [activity.id, onPersistenceHandleChange, persistenceHandle]);
+
   const refresh = async (): Promise<void> => {
     if (owner.ownerKind === 'lessons') {
       await queryClient.invalidateQueries({ queryKey: ['lesson', owner.ownerId] });
@@ -58,6 +85,7 @@ export function CodingActivity({ owner, activity, onProgressChanged }: Props): R
 
   return (
     <PracticePanel
+      ref={panelRef}
       lesson={lesson}
       workspaceTarget={{
         courseId: owner.courseId,

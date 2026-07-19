@@ -130,12 +130,14 @@ export function useActivityAttempt({
 
   const saveDraft = useCallback(async (): Promise<void> => {
     if (!answer || saveMutation.isPending) return;
-    try {
-      await saveMutation.mutateAsync(answer);
-    } catch {
-      // Mutation state exposes the error while preserving the learner answer.
-    }
+    await saveMutation.mutateAsync(answer);
   }, [answer, saveMutation]);
+
+  const saveIfDirty = useCallback(async (): Promise<void> => {
+    if (!isDirty) return;
+    if (!answer) throw new Error('Không có bản nháp hợp lệ để lưu.');
+    await saveMutation.mutateAsync(answer);
+  }, [answer, isDirty, saveMutation]);
 
   const submit = useCallback(async (): Promise<void> => {
     if (!answer || submitMutation.isPending) return;
@@ -186,8 +188,10 @@ export function useActivityAttempt({
     attempt,
     error,
     disabled: saveMutation.isPending || submitMutation.isPending || attemptsExhausted,
+    isDirty,
     setAnswer,
     saveDraft,
+    saveIfDirty,
     submit,
   };
 }

@@ -84,11 +84,20 @@ function Harness({
     <div>
       <output data-testid="state">{state.state}</output>
       <output data-testid="answer">{JSON.stringify(state.answer)}</output>
+      <output data-testid="dirty">{String(state.isDirty)}</output>
       <button type="button" onClick={() => state.setAnswer(answer)}>
         answer
       </button>
       <button type="button" onClick={() => void state.saveDraft()}>
         save
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          void state.saveIfDirty().catch(() => undefined);
+        }}
+      >
+        save-if-dirty
       </button>
       <button type="button" onClick={() => void state.submit()}>
         submit
@@ -224,5 +233,35 @@ describe('useActivityAttempt', () => {
     resolveSave(attempt('DRAFT', 2));
     await waitFor(() => expect(save).toHaveBeenCalled());
     expect(screen.getByTestId('state')).toHaveTextContent('draft');
+  });
+  it('rejects saveIfDirty and preserves dirty state when draft persistence fails', async () => {
+    const save = vi.fn().mockRejectedValue(new Error('draft unavailable'));
+    render(
+      <AppProviders api={api({ saveActivityDraft: save })}>
+        <Harness />
+      </AppProviders>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId('state')).toHaveTextContent('not-started'));
+    fireEvent.click(screen.getByRole('button', { name: 'answer' }));
+    expect(screen.getByTestId('dirty')).toHaveTextContent('true');
+    fireEvent.click(screen.getByRole('button', { name: 'save-if-dirty' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('draft unavailable');
+    expect(screen.getByTestId('dirty')).toHaveTextContent('true');
+    expect(save).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not persist when saveIfDirty is called for a clean attempt', async () => {
+    const save = vi.fn();
+    render(
+      <AppProviders api={api({ saveActivityDraft: save })}>
+        <Harness />
+      </AppProviders>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId('state')).toHaveTextContent('not-started'));
+    fireEvent.click(screen.getByRole('button', { name: 'save-if-dirty' }));
+    await waitFor(() => expect(save).not.toHaveBeenCalled());
   });
 });

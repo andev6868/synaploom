@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useMemo, type ReactNode } from 'react';
 import { ActivityFeedback } from '#src/features/activity-engine/ActivityFeedback';
 import { ChoiceActivity } from '#src/features/activity-engine/renderers/ChoiceActivity';
 import { CodingActivity } from '#src/features/activity-engine/renderers/CodingActivity';
@@ -9,7 +9,11 @@ import { OrderingActivity } from '#src/features/activity-engine/renderers/Orderi
 import { ShortAnswerActivity } from '#src/features/activity-engine/renderers/ShortAnswerActivity';
 import { TrueFalseActivity } from '#src/features/activity-engine/renderers/TrueFalseActivity';
 import { WritingActivity } from '#src/features/activity-engine/renderers/WritingActivity';
-import type { ActivityHostProps, ActivityRendererProps } from '#src/features/activity-engine/types';
+import type {
+  ActivityHostProps,
+  ActivityPersistenceHandle,
+  ActivityRendererProps,
+} from '#src/features/activity-engine/types';
 import { useActivityAttempt } from '#src/features/activity-engine/useActivityAttempt';
 import { LessonContent } from '#src/features/lesson-content/LessonContent';
 
@@ -44,6 +48,7 @@ function AttemptActivityHost({
   activity,
   policy,
   onProgressChanged,
+  onPersistenceHandleChange,
 }: ActivityHostProps): ReactNode {
   const controller = useActivityAttempt({
     owner,
@@ -51,6 +56,19 @@ function AttemptActivityHost({
     policy,
     onProgressChanged,
   });
+  const persistenceHandle = useMemo<ActivityPersistenceHandle>(
+    () => ({
+      isDirty: () => controller.isDirty,
+      saveIfDirty: controller.saveIfDirty,
+    }),
+    [controller.isDirty, controller.saveIfDirty],
+  );
+
+  useEffect(() => {
+    onPersistenceHandleChange?.(activity.id, persistenceHandle);
+    return () => onPersistenceHandleChange?.(activity.id, null);
+  }, [activity.id, onPersistenceHandleChange, persistenceHandle]);
+
   const rendererProps: ActivityRendererProps = {
     activity,
     answer: controller.answer,
@@ -113,6 +131,9 @@ export function ActivityHost(props: ActivityHostProps): ReactNode {
         owner={props.owner}
         activity={props.activity}
         onProgressChanged={props.onProgressChanged}
+        {...(props.onPersistenceHandleChange
+          ? { onPersistenceHandleChange: props.onPersistenceHandleChange }
+          : {})}
       />
     );
   }

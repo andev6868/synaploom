@@ -12,11 +12,20 @@ export type ActivityInteractionState =
   | 'max-attempt'
   | 'error';
 
+export interface ActivityPersistenceHandle {
+  isDirty(): boolean;
+  saveIfDirty(): Promise<void>;
+}
+
 export interface ActivityHostProps {
   readonly owner: ActivityOwner;
   readonly activity: ActivityPublicView;
   readonly policy: ActivitySetPolicy;
   readonly onProgressChanged: () => Promise<void> | void;
+  readonly onPersistenceHandleChange?: (
+    activityId: string,
+    handle: ActivityPersistenceHandle | null,
+  ) => void;
 }
 
 export interface ActivityRendererProps {
@@ -34,7 +43,9 @@ export interface ActivityAttemptController {
   readonly attempt: ActivityAttempt | null;
   readonly error: Error | null;
   readonly disabled: boolean;
+  readonly isDirty: boolean;
   readonly setAnswer: (answer: ActivityAnswer) => void;
   readonly saveDraft: () => Promise<void>;
+  readonly saveIfDirty: () => Promise<void>;
   readonly submit: () => Promise<void>;
 }

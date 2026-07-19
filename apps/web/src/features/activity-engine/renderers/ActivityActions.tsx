@@ -19,7 +19,9 @@ export function ActivityActions({
         type="button"
         className="syn-activity-actions__secondary"
         disabled={disabled || !canSubmit}
-        onClick={() => void onSaveDraft()}
+        onClick={() => {
+          void onSaveDraft().catch(() => undefined);
+        }}
       >
         Lưu bản nháp
       </button>
@@ -27,7 +29,9 @@ export function ActivityActions({
         type="button"
         className="syn-activity-actions__primary"
         disabled={disabled || !canSubmit}
-        onClick={() => void onSubmit()}
+        onClick={() => {
+          void onSubmit().catch(() => undefined);
+        }}
       >
         {submitLabel}
       </button>

@@ -1,9 +1,13 @@
 import type { ProcessEvent } from '@synaploom/contracts';
 import type { LessonPayload } from '@synaploom/protocol';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { createRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppProviders } from '#src/app/providers/AppProviders';
-import { PracticePanel } from '#src/features/practice-runner/PracticePanel';
+import {
+  PracticePanel,
+  type PracticePanelHandle,
+} from '#src/features/practice-runner/PracticePanel';
 import type { SynaploomApiClient } from '#src/shared/api/client';
 
 class FakeEventSource {
@@ -164,5 +168,70 @@ describe('PracticePanel', () => {
 
     expect(screen.getByText('Không có bài thực hành')).toBeVisible();
     await waitFor(() => expect(listFiles).not.toHaveBeenCalled());
+  });
+  it('exposes dirty state and saves the current activity file', async () => {
+    const client = fakeApi();
+    const writeActivityFile = vi.fn(() => Promise.resolve());
+    client.listActivityFiles = () => Promise.resolve(['index.js']);
+    client.readActivityFile = () => Promise.resolve({ path: 'index.js', content: 'initial' });
+    client.writeActivityFile = writeActivityFile;
+    const ref = createRef<PracticePanelHandle>();
+
+    render(
+      <AppProviders api={client}>
+        <PracticePanel
+          ref={ref}
+          lesson={lesson}
+          workspaceTarget={{
+            courseId: 'course',
+            ownerKind: 'lessons',
+            ownerId: 'lesson',
+            activityId: 'coding-lab',
+          }}
+          onActionComplete={vi.fn()}
+        />
+      </AppProviders>,
+    );
+
+    const editor = await screen.findByDisplayValue('initial');
+    fireEvent.change(editor, { target: { value: 'changed source' } });
+    expect(ref.current?.isDirty()).toBe(true);
+    await ref.current?.saveIfDirty();
+    expect(writeActivityFile).toHaveBeenCalledWith(
+      expect.objectContaining({ activityId: 'coding-lab' }),
+      'index.js',
+      'changed source',
+    );
+    await waitFor(() => expect(ref.current?.isDirty()).toBe(false));
+  });
+
+  it('keeps coding content dirty when persistence fails', async () => {
+    const client = fakeApi();
+    client.listActivityFiles = () => Promise.resolve(['index.js']);
+    client.readActivityFile = () => Promise.resolve({ path: 'index.js', content: 'initial' });
+    client.writeActivityFile = vi.fn(() => Promise.reject(new Error('write failed')));
+    const ref = createRef<PracticePanelHandle>();
+
+    render(
+      <AppProviders api={client}>
+        <PracticePanel
+          ref={ref}
+          lesson={lesson}
+          workspaceTarget={{
+            courseId: 'course',
+            ownerKind: 'lessons',
+            ownerId: 'lesson',
+            activityId: 'coding-lab',
+          }}
+          onActionComplete={vi.fn()}
+        />
+      </AppProviders>,
+    );
+
+    fireEvent.change(await screen.findByDisplayValue('initial'), {
+      target: { value: 'changed source' },
+    });
+    await expect(ref.current?.saveIfDirty()).rejects.toThrow('write failed');
+    expect(ref.current?.isDirty()).toBe(true);
   });
 });
