@@ -182,18 +182,18 @@ export interface ActivityPresentation {
 
 ### 6.1 System defaults
 
-| Activity kind | Default surface | Notes |
-| --- | --- | --- |
-| `true-false` | inline | Compact binary response. |
-| `single-choice` | inline | Practice default may be selected for long option sets. |
-| `short-answer` | inline | Practice remains available. |
-| `fill-blanks` | inline | Large passages may use Practice Pane. |
-| `numeric` | inline | Wide graph or scratch tools may override later. |
-| `multiple-choice` | auto | Inline for compact sets, Practice Pane for long sets. |
-| `ordering` | auto | Practice Pane for many items or long labels. |
-| `matching` | auto | Practice Pane for larger pair sets. |
-| `writing` | practice | Long-form editor requires stable space. |
-| `coding` | practice | Editor, files, terminal, and results require focused space. |
+| Activity kind     | Default surface | Notes                                                       |
+| ----------------- | --------------- | ----------------------------------------------------------- |
+| `true-false`      | inline          | Compact binary response.                                    |
+| `single-choice`   | inline          | Practice default may be selected for long option sets.      |
+| `short-answer`    | inline          | Practice remains available.                                 |
+| `fill-blanks`     | inline          | Large passages may use Practice Pane.                       |
+| `numeric`         | inline          | Wide graph or scratch tools may override later.             |
+| `multiple-choice` | auto            | Inline for compact sets, Practice Pane for long sets.       |
+| `ordering`        | auto            | Practice Pane for many items or long labels.                |
+| `matching`        | auto            | Practice Pane for larger pair sets.                         |
+| `writing`         | practice        | Long-form editor requires stable space.                     |
+| `coding`          | practice        | Editor, files, terminal, and results require focused space. |
 
 ### 6.2 Resolution algorithm
 

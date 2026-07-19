@@ -124,12 +124,7 @@ export interface UpdateWorkspacePresentationPayload {
   readonly revision: number;
 }
 
-export type ActivityWorkspaceStatus =
-  | 'AVAILABLE'
-  | 'DRAFT'
-  | 'IN_PROGRESS'
-  | 'PASSED'
-  | 'FAILED';
+export type ActivityWorkspaceStatus = 'AVAILABLE' | 'DRAFT' | 'IN_PROGRESS' | 'PASSED' | 'FAILED';
 
 export interface ActivityStatusPayload {
   readonly activityId: string;
@@ -323,13 +318,7 @@ Create a Draft 2020-12 schema whose named definitions are exactly:
     "updateWorkspacePresentationPayload": {
       "title": "UpdateWorkspacePresentationPayload",
       "type": "object",
-      "required": [
-        "focusedActivityId",
-        "paneMode",
-        "splitRatio",
-        "userCollapsed",
-        "revision"
-      ],
+      "required": ["focusedActivityId", "paneMode", "splitRatio", "userCollapsed", "revision"],
       "properties": {
         "focusedActivityId": { "type": ["string", "null"] },
         "paneMode": { "$ref": "#/$defs/practicePaneMode" },
@@ -346,14 +335,7 @@ Create a Draft 2020-12 schema whose named definitions are exactly:
     "activityStatusPayload": {
       "title": "ActivityStatusPayload",
       "type": "object",
-      "required": [
-        "activityId",
-        "status",
-        "attemptNumber",
-        "score",
-        "maxScore",
-        "passed"
-      ],
+      "required": ["activityId", "status", "attemptNumber", "score", "maxScore", "passed"],
       "properties": {
         "activityId": { "type": "string", "minLength": 1 },
         "status": { "$ref": "#/$defs/activityWorkspaceStatus" },
@@ -374,12 +356,10 @@ Add `workspace-presentation.schema.json` to the namespace map as `WorkspacePrese
 
 ```ts
 export type PracticePaneMode = WorkspacePresentationSchema.PracticePaneMode;
-export type WorkspacePresentationState =
-  WorkspacePresentationSchema.WorkspacePresentationState;
+export type WorkspacePresentationState = WorkspacePresentationSchema.WorkspacePresentationState;
 export type UpdateWorkspacePresentationPayload =
   WorkspacePresentationSchema.UpdateWorkspacePresentationPayload;
-export type ActivityWorkspaceStatus =
-  WorkspacePresentationSchema.ActivityWorkspaceStatus;
+export type ActivityWorkspaceStatus = WorkspacePresentationSchema.ActivityWorkspaceStatus;
 export type ActivityStatusPayload = WorkspacePresentationSchema.ActivityStatusPayload;
 ```
 
@@ -1117,10 +1097,11 @@ Return a 409 fixture and assert `error.currentWorkspacePresentation?.revision ==
 Parse API error details defensively:
 
 ```ts
-const currentWorkspacePresentation =
-  isWorkspacePresentationState(value.details?.currentWorkspacePresentation)
-    ? value.details.currentWorkspacePresentation
-    : undefined;
+const currentWorkspacePresentation = isWorkspacePresentationState(
+  value.details?.currentWorkspacePresentation,
+)
+  ? value.details.currentWorkspacePresentation
+  : undefined;
 ```
 
 Do not cast arbitrary details directly into a trusted state object.
@@ -1278,10 +1259,14 @@ const saveCurrentFile = useCallback(async (): Promise<void> => {
   setSavedContent(content);
 }, [api, content, dirty, lesson.id, selectedFile, workspaceTarget]);
 
-useImperativeHandle(ref, () => ({
-  isDirty: () => dirty,
-  saveIfDirty: saveCurrentFile,
-}), [dirty, saveCurrentFile]);
+useImperativeHandle(
+  ref,
+  () => ({
+    isDirty: () => dirty,
+    saveIfDirty: saveCurrentFile,
+  }),
+  [dirty, saveCurrentFile],
+);
 ```
 
 When a file is loaded or reset, set both `content` and `savedContent` to the returned value. Before changing file tabs, call `saveCurrentFile`; retain the current tab when it fails.
@@ -1335,13 +1320,7 @@ export interface ResolvedWorkspaceActivity {
 export type WorkspaceSaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'conflict';
 
 export type WorkspaceTransitionKind =
-  | 'focus'
-  | 'return-inline'
-  | 'collapse'
-  | 'expand'
-  | 'restore-split'
-  | 'resize'
-  | 'next';
+  'focus' | 'return-inline' | 'collapse' | 'expand' | 'restore-split' | 'resize' | 'next';
 
 export interface WorkspaceTransitionIntent {
   readonly kind: WorkspaceTransitionKind;
@@ -1355,10 +1334,7 @@ export interface LearningWorkspaceController {
   readonly conflictState: WorkspacePresentationState | null;
   readonly focusedActivity: ResolvedWorkspaceActivity | null;
 
-  registerPersistenceHandle(
-    activityId: string,
-    handle: ActivityPersistenceHandle | null,
-  ): void;
+  registerPersistenceHandle(activityId: string, handle: ActivityPersistenceHandle | null): void;
   focusActivity(activityId: string): Promise<void>;
   returnActivityInline(): Promise<void>;
   collapsePracticePane(): Promise<void>;
@@ -1418,12 +1394,16 @@ Verify:
 ```ts
 await result.current.collapsePracticePane();
 expect(updatePayload).toMatchObject({
-  focusedActivityId: 'quiz-a', paneMode: 'collapsed', userCollapsed: true,
+  focusedActivityId: 'quiz-a',
+  paneMode: 'collapsed',
+  userCollapsed: true,
 });
 
 await result.current.returnActivityInline();
 expect(updatePayload).toMatchObject({
-  focusedActivityId: null, paneMode: 'collapsed', userCollapsed: false,
+  focusedActivityId: null,
+  paneMode: 'collapsed',
+  userCollapsed: false,
 });
 ```
 
@@ -1445,12 +1425,7 @@ Use one owner-qualified key:
 
 ```ts
 export function workspacePresentationKey(owner: ActivityOwner): readonly unknown[] {
-  return [
-    'workspace-presentation',
-    owner.courseId,
-    owner.ownerKind,
-    owner.ownerId,
-  ];
+  return ['workspace-presentation', owner.courseId, owner.ownerKind, owner.ownerId];
 }
 ```
 
@@ -1657,11 +1632,16 @@ Use a pure exhaustive mapping:
 ```ts
 export function activityStatusLabel(status: ActivityWorkspaceStatus): string {
   switch (status) {
-    case 'AVAILABLE': return 'Chưa bắt đầu';
-    case 'DRAFT': return 'Bản nháp';
-    case 'IN_PROGRESS': return 'Đang chấm';
-    case 'PASSED': return 'Đã đạt';
-    case 'FAILED': return 'Chưa đạt';
+    case 'AVAILABLE':
+      return 'Chưa bắt đầu';
+    case 'DRAFT':
+      return 'Bản nháp';
+    case 'IN_PROGRESS':
+      return 'Đang chấm';
+    case 'PASSED':
+      return 'Đã đạt';
+    case 'FAILED':
+      return 'Chưa đạt';
   }
 }
 ```
@@ -1689,9 +1669,7 @@ The summary root must include:
       void onOpenPractice(item.activity.id).catch(() => undefined);
     }}
   >
-    {paneMode === 'collapsed'
-      ? 'Mở lại khu vực thực hành'
-      : 'Đi tới khu vực thực hành'}
+    {paneMode === 'collapsed' ? 'Mở lại khu vực thực hành' : 'Đi tới khu vực thực hành'}
   </button>
 </section>
 ```
@@ -1924,8 +1902,9 @@ Add test doubles for `getWorkspacePresentation` and `getActivityStatuses`. Asser
 
 ```ts
 expect(screen.getByText('Thực hành · 3 hoạt động')).toBeVisible();
-expect(screen.queryByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }))
-  .not.toBeInTheDocument();
+expect(
+  screen.queryByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
+).not.toBeInTheDocument();
 ```
 
 For restored split state:
@@ -2360,9 +2339,7 @@ Use role-based selectors only. Key assertions:
 await expect(page.getByRole('button', { name: /Mở khu vực thực hành/ })).toBeVisible();
 await page.getByRole('button', { name: 'Mở trong khu vực thực hành' }).click();
 await expect(page.getByRole('heading', { name: 'Hoàn thành lời chào', level: 2 })).toBeVisible();
-await expect(
-  page.getByText('Hoàn thành lời chào đang mở trong khu vực thực hành.'),
-).toBeVisible();
+await expect(page.getByText('Hoàn thành lời chào đang mở trong khu vực thực hành.')).toBeVisible();
 expect(await page.getByRole('textbox', { name: '___, how are you?' }).count()).toBe(1);
 ```
 
@@ -2370,9 +2347,7 @@ After collapse and reload:
 
 ```ts
 await expect(page.getByText('Hoàn thành lời chào đang tạm ẩn')).toBeVisible();
-await expect(
-  page.getByRole('heading', { name: 'Hoàn thành lời chào', level: 2 }),
-).toHaveCount(0);
+await expect(page.getByRole('heading', { name: 'Hoàn thành lời chào', level: 2 })).toHaveCount(0);
 ```
 
 After successful activity evaluation:
@@ -2405,7 +2380,9 @@ async function openActivity(page: Page, title: string): Promise<Locator> {
   const inline = page.locator('[data-activity-id]').filter({ hasText: title });
   const open = inline.getByRole('button', { name: 'Mở trong khu vực thực hành' });
   if (await open.isVisible()) await open.click();
-  return page.locator('.syn-practice-pane').filter({ has: page.getByRole('heading', { name: title }) });
+  return page
+    .locator('.syn-practice-pane')
+    .filter({ has: page.getByRole('heading', { name: title }) });
 }
 ```
 
@@ -2549,25 +2526,25 @@ git commit -m "docs: record workspace presentation verification"
 
 ## Spec Coverage Matrix
 
-| Specification requirement | Implementation task |
-| --- | --- |
-| Activity presentation policy for ten kinds | Tasks 1–2 |
-| Learner preference precedence | Tasks 4, 7, 10 |
-| Backend owner-scoped persistence and revision | Tasks 3–5 |
-| Invalid focus normalization | Tasks 4–5, 12 |
-| Save-before-switch and save failure blocking | Tasks 6–7 |
-| One editable activity instance | Tasks 8, 10–11, 14 |
-| Collapsed Practice Rail | Tasks 8–10 |
-| Split and expanded modes | Tasks 7, 9–10 |
-| Activity Tray authored order and status | Tasks 2, 5, 8 |
-| Explicit next activity after feedback | Tasks 7–8, 14 |
-| Lesson progression remains in Theory Pane | Tasks 10–11 |
-| Lesson and assessment shared workspace | Tasks 10–11 |
-| Desktop, compact, and mobile mapping | Tasks 9, 12, 14 |
-| Focus management and reduced motion | Tasks 8–9, 12 |
-| Structured events without learner content | Tasks 4, 12 |
-| Existing pane ratio migration | Tasks 10, 13 |
-| Documentation, browser acceptance, release gates | Tasks 13–15 |
+| Specification requirement                        | Implementation task |
+| ------------------------------------------------ | ------------------- |
+| Activity presentation policy for ten kinds       | Tasks 1–2           |
+| Learner preference precedence                    | Tasks 4, 7, 10      |
+| Backend owner-scoped persistence and revision    | Tasks 3–5           |
+| Invalid focus normalization                      | Tasks 4–5, 12       |
+| Save-before-switch and save failure blocking     | Tasks 6–7           |
+| One editable activity instance                   | Tasks 8, 10–11, 14  |
+| Collapsed Practice Rail                          | Tasks 8–10          |
+| Split and expanded modes                         | Tasks 7, 9–10       |
+| Activity Tray authored order and status          | Tasks 2, 5, 8       |
+| Explicit next activity after feedback            | Tasks 7–8, 14       |
+| Lesson progression remains in Theory Pane        | Tasks 10–11         |
+| Lesson and assessment shared workspace           | Tasks 10–11         |
+| Desktop, compact, and mobile mapping             | Tasks 9, 12, 14     |
+| Focus management and reduced motion              | Tasks 8–9, 12       |
+| Structured events without learner content        | Tasks 4, 12         |
+| Existing pane ratio migration                    | Tasks 10, 13        |
+| Documentation, browser acceptance, release gates | Tasks 13–15         |
 
 ## Execution Notes
 
