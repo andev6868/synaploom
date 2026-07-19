@@ -99,7 +99,12 @@ function LessonWorkspaceComposition({
           {renderFooter(onAction)}
         </article>
       </ScrollArea>
-      <AssistantPanel />
+      <AssistantPanel
+        lessonTitle={lesson.title}
+        {...(controller.focusedActivity
+          ? { activityTitle: controller.focusedActivity.activity.title }
+          : {})}
+      />
     </section>
   );
   const practice = (
@@ -188,7 +193,12 @@ function AssessmentWorkspaceComposition({
           onAction={onAction}
         />
       </ScrollArea>
-      <AssistantPanel />
+      <AssistantPanel
+        lessonTitle={assessment.title}
+        {...(controller.focusedActivity
+          ? { activityTitle: controller.focusedActivity.activity.title }
+          : {})}
+      />
     </section>
   );
   const practice = (

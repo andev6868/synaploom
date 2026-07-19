@@ -9,21 +9,30 @@ const kinds: Readonly<Record<AssistantMode, AiRequestKind>> = {
   summarize: 'summarize',
 };
 
+export interface AssistantPanelProps {
+  readonly lessonTitle: string;
+  readonly activityTitle?: string;
+}
+
 /** Connects the optional design-system assistant dock to the daemon AI boundary. */
-export function AssistantPanel(): ReactNode {
+export function AssistantPanel({ lessonTitle, activityTitle }: AssistantPanelProps): ReactNode {
   const api = useApi();
   const [message, setMessage] = useState<string>();
+  const context = activityTitle ? `Hoạt động: ${activityTitle}` : `Bài học: ${lessonTitle}`;
   const request = async (mode: AssistantMode): Promise<void> => {
     const response = await api.requestAi({
       kind: kinds[mode],
-      prompt: `Hỗ trợ người học theo chế độ ${mode}.`,
+      prompt: `${context}. Hỗ trợ người học theo chế độ ${mode}.`,
     });
     setMessage(response.status === 'ok' ? response.content : response.message);
   };
   return (
-    <AssistantDock
-      {...(message === undefined ? {} : { message })}
-      onRequest={(mode) => void request(mode)}
-    />
+    <section className="syn-assistant-context" aria-label="Trợ lý AI">
+      <p>{context}</p>
+      <AssistantDock
+        {...(message === undefined ? {} : { message })}
+        onRequest={(mode) => void request(mode)}
+      />
+    </section>
   );
 }

@@ -1316,3 +1316,17 @@ body,
   overflow: auto;
   overscroll-behavior: contain;
 }
+
+.syn-assistant-context {
+  flex: none;
+  border-top: 1px solid var(--syn-color-border, #d8dde6);
+  background: var(--syn-color-surface, #fff);
+}
+
+.syn-assistant-context > p {
+  margin: 0;
+  padding: 0.5rem 0.75rem 0;
+  color: var(--syn-color-text-muted, #64748b);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
