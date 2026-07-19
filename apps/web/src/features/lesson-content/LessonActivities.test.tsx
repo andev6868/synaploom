@@ -3,6 +3,8 @@ import type { PublicActivitySetPayload } from '@synaploom/protocol';
 import { render, screen } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import { LessonActivities } from '#src/features/lesson-content/LessonActivities';
+import { flattenWorkspaceActivities } from '#src/features/learning-workspace/workspace-model';
+import type { LearningWorkspaceController } from '#src/features/learning-workspace/useLearningWorkspaceController';
 
 const sets: readonly PublicActivitySetPayload[] = [
   {
@@ -69,7 +71,17 @@ it('renders embedded activities in document position and appends remaining activ
     <LessonActivities
       blocks={blocks}
       owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
-      activitySets={sets}
+      activities={flattenWorkspaceActivities(sets)}
+      statuses={[]}
+      focusedActivityId={null}
+      controller={
+        {
+          state: { paneMode: 'collapsed' },
+          registerPersistenceHandle: vi.fn(),
+          focusActivity: vi.fn(),
+          restoreSplitPane: vi.fn(),
+        } as unknown as LearningWorkspaceController
+      }
       onProgressChanged={vi.fn()}
       renderHost={({ activity }) => (
         <div data-testid={`activity-${activity.id}`}>{activity.title}</div>
@@ -100,7 +112,17 @@ it('fails closed before rendering when an activity is embedded more than once', 
     <LessonActivities
       blocks={blocks}
       owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
-      activitySets={sets}
+      activities={flattenWorkspaceActivities(sets)}
+      statuses={[]}
+      focusedActivityId={null}
+      controller={
+        {
+          state: { paneMode: 'collapsed' },
+          registerPersistenceHandle: vi.fn(),
+          focusActivity: vi.fn(),
+          restoreSplitPane: vi.fn(),
+        } as unknown as LearningWorkspaceController
+      }
       onProgressChanged={vi.fn()}
       renderHost={({ activity }) => <div>{activity.title}</div>}
     />,
@@ -109,7 +131,7 @@ it('fails closed before rendering when an activity is embedded more than once', 
   expect(screen.queryByText('Embedded question')).not.toBeInTheDocument();
 });
 
-it('excludes focused activities even when they are embedded in the lesson document', () => {
+it('replaces a focused embedded activity with a summary at the same document position', () => {
   const blocks: readonly LessonBlock[] = [
     { type: 'paragraph', children: [{ type: 'text', value: 'Before focused activity' }] },
     { type: 'activity', activityId: 'embedded' },
@@ -118,8 +140,17 @@ it('excludes focused activities even when they are embedded in the lesson docume
     <LessonActivities
       blocks={blocks}
       owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
-      activitySets={sets}
-      excludedActivityIds={['embedded']}
+      activities={flattenWorkspaceActivities(sets)}
+      statuses={[]}
+      focusedActivityId="embedded"
+      controller={
+        {
+          state: { paneMode: 'collapsed' },
+          registerPersistenceHandle: vi.fn(),
+          focusActivity: vi.fn(),
+          restoreSplitPane: vi.fn(),
+        } as unknown as LearningWorkspaceController
+      }
       onProgressChanged={vi.fn()}
       renderHost={({ activity }) => (
         <div data-testid={`activity-${activity.id}`}>{activity.title}</div>
@@ -129,4 +160,5 @@ it('excludes focused activities even when they are embedded in the lesson docume
 
   expect(screen.getByText('Before focused activity')).toBeInTheDocument();
   expect(screen.queryByTestId('activity-embedded')).not.toBeInTheDocument();
+  expect(screen.getByText('Embedded question đang tạm ẩn.')).toBeVisible();
 });

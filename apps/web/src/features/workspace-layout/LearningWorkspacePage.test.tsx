@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppProviders } from '#src/app/providers/AppProviders';
 import { LearningWorkspacePage } from '#src/features/workspace-layout/LearningWorkspacePage';
 import type { CourseNavigationPayload } from '@synaploom/protocol';
@@ -131,6 +131,19 @@ function fakeApi(): SynaploomApiClient {
   };
 }
 
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    media: query,
+    matches: query.includes('1100'),
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: () => true,
+  }));
+});
+
+afterEach(() => vi.unstubAllGlobals());
+
 describe('LearningWorkspacePage', () => {
   it('renders the focused lesson and practice workspace from typed daemon data', async () => {
     render(
@@ -143,7 +156,9 @@ describe('LearningWorkspacePage', () => {
     expect(screen.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Nội dung' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Hoàn thành phần đọc' })).toBeEnabled();
-    expect(document.querySelector('main[data-layout="reading"]')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
+    ).not.toBeInTheDocument();
   });
 
   it('uses a compact review status without breadcrumb or review banner', async () => {
@@ -326,7 +341,10 @@ describe('LearningWorkspacePage', () => {
     );
 
     expect(await screen.findByRole('group', { name: 'Main Thread làm gì?' })).toBeVisible();
-    expect(document.querySelector('main[data-layout="inline-activity"]')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mở trong khu vực thực hành' })).toBeVisible();
+    expect(
+      screen.queryByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
+    ).not.toBeInTheDocument();
   });
 
   it('selects the split coding layout for a coding activity', async () => {
@@ -337,6 +355,18 @@ describe('LearningWorkspacePage', () => {
       writeActivityFile: () => Promise.resolve(),
       resetActivityWorkspace: () => Promise.resolve(),
       runActivityAction: () => Promise.resolve({ sessionId: 'session', eventsUrl: '/events' }),
+      getWorkspacePresentation: () =>
+        Promise.resolve({
+          courseId: 'course',
+          ownerKind: 'lessons',
+          ownerId: 'main-thread',
+          focusedActivityId: 'main-thread-lab',
+          paneMode: 'split',
+          splitRatio: 0.45,
+          userCollapsed: false,
+          revision: 1,
+          updatedAt: '2026-07-19T00:00:00Z',
+        }),
       getActivitySets: () =>
         Promise.resolve([
           {
@@ -396,9 +426,17 @@ describe('LearningWorkspacePage', () => {
       </AppProviders>,
     );
 
-    expect(await screen.findByRole('heading', { name: 'Main Thread Lab' })).toBeVisible();
+    expect(
+      await screen.findByText('Main Thread Lab đang mở trong khu vực thực hành.'),
+    ).toBeVisible();
+    expect(document.querySelector('h2[data-workspace-activity-heading="true"]')).toHaveTextContent(
+      'Main Thread Lab',
+    );
     expect(await screen.findByRole('tab', { name: 'index.js' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Chạy' })).toBeVisible();
-    expect(document.querySelector('.syn-workspace-shell')).toBeInTheDocument();
+    expect(
+      screen.getByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
+    ).toBeVisible();
+    expect(screen.getByText('Main Thread Lab đang mở trong khu vực thực hành.')).toBeVisible();
   });
 });

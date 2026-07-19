@@ -1,18 +1,14 @@
 import type { LessonBlock } from '@synaploom/contracts';
-import type {
-  ActivityOwner,
-  PublicActivityReferencePayload,
-  PublicActivitySetPayload,
-} from '@synaploom/protocol';
+import type { ActivityOwner, ActivityStatusPayload } from '@synaploom/protocol';
 import type { ReactNode } from 'react';
-import { ActivityHost } from '#src/features/activity-engine/ActivityHost';
 import type { ActivityHostProps } from '#src/features/activity-engine/types';
+import { InlineActivitySlot } from '#src/features/learning-workspace/InlineActivitySlot';
+import type { LearningWorkspaceController } from '#src/features/learning-workspace/useLearningWorkspaceController';
+import {
+  findActivityStatus,
+  type ResolvedWorkspaceActivity,
+} from '#src/features/learning-workspace/workspace-model';
 import { LessonContent } from '#src/features/lesson-content/LessonContent';
-
-interface ResolvedActivity extends PublicActivityReferencePayload {
-  readonly setId: string;
-  readonly policy: PublicActivitySetPayload['policy'];
-}
 
 function nestedBlocks(block: LessonBlock): readonly LessonBlock[] {
   switch (block.type) {
@@ -69,34 +65,27 @@ export function collectEmbeddedActivityIds(blocks: readonly LessonBlock[]): read
   return ids;
 }
 
-function resolveActivities(
-  activitySets: readonly PublicActivitySetPayload[],
-): readonly ResolvedActivity[] {
-  return activitySets.flatMap((set) =>
-    set.activities.map((reference) => ({
-      ...reference,
-      setId: set.id,
-      policy: set.policy,
-    })),
-  );
+interface LessonActivitiesProps {
+  readonly blocks: readonly LessonBlock[];
+  readonly owner: ActivityOwner;
+  readonly activities: readonly ResolvedWorkspaceActivity[];
+  readonly statuses: readonly ActivityStatusPayload[];
+  readonly focusedActivityId: string | null;
+  readonly controller: LearningWorkspaceController;
+  readonly onProgressChanged: () => Promise<void> | void;
+  readonly renderHost?: (props: ActivityHostProps) => ReactNode;
 }
 
 export function LessonActivities({
   blocks,
   owner,
-  activitySets,
+  activities,
+  statuses,
+  focusedActivityId,
+  controller,
   onProgressChanged,
-  excludedActivityIds = [],
-  renderHost = (props) => <ActivityHost {...props} />,
-}: {
-  readonly blocks: readonly LessonBlock[];
-  readonly owner: ActivityOwner;
-  readonly activitySets: readonly PublicActivitySetPayload[];
-  readonly onProgressChanged: () => Promise<void> | void;
-  readonly excludedActivityIds?: readonly string[];
-  readonly renderHost?: (props: ActivityHostProps) => ReactNode;
-}): ReactNode {
-  const activities = resolveActivities(activitySets);
+  renderHost,
+}: LessonActivitiesProps): ReactNode {
   const embeddedIds = collectEmbeddedActivityIds(blocks);
   const duplicates = embeddedIds.filter((id, index) => embeddedIds.indexOf(id) !== index);
   if (duplicates.length > 0) {
@@ -106,29 +95,39 @@ export function LessonActivities({
       </p>
     );
   }
-
   const byId = new Map(activities.map((item) => [item.activity.id, item]));
   const missing = embeddedIds.find((id) => !byId.has(id));
-  if (missing) {
+  if (missing)
     return <p role="alert">Không tìm thấy hoạt động “{missing}” trong activity set của bài học.</p>;
-  }
 
   const embedded = new Set(embeddedIds);
-  const excluded = new Set(excludedActivityIds);
-  const renderActivity = (activityId: string): ReactNode => {
-    if (excluded.has(activityId)) return null;
-    const item = byId.get(activityId);
-    if (!item) return null;
-    return renderHost({
-      owner,
-      activity: item.activity,
-      policy: item.policy,
-      onProgressChanged,
-    });
+  const openPractice = async (activityId: string): Promise<void> => {
+    if (activityId === focusedActivityId) {
+      if (controller.state.paneMode === 'collapsed') await controller.restoreSplitPane();
+      return;
+    }
+    await controller.focusActivity(activityId);
   };
-  const remaining = activities.filter(
-    (item) => !embedded.has(item.activity.id) && !excluded.has(item.activity.id),
+  const renderItem = (item: ResolvedWorkspaceActivity): ReactNode => (
+    <InlineActivitySlot
+      item={item}
+      owner={owner}
+      focused={item.activity.id === focusedActivityId}
+      paneMode={controller.state.paneMode}
+      status={findActivityStatus(statuses, item.activity.id)}
+      onOpenPractice={openPractice}
+      onProgressChanged={onProgressChanged}
+      onPersistenceHandleChange={(activityId, handle) =>
+        controller.registerPersistenceHandle(activityId, handle)
+      }
+      {...(renderHost ? { renderHost } : {})}
+    />
   );
+  const renderActivity = (activityId: string): ReactNode => {
+    const item = byId.get(activityId);
+    return item ? renderItem(item) : null;
+  };
+  const remaining = activities.filter((item) => !embedded.has(item.activity.id));
 
   return (
     <>
@@ -136,14 +135,7 @@ export function LessonActivities({
       {remaining.length > 0 ? (
         <section className="syn-lesson-activities" aria-label="Hoạt động thực hành">
           {remaining.map((item) => (
-            <div key={`${item.setId}-${item.activity.id}`} data-activity-id={item.activity.id}>
-              {renderHost({
-                owner,
-                activity: item.activity,
-                policy: item.policy,
-                onProgressChanged,
-              })}
-            </div>
+            <div key={`${item.setId}-${item.activity.id}`}>{renderItem(item)}</div>
           ))}
         </section>
       ) : null}

@@ -1,25 +1,33 @@
 import type {
   ActivityOwner,
   CanonicalLessonPayload,
+  ActivityStatusPayload,
   PublicActivitySetPayload,
+  WorkspacePresentationState,
   CompletionPayload,
   LessonPayload,
   NextActionPayload,
 } from '@synaploom/protocol';
-import { AppHeader, ScrollArea, StatusBadge, WorkspaceShell } from '@synaploom/ui';
+import { AppHeader, ScrollArea, StatusBadge } from '@synaploom/ui';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState, type ReactNode } from 'react';
 import { useApi } from '#src/app/providers/AppProviders';
 import { navigateToAssessment, navigateToLesson } from '#src/app/router/lesson-route';
-import { ActivityHost } from '#src/features/activity-engine/ActivityHost';
 import { AssistantPanel } from '#src/features/ai-assistant/AssistantPanel';
 import { AssessmentWorkspaceContent } from '#src/features/chapter-assessment/AssessmentWorkspaceContent';
 import { LessonActivities } from '#src/features/lesson-content/LessonActivities';
+import { LearningWorkspaceShell } from '#src/features/learning-workspace/LearningWorkspaceShell';
+import { PracticePane } from '#src/features/learning-workspace/PracticePane';
+import {
+  activityStatusesKey,
+  useLearningWorkspaceController,
+  workspacePresentationKey,
+} from '#src/features/learning-workspace/useLearningWorkspaceController';
+import { flattenWorkspaceActivities } from '#src/features/learning-workspace/workspace-model';
+import { WorkspacePaneRail } from '#src/features/learning-workspace/WorkspacePaneRail';
 import { LessonRequirementFooter } from '#src/features/lesson-progress/LessonRequirementFooter';
 import { LearningTopNavigation } from '#src/features/learning-progress/LearningTopNavigation';
 import { buildLearningProgressSummary } from '#src/features/learning-progress/progress-summary';
-import { PracticePanel } from '#src/features/practice-runner/PracticePanel';
-import { resolveWorkspaceLayout } from '#src/features/workspace-layout/activity-layout';
 import { CompletionBar } from '#src/features/progression/CompletionBar';
 import type { NavigationViewTarget } from '#src/shared/api/client';
 
@@ -36,6 +44,107 @@ export type LearningWorkspaceRoute =
       readonly chapterId: string;
       readonly assessmentId: string;
     };
+
+function LessonWorkspaceComposition({
+  owner,
+  lesson,
+  activitySets,
+  presentation,
+  statuses,
+  heading,
+  renderFooter,
+  onNavigationAction,
+  onProgressChanged,
+}: {
+  readonly owner: ActivityOwner;
+  readonly lesson: LessonPayload;
+  readonly activitySets: readonly PublicActivitySetPayload[];
+  readonly presentation: WorkspacePresentationState;
+  readonly statuses: readonly ActivityStatusPayload[];
+  readonly heading: ReactNode;
+  readonly renderFooter: (onAction: (action: NextActionPayload) => void) => ReactNode;
+  readonly onNavigationAction: (action: NextActionPayload) => void;
+  readonly onProgressChanged: () => Promise<void>;
+}): ReactNode {
+  const activities = flattenWorkspaceActivities(activitySets);
+  const controller = useLearningWorkspaceController({
+    owner,
+    initialState: presentation,
+    activities,
+  });
+  const onAction = (action: NextActionPayload): void => {
+    if (action.type === 'START_REQUIRED_PRACTICE' || action.type === 'RETRY_REQUIRED_PRACTICE') {
+      const direct = activities.find((item) => item.activity.id === action.practiceId);
+      const bySet = activities.find((item) => item.setId === action.practiceId && item.required);
+      const target = direct ?? bySet;
+      if (target) void controller.focusActivity(target.activity.id).catch(() => undefined);
+      return;
+    }
+    onNavigationAction(action);
+  };
+  const theory = (
+    <section className="syn-lesson-panel">
+      <ScrollArea className="syn-lesson-panel__scroll">
+        <article className="syn-lesson-panel__article">
+          {heading}
+          <LessonActivities
+            blocks={lesson.blocks}
+            owner={owner}
+            activities={activities}
+            statuses={statuses}
+            focusedActivityId={controller.state.focusedActivityId}
+            controller={controller}
+            onProgressChanged={onProgressChanged}
+          />
+          {renderFooter(onAction)}
+        </article>
+      </ScrollArea>
+      <AssistantPanel />
+    </section>
+  );
+  const practice = (
+    <PracticePane
+      owner={owner}
+      activities={activities}
+      statuses={statuses}
+      controller={controller}
+      onProgressChanged={onProgressChanged}
+    />
+  );
+  const practiceRail = (
+    <WorkspacePaneRail
+      activities={activities}
+      statuses={statuses}
+      focusedActivity={controller.focusedActivity}
+      controller={controller}
+    />
+  );
+  const theoryRail = (
+    <aside className="syn-theory-pane-rail">
+      <button
+        type="button"
+        onClick={() => {
+          void controller.restoreSplitPane().catch(() => undefined);
+        }}
+      >
+        Mở lại lý thuyết
+      </button>
+    </aside>
+  );
+  return (
+    <LearningWorkspaceShell
+      mode={controller.state.paneMode}
+      splitRatio={controller.state.splitRatio}
+      theory={theory}
+      practice={practice}
+      practiceRail={practiceRail}
+      theoryRail={theoryRail}
+      practiceTitle={controller.focusedActivity?.activity.title ?? 'Khu vực thực hành'}
+      onSplitRatioCommit={(ratio) => controller.setSplitRatio(ratio)}
+      onCloseMobilePractice={() => controller.collapsePracticePane()}
+    />
+  );
+}
 
 export function LearningWorkspacePage({
   route,
@@ -93,11 +202,6 @@ export function LearningWorkspacePage({
       lessonRoute?.lessonId ? api.getLesson(lessonRoute.lessonId) : api.getCurrentLesson(),
     enabled: route.kind === 'lesson' && !canonicalLesson,
   });
-  const paneQuery = useQuery({
-    queryKey: ['pane-ratio'],
-    queryFn: () => api.getPaneRatio(),
-    enabled: route.kind === 'lesson',
-  });
   const loadedLessonId =
     route.kind === 'lesson'
       ? ((canonicalLessonQuery.data as CanonicalLessonPayload | undefined)?.lesson.id ??
@@ -119,6 +223,20 @@ export function LearningWorkspacePage({
     queryFn: () => api.getActivitySets(lessonActivityOwner as ActivityOwner),
     enabled: lessonActivityOwner !== null,
   });
+  const presentationQuery = useQuery({
+    queryKey: lessonActivityOwner
+      ? workspacePresentationKey(lessonActivityOwner)
+      : ['workspace-presentation'],
+    queryFn: () => api.getWorkspacePresentation(lessonActivityOwner as ActivityOwner),
+    enabled: lessonActivityOwner !== null,
+  });
+  const statusesQuery = useQuery({
+    queryKey: lessonActivityOwner
+      ? activityStatusesKey(lessonActivityOwner)
+      : ['activity-statuses'],
+    queryFn: () => api.getActivityStatuses(lessonActivityOwner as ActivityOwner),
+    enabled: lessonActivityOwner !== null,
+  });
 
   const invalidate = useCallback(async (): Promise<void> => {
     await Promise.all([
@@ -128,6 +246,7 @@ export function LearningWorkspacePage({
       queryClient.invalidateQueries({ queryKey: ['course-navigation'] }),
       queryClient.invalidateQueries({ queryKey: ['chapter-assessment'] }),
       queryClient.invalidateQueries({ queryKey: ['activity-sets'] }),
+      queryClient.invalidateQueries({ queryKey: ['activity-statuses'] }),
     ]);
   }, [queryClient]);
   const reading = useMutation({
@@ -145,7 +264,9 @@ export function LearningWorkspacePage({
   const lessonLoading =
     route.kind === 'lesson' &&
     (canonicalLesson ? canonicalLessonQuery.isLoading : legacyLessonQuery.isLoading);
-  const activitySetsLoading = lessonActivityOwner !== null && activitySetsQuery.isLoading;
+  const activitySetsLoading =
+    lessonActivityOwner !== null &&
+    (activitySetsQuery.isLoading || presentationQuery.isLoading || statusesQuery.isLoading);
   const loading =
     courseQuery.isLoading || navigationQuery.isLoading || lessonLoading || activitySetsLoading;
   if (loading) return <main className="syn-loading">Đang tải không gian học…</main>;
@@ -157,7 +278,12 @@ export function LearningWorkspacePage({
         : legacyLessonQuery.error
       : null;
   const error =
-    courseQuery.error ?? navigationQuery.error ?? lessonError ?? activitySetsQuery.error;
+    courseQuery.error ??
+    navigationQuery.error ??
+    lessonError ??
+    activitySetsQuery.error ??
+    presentationQuery.error ??
+    statusesQuery.error;
   if (error)
     return (
       <main className="syn-error">
@@ -179,7 +305,6 @@ export function LearningWorkspacePage({
         break;
       case 'START_REQUIRED_PRACTICE':
       case 'RETRY_REQUIRED_PRACTICE':
-        document.querySelector('.syn-practice-panel')?.scrollIntoView({ behavior: 'smooth' });
         break;
       case 'CONTINUE_TO_LESSON':
       case 'RETURN_TO_CURRENT_LESSON':
@@ -268,49 +393,42 @@ export function LearningWorkspacePage({
         ? 'Hoàn thành'
         : 'Đang học';
   const activitySets = (activitySetsQuery.data ?? []) as readonly PublicActivitySetPayload[];
-  const activityReferences = activitySets.flatMap((set) =>
-    set.activities.map((reference) => ({ ...reference, policy: set.policy })),
+  const presentation = presentationQuery.data;
+  if (!lessonActivityOwner || !presentation) return null;
+  const heading = (
+    <div className="syn-lesson-panel__heading">
+      <div>
+        <StatusBadge status={lesson.status === 'COMPLETED' ? 'passed' : 'active'}>
+          {lessonStatusLabel}
+        </StatusBadge>
+        <h1>{lesson.title}</h1>
+      </div>
+      <div className="syn-learning-progress-summary" aria-label="Tiến độ bài học">
+        <strong>{progressSummary.positionLabel}</strong>
+        <span>{progressSummary.completionLabel}</span>
+      </div>
+    </div>
   );
-  const codingActivity = activityReferences.find(
-    (reference) => reference.activity.kind === 'coding',
-  );
-  const inlineKinds = activityReferences
-    .filter((reference) => reference.activity.kind !== 'coding')
-    .map((reference) => reference.activity.kind);
-  const workspaceLayout = resolveWorkspaceLayout({
-    hasDocument: lesson.blocks.length > 0,
-    embeddedKinds: inlineKinds,
-    focusedKind: codingActivity ? 'coding' : null,
-  });
-  const lessonPanel = (
-    <section className="syn-lesson-panel">
-      <ScrollArea className="syn-lesson-panel__scroll">
-        <article className="syn-lesson-panel__article">
-          <div className="syn-lesson-panel__heading">
-            <div>
-              <StatusBadge status={lesson.status === 'COMPLETED' ? 'passed' : 'active'}>
-                {lessonStatusLabel}
-              </StatusBadge>
-              <h1>{lesson.title}</h1>
-            </div>
-            <div className="syn-learning-progress-summary" aria-label="Tiến độ bài học">
-              <strong>{progressSummary.positionLabel}</strong>
-              <span>{progressSummary.completionLabel}</span>
-            </div>
-          </div>
-          <LessonActivities
-            blocks={lesson.blocks}
-            owner={lessonActivityOwner as ActivityOwner}
-            activitySets={(activitySetsQuery.data ?? []) as readonly PublicActivitySetPayload[]}
-            excludedActivityIds={codingActivity ? [codingActivity.activity.id] : []}
-            onProgressChanged={invalidate}
-          />
-          {context ? (
+
+  return (
+    <div className="syn-learning-app">
+      {header}
+      <LessonWorkspaceComposition
+        owner={lessonActivityOwner}
+        lesson={lesson}
+        activitySets={activitySets}
+        presentation={presentation}
+        statuses={statusesQuery.data ?? []}
+        heading={heading}
+        onNavigationAction={onNextAction}
+        onProgressChanged={invalidate}
+        renderFooter={(handleAction) =>
+          context ? (
             <LessonRequirementFooter
               context={context}
               navigation={navigation}
               busy={busy}
-              onAction={onNextAction}
+              onAction={handleAction}
             />
           ) : (
             <CompletionBar
@@ -324,40 +442,9 @@ export function LearningWorkspacePage({
                 navigateToLesson(course.id, nextId);
               }}
             />
-          )}
-        </article>
-      </ScrollArea>
-      <AssistantPanel />
-    </section>
-  );
-  const practicePanel = lesson.exercise ? (
-    <PracticePanel lesson={lesson} onActionComplete={() => void invalidate()} />
-  ) : codingActivity && lessonActivityOwner ? (
-    <div className="syn-focused-activity-workspace">
-      <ActivityHost
-        owner={lessonActivityOwner}
-        activity={codingActivity.activity}
-        policy={codingActivity.policy}
-        onProgressChanged={invalidate}
+          )
+        }
       />
-    </div>
-  ) : null;
-
-  return (
-    <div className="syn-learning-app">
-      {header}
-      {workspaceLayout === 'split-coding' && practicePanel ? (
-        <WorkspaceShell
-          defaultLessonRatio={paneQuery.data ?? 0.48}
-          lesson={lessonPanel}
-          practice={practicePanel}
-          onLessonSizeChange={(ratio) => void api.setPaneRatio(ratio)}
-        />
-      ) : (
-        <main className="syn-reading-workspace" data-layout={workspaceLayout}>
-          {lessonPanel}
-        </main>
-      )}
     </div>
   );
 }
