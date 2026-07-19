@@ -26,13 +26,48 @@ async function stopRuntime(): Promise<void> {
   ]);
 }
 
-function activity(page: Page, title: string): Locator {
-  return page.locator('fieldset').filter({ has: page.locator('legend', { hasText: title }) });
+async function isVisible(locator: Locator): Promise<boolean> {
+  return locator.isVisible().catch(() => false);
+}
+
+async function openActivity(page: Page, title: string): Promise<Locator> {
+  const practice = page.getByRole('region', { name: 'Khu vực thực hành' });
+  const practiceHeading = practice.getByRole('heading', { name: title, level: 2 });
+  if (await isVisible(practiceHeading)) {
+    return practice;
+  }
+
+  const inline = page.locator('[data-activity-id]').filter({ hasText: title }).first();
+  const inlineFieldset = inline.locator('fieldset').filter({
+    has: inline.locator('legend', { hasText: title }),
+  });
+  if (await isVisible(inlineFieldset)) {
+    return inlineFieldset;
+  }
+
+  const open = inline
+    .getByRole('button', {
+      name: /Mở(?: lại| trong)? khu vực thực hành|Đi tới khu vực thực hành/,
+    })
+    .first();
+  await expect(open).toBeVisible();
+  await open.click();
+  await expect(practiceHeading).toBeVisible();
+  return practice;
 }
 
 async function submit(scope: Locator, label = 'Kiểm tra đáp án'): Promise<void> {
   await scope.getByRole('button', { name: label }).click();
-  await expect(scope.locator('..')).toHaveAttribute('data-state', 'evaluated');
+  const nestedHost = scope.locator('.syn-activity-host').first();
+  const host =
+    (await nestedHost.count()) > 0
+      ? nestedHost
+      : scope
+          .locator(
+            'xpath=ancestor::*[contains(concat(" ", normalize-space(@class), " "), " syn-activity-host ")]',
+          )
+          .first();
+  await expect(host).toHaveAttribute('data-state', 'evaluated');
 }
 
 async function acknowledgeAndContinue(
@@ -92,61 +127,63 @@ test('completes all Activity Engine v1 kinds across five domains and one assessm
   await page.goto(bootstrap);
   await expect(page.getByRole('heading', { name: 'Dòng chảy thuật toán' })).toBeVisible();
 
-  const ordering = activity(page, 'Sắp xếp thuật toán');
+  const ordering = await openActivity(page, 'Sắp xếp thuật toán');
   await ordering.getByRole('button', { name: /Di chuyển Đọc hai số a và b xuống/ }).click();
   await ordering.getByRole('button', { name: /Di chuyển Đọc hai số a và b lên/ }).click();
   await submit(ordering);
 
-  await page
-    .getByRole('textbox', { name: 'Trình soạn thảo mã' })
-    .fill('function sum(a, b) {\n  return a + b;\n}\n\nconsole.log(sum(2, 3));\n');
+  const codeEditor = page.getByRole('textbox', { name: 'Trình soạn thảo mã' });
+  await expect(codeEditor).toHaveValue(/return 0/);
+  await codeEditor.fill('function sum(a, b) {\n  return a + b;\n}\n\nconsole.log(sum(2, 3));\n');
   await page.getByRole('button', { name: 'Lưu', exact: true }).click();
   await page.getByRole('button', { name: 'Kiểm tra kết quả' }).click();
   await expect(page.getByText('Đã kết thúc')).toBeVisible();
-  await expect(page.getByText('Đạt')).toBeVisible();
+  await expect(
+    page.getByRole('region', { name: 'Kết quả kiểm tra' }).getByText('Đạt', { exact: true }),
+  ).toBeVisible();
   await acknowledgeAndContinue(page, /Tiếp tục bài/, 'Suy luận đại số');
 
-  const numeric = activity(page, 'Giải phương trình');
+  const numeric = await openActivity(page, 'Giải phương trình');
   await numeric.getByRole('textbox', { name: 'Giá trị hoặc biểu thức' }).fill('4');
   await submit(numeric);
-  const truth = activity(page, 'Kiểm tra mệnh đề');
+  const truth = await openActivity(page, 'Kiểm tra mệnh đề');
   await truth.getByRole('radio', { name: 'Đúng' }).check();
   await submit(truth);
   await acknowledgeAndContinue(page, /Tiếp tục bài/, 'Giao tiếp hằng ngày');
 
-  const blanks = activity(page, 'Hoàn thành lời chào');
+  const blanks = await openActivity(page, 'Hoàn thành lời chào');
   await blanks.getByRole('textbox', { name: '___, how are you?' }).fill('Hello');
   await submit(blanks);
-  const matching = activity(page, 'Ghép từ với nghĩa');
+  const matching = await openActivity(page, 'Ghép từ với nghĩa');
   await matching.getByRole('combobox', { name: 'Ghép với book' }).selectOption('sach');
   await matching.getByRole('combobox', { name: 'Ghép với learn' }).selectOption('hoc');
   await submit(matching);
   await acknowledgeAndContinue(page, /Tiếp tục bài/, 'Đọc và dùng dẫn chứng');
 
-  const shortAnswer = activity(page, 'Nhận diện hình ảnh');
+  const shortAnswer = await openActivity(page, 'Nhận diện hình ảnh');
   await shortAnswer.getByRole('textbox', { name: 'Câu trả lời' }).fill('hòn lửa');
   await submit(shortAnswer);
-  const writing = activity(page, 'Viết đoạn phân tích');
+  const writing = await openActivity(page, 'Viết đoạn phân tích');
   await writing
     .getByRole('textbox', { name: 'Bài viết' })
     .fill('Hình ảnh hòn lửa làm cảnh hoàng hôn trên biển trở nên rực rỡ và giàu sức gợi.');
   await submit(writing, 'Nộp bài viết');
   await acknowledgeAndContinue(page, /Tiếp tục bài/, 'Bằng chứng và thời gian');
 
-  const single = activity(page, 'Chu trình nước');
+  const single = await openActivity(page, 'Chu trình nước');
   await single.getByRole('radio', { name: 'Bay hơi' }).check();
   await submit(single);
-  const multiple = activity(page, 'Đánh giá nguồn sử liệu');
+  const multiple = await openActivity(page, 'Đánh giá nguồn sử liệu');
   await multiple.getByRole('checkbox', { name: /Lá thư/ }).check();
   await multiple.getByRole('checkbox', { name: /Ảnh chụp/ }).check();
   await submit(multiple);
   await page.getByRole('button', { name: 'Đánh dấu đã đọc' }).click();
   await page.getByRole('button', { name: /Bắt đầu đánh giá Đánh giá tổng hợp/ }).click();
 
-  const checkpointChoice = activity(page, 'Chọn chiến lược học');
+  const checkpointChoice = await openActivity(page, 'Chọn chiến lược học');
   await checkpointChoice.getByRole('radio', { name: 'Tự giải thích bằng lời của mình' }).check();
   await submit(checkpointChoice);
-  const checkpointNumber = activity(page, 'Tính nhanh');
+  const checkpointNumber = await openActivity(page, 'Tính nhanh');
   await checkpointNumber.getByRole('textbox', { name: 'Giá trị hoặc biểu thức' }).fill('80');
   await submit(checkpointNumber);
   await expect(page.getByText('Bạn đã hoàn thành khóa học')).toBeVisible();

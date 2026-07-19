@@ -234,4 +234,50 @@ describe('PracticePanel', () => {
     await expect(ref.current?.saveIfDirty()).rejects.toThrow('write failed');
     expect(ref.current?.isDirty()).toBe(true);
   });
+
+  it('preserves dirty content when an equivalent workspace target is re-created', async () => {
+    const client = fakeApi();
+    const readActivityFile = vi.fn(() => Promise.resolve({ path: 'index.js', content: 'initial' }));
+    client.listActivityFiles = () => Promise.resolve(['index.js']);
+    client.readActivityFile = readActivityFile;
+    const ref = createRef<PracticePanelHandle>();
+    const view = render(
+      <AppProviders api={client}>
+        <PracticePanel
+          ref={ref}
+          lesson={lesson}
+          workspaceTarget={{
+            courseId: 'course',
+            ownerKind: 'lessons',
+            ownerId: 'lesson',
+            activityId: 'coding-lab',
+          }}
+          onActionComplete={vi.fn()}
+        />
+      </AppProviders>,
+    );
+
+    const editor = await screen.findByDisplayValue('initial');
+    fireEvent.change(editor, { target: { value: 'changed source' } });
+
+    view.rerender(
+      <AppProviders api={client}>
+        <PracticePanel
+          ref={ref}
+          lesson={lesson}
+          workspaceTarget={{
+            courseId: 'course',
+            ownerKind: 'lessons',
+            ownerId: 'lesson',
+            activityId: 'coding-lab',
+          }}
+          onActionComplete={vi.fn()}
+        />
+      </AppProviders>,
+    );
+
+    await waitFor(() => expect(readActivityFile).toHaveBeenCalledTimes(1));
+    expect(editor).toHaveValue('changed source');
+    expect(ref.current?.isDirty()).toBe(true);
+  });
 });

@@ -29,6 +29,22 @@ interface PracticePanelProps {
 export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>(
   function PracticePanel({ lesson, workspaceTarget, onActionComplete }, ref): ReactNode {
     const api = useApi();
+    const workspaceCourseId = workspaceTarget?.courseId;
+    const workspaceOwnerKind = workspaceTarget?.ownerKind;
+    const workspaceOwnerId = workspaceTarget?.ownerId;
+    const workspaceActivityId = workspaceTarget?.activityId;
+    const stableWorkspaceTarget = useMemo<CodingWorkspaceTarget | undefined>(
+      () =>
+        workspaceCourseId && workspaceOwnerKind && workspaceOwnerId && workspaceActivityId
+          ? {
+              courseId: workspaceCourseId,
+              ownerKind: workspaceOwnerKind,
+              ownerId: workspaceOwnerId,
+              activityId: workspaceActivityId,
+            }
+          : undefined,
+      [workspaceActivityId, workspaceCourseId, workspaceOwnerId, workspaceOwnerKind],
+    );
     const [files, setFiles] = useState<readonly string[]>([]);
     const [selectedFile, setSelectedFile] = useState<string | null>(null);
     const [content, setContent] = useState('');
@@ -43,8 +59,8 @@ export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>
       if (!lesson.exercise) return undefined;
       let cancelled = false;
       const request =
-        workspaceTarget && api.listActivityFiles
-          ? api.listActivityFiles(workspaceTarget)
+        stableWorkspaceTarget && api.listActivityFiles
+          ? api.listActivityFiles(stableWorkspaceTarget)
           : api.listFiles(lesson.id);
       void request.then((items) => {
         if (cancelled) return;
@@ -54,14 +70,14 @@ export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>
       return () => {
         cancelled = true;
       };
-    }, [api, lesson.exercise, lesson.id, workspaceTarget]);
+    }, [api, lesson.exercise, lesson.id, stableWorkspaceTarget]);
 
     useEffect(() => {
       if (!selectedFile) return undefined;
       let cancelled = false;
       const request =
-        workspaceTarget && api.readActivityFile
-          ? api.readActivityFile(workspaceTarget, selectedFile)
+        stableWorkspaceTarget && api.readActivityFile
+          ? api.readActivityFile(stableWorkspaceTarget, selectedFile)
           : api.readFile(lesson.id, selectedFile);
       void request.then((file) => {
         if (!cancelled) {
@@ -72,7 +88,7 @@ export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>
       return () => {
         cancelled = true;
       };
-    }, [api, lesson.id, selectedFile, workspaceTarget]);
+    }, [api, lesson.id, selectedFile, stableWorkspaceTarget]);
 
     useEffect(() => {
       onActionCompleteRef.current = onActionComplete;
@@ -98,8 +114,8 @@ export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>
       if (!selectedFile || !dirty) return;
       setBusy(true);
       try {
-        if (workspaceTarget && api.writeActivityFile) {
-          await api.writeActivityFile(workspaceTarget, selectedFile, content);
+        if (stableWorkspaceTarget && api.writeActivityFile) {
+          await api.writeActivityFile(stableWorkspaceTarget, selectedFile, content);
         } else {
           await api.writeFile(lesson.id, selectedFile, content);
         }
@@ -107,7 +123,7 @@ export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>
       } finally {
         setBusy(false);
       }
-    }, [api, content, dirty, lesson.id, selectedFile, workspaceTarget]);
+    }, [api, content, dirty, lesson.id, selectedFile, stableWorkspaceTarget]);
 
     useImperativeHandle(
       ref,
@@ -123,8 +139,8 @@ export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>
       try {
         await saveCurrentFile();
         const session =
-          workspaceTarget && api.runActivityAction
-            ? await api.runActivityAction(workspaceTarget, actionId)
+          stableWorkspaceTarget && api.runActivityAction
+            ? await api.runActivityAction(stableWorkspaceTarget, actionId)
             : await api.runAction(lesson.id, actionId);
         setEventsUrl(session.eventsUrl);
       } finally {
@@ -135,15 +151,15 @@ export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>
     const reset = async (): Promise<void> => {
       setBusy(true);
       try {
-        if (workspaceTarget && api.resetActivityWorkspace) {
-          await api.resetActivityWorkspace(workspaceTarget);
+        if (stableWorkspaceTarget && api.resetActivityWorkspace) {
+          await api.resetActivityWorkspace(stableWorkspaceTarget);
         } else {
           await api.resetWorkspace(lesson.id);
         }
         if (selectedFile) {
           const file =
-            workspaceTarget && api.readActivityFile
-              ? await api.readActivityFile(workspaceTarget, selectedFile)
+            stableWorkspaceTarget && api.readActivityFile
+              ? await api.readActivityFile(stableWorkspaceTarget, selectedFile)
               : await api.readFile(lesson.id, selectedFile);
           setContent(file.content);
           setSavedContent(file.content);
