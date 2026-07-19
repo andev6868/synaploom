@@ -32,7 +32,7 @@ async function isVisible(locator: Locator): Promise<boolean> {
 
 async function openActivity(page: Page, title: string): Promise<Locator> {
   const practice = page.getByRole('region', { name: 'Khu vực thực hành' });
-  const practiceHeading = practice.getByRole('heading', { name: title, level: 2 });
+  const practiceHeading = practice.locator('h2[data-workspace-activity-heading="true"]', { hasText: title });
   if (await isVisible(practiceHeading)) {
     return practice;
   }
@@ -47,7 +47,7 @@ async function openActivity(page: Page, title: string): Promise<Locator> {
 
   const open = inline
     .getByRole('button', {
-      name: /Mở(?: lại| trong)? khu vực thực hành|Đi tới khu vực thực hành/,
+      name: /Thực hành bài này|Quay lại thực hành|Mở lại thực hành/,
     })
     .first();
   await expect(open).toBeVisible();
@@ -132,11 +132,12 @@ test('completes all Activity Engine v1 kinds across five domains and one assessm
   await ordering.getByRole('button', { name: /Di chuyển Đọc hai số a và b lên/ }).click();
   await submit(ordering);
 
-  const codeEditor = page.getByRole('textbox', { name: 'Trình soạn thảo mã' });
+  const coding = await openActivity(page, 'Viết chương trình tính tổng');
+  const codeEditor = coding.getByRole('textbox', { name: 'Trình soạn thảo mã' });
   await expect(codeEditor).toHaveValue(/return 0/);
   await codeEditor.fill('function sum(a, b) {\n  return a + b;\n}\n\nconsole.log(sum(2, 3));\n');
-  await page.getByRole('button', { name: 'Lưu', exact: true }).click();
-  await page.getByRole('button', { name: 'Kiểm tra kết quả' }).click();
+  await coding.getByRole('button', { name: 'Lưu', exact: true }).click();
+  await coding.getByRole('button', { name: 'Kiểm tra kết quả' }).click();
   await expect(page.getByText('Đã kết thúc')).toBeVisible();
   await expect(
     page.getByRole('region', { name: 'Kết quả kiểm tra' }).getByText('Đạt', { exact: true }),

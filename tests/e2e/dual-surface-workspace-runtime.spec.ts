@@ -47,16 +47,6 @@ async function startRuntime(): Promise<string> {
   });
 }
 
-async function returnCodingInline(page: Page): Promise<void> {
-  const practice = page.getByRole('region', { name: 'Khu vực thực hành' });
-  const heading = practice.locator('h2[data-workspace-activity-heading]', {
-    hasText: 'Viết chương trình tính tổng',
-  });
-  await expect(heading).toBeVisible();
-  await practice.getByRole('button', { name: 'Làm tại đây' }).click();
-  await expect(practice).toHaveCount(0);
-}
-
 async function expectTheoryScrolls(page: Page, width: number): Promise<void> {
   await page.setViewportSize({ width, height: 900 });
   const viewport = page.locator('.syn-scroll-area__viewport').first();
@@ -105,19 +95,22 @@ test('scrolls lesson content and persists workspace state across restart', async
   await expectTheoryScrolls(page, 1000);
   await page.setViewportSize({ width: 1440, height: 900 });
 
-  await returnCodingInline(page);
-  await expect(
-    page.getByText('Chọn hoạt động thực hành, 2 hoạt động', { exact: true }),
-  ).toBeVisible();
+  const initialPractice = page.getByRole('region', { name: 'Khu vực thực hành' });
+  if (await initialPractice.isVisible().catch(() => false)) {
+    await initialPractice.getByRole('button', { name: 'Thu gọn' }).click();
+  }
+  const collapsedRail = page.locator('[data-workspace-practice-rail]');
+  await expect(collapsedRail).toBeVisible();
+  await expect(collapsedRail).toHaveCSS('width', '56px');
 
-  const ordering = page.locator('[data-activity-id="algorithm-order"]');
-  await ordering.getByRole('button', { name: /Di chuyển Đọc hai số a và b xuống/ }).click();
-  await ordering.getByRole('button', { name: /Di chuyển Đọc hai số a và b lên/ }).click();
-  await ordering.getByRole('button', { name: 'Mở trong khu vực thực hành' }).click();
+  const orderingSummary = page.locator('[data-activity-id="algorithm-order"]');
+  await orderingSummary.getByRole('button', { name: /Thực hành bài này|Mở lại thực hành/ }).click();
   await expect(
     page.locator('h2[data-workspace-activity-heading]', { hasText: 'Sắp xếp thuật toán' }),
   ).toBeVisible();
-  await expect(page.getByText('Sắp xếp thuật toán đang mở trong khu vực thực hành.')).toBeVisible();
+  await expect(page.getByText('Activity đang mở trong khu vực thực hành.')).toBeVisible();
+  await expect(page.locator('[data-active-activity-editor]')).toHaveCount(1);
+  await expect(page.locator('.syn-activity-summary input, .syn-activity-summary textarea')).toHaveCount(0);
   await expect(page.getByRole('button', { name: /Di chuyển Đọc hai số a và b xuống/ })).toHaveCount(
     1,
   );
@@ -141,19 +134,11 @@ test('scrolls lesson content and persists workspace state across restart', async
   );
   await page.getByRole('button', { name: 'Thu gọn' }).click();
   expect((await draftWrite).ok()).toBe(true);
-  await expect(
-    page
-      .getByLabel('Khu vực thực hành đang thu gọn')
-      .getByText('Viết chương trình tính tổng đang tạm ẩn.'),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Khu vực thực hành' })).toHaveCount(0);
 
   await page.reload();
-  await expect(
-    page
-      .getByLabel('Khu vực thực hành đang thu gọn')
-      .getByText('Viết chương trình tính tổng đang tạm ẩn.'),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' })).toBeVisible();
   await page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' }).click();
   await expect(page.getByRole('textbox', { name: 'Trình soạn thảo mã' })).toHaveValue(source);
 
@@ -161,11 +146,7 @@ test('scrolls lesson content and persists workspace state across restart', async
   await stopRuntime();
   bootstrap = await startRuntime();
   await page.goto(bootstrap);
-  await expect(
-    page
-      .getByLabel('Khu vực thực hành đang thu gọn')
-      .getByText('Viết chương trình tính tổng đang tạm ẩn.'),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' })).toBeVisible();
   await page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' }).click();
   await expect(page.getByRole('textbox', { name: 'Trình soạn thảo mã' })).toHaveValue(source);
 });
