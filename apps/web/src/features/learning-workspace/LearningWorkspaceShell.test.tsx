@@ -16,8 +16,8 @@ function viewport(kind: 'wide' | 'compact' | 'mobile'): void {
 afterEach(() => vi.unstubAllGlobals());
 const common = {
   splitRatio: 0.45,
-  theory: <div>Theory content</div>,
-  practice: <div>Practice editor</div>,
+  theory: <div data-testid="theory-surface">Theory content</div>,
+  practice: <div data-testid="practice-surface">Practice editor</div>,
   practiceRail: <div data-testid="practice-rail">Practice rail</div>,
   theoryRail: <div>Theory rail</div>,
   practiceTitle: 'Practice',
@@ -75,4 +75,36 @@ it('emits a sanitized viewport mapping event for the active owner', () => {
     ownerId: 'lesson',
   });
   window.removeEventListener('synaploom:workspace-event', listener);
+});
+
+
+it('mounts Practice once inside the mobile dialog', () => {
+  viewport('mobile');
+  render(<LearningWorkspaceShell {...common} mode="split" />);
+  expect(screen.getAllByTestId('practice-surface')).toHaveLength(1);
+  expect(screen.getByRole('dialog')).toContainElement(screen.getByTestId('practice-surface'));
+});
+
+it('keeps compact switching local without persisting split ratio', () => {
+  viewport('compact');
+  const onSplitRatioCommit = vi.fn();
+  render(
+    <LearningWorkspaceShell
+      {...common}
+      mode="split"
+      onSplitRatioCommit={onSplitRatioCommit}
+    />,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Thực hành' }));
+  expect(screen.getByTestId('practice-surface')).toBeVisible();
+  expect(onSplitRatioCommit).not.toHaveBeenCalled();
+});
+
+it('renders bounded Theory and Practice regions in wide split mode', () => {
+  viewport('wide');
+  render(<LearningWorkspaceShell {...common} mode="split" />);
+  expect(screen.getByTestId('theory-surface').parentElement).toHaveClass(
+    'syn-learning-workspace__theory',
+  );
+  expect(screen.getByTestId('practice-surface')).toBeVisible();
 });

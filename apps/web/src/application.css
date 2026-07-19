@@ -1290,3 +1290,29 @@ body,
   writing-mode: vertical-rl;
   transform: rotate(180deg);
 }
+
+/* Single Active Workspace: bounded responsive surfaces */
+.syn-learning-workspace,
+.syn-learning-workspace > *,
+.syn-practice-pane {
+  min-width: 0;
+  min-height: 0;
+}
+
+.syn-learning-workspace__theory {
+  height: 100%;
+  overflow: hidden;
+}
+
+.syn-lesson-panel,
+.syn-practice-pane {
+  height: 100%;
+  min-height: 0;
+}
+
+.syn-lesson-panel__scroll,
+.syn-practice-pane__body {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
