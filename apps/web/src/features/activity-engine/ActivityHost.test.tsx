@@ -1,6 +1,6 @@
 import type { ActivityPublicView, ActivitySetPolicy } from '@synaploom/contracts';
 import type { ActivityOwner } from '@synaploom/protocol';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { AppProviders } from '#src/app/providers/AppProviders';
 import { ActivityFeedback } from '#src/features/activity-engine/ActivityFeedback';
@@ -108,5 +108,25 @@ describe('ActivityHost', () => {
     );
 
     expect(await screen.findByText('Chọn mô tả chính xác nhất.')).toBeVisible();
+  });
+  it('keeps the activity mounted and retries when loading the attempt fails', async () => {
+    const getAttempt = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('attempt unavailable'))
+      .mockResolvedValueOnce(null);
+    render(
+      <AppProviders
+        api={{ getCurrentActivityAttempt: getAttempt } as unknown as SynaploomApiClient}
+      >
+        <ActivityHost owner={owner} activity={base} policy={policy} onProgressChanged={vi.fn()} />
+      </AppProviders>,
+    );
+    expect(await screen.findByRole('alert')).toHaveTextContent('attempt unavailable');
+    expect(screen.getByRole('group', { name: 'Question' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Thử tải lại' }));
+    await waitFor(() => expect(getAttempt).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(screen.queryByRole('button', { name: 'Thử tải lại' })).not.toBeInTheDocument(),
+    );
   });
 });

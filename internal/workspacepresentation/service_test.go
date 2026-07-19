@@ -217,3 +217,27 @@ func TestGetRecoversInvalidFocusAndPreservesLearnerCollapse(t *testing.T) {
 		t.Fatalf("restored=%+v", restored)
 	}
 }
+
+func TestWorkspaceEventsExcludeLearnerContent(t *testing.T) {
+	wide := publicActivity("wide", "practice", true, true, true)
+	service, _, events := newTestService(t, stubWithActivities(struct {
+		view     activity.PublicActivityView
+		required bool
+	}{wide, true}))
+	focus := "wide"
+	_, err := service.Update(context.Background(), UpdateCommand{
+		Owner:     Owner{CourseID: "course", OwnerKind: "lessons", OwnerID: "lesson"},
+		ProfileID: "local", FocusedActivityID: &focus, PaneMode: "split", SplitRatio: 0.45,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	forbidden := []string{"answer", "content", "source", "prompt", "feedback"}
+	for _, event := range events.events {
+		for _, key := range forbidden {
+			if _, ok := event[key]; ok {
+				t.Fatalf("event includes forbidden key %q: %+v", key, event)
+			}
+		}
+	}
+}

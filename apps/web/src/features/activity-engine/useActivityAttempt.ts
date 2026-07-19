@@ -151,9 +151,22 @@ export function useActivityAttempt({
     }
   }, [answer, submitMutation]);
 
+  const loadError = useMemo(
+    () =>
+      attemptQuery.error instanceof Error
+        ? attemptQuery.error
+        : attemptQuery.error
+          ? new Error('Không thể tải hoạt động.')
+          : null,
+    [attemptQuery.error],
+  );
+  const retryLoad = useCallback(async (): Promise<void> => {
+    await attemptQuery.refetch();
+  }, [attemptQuery]);
   const attempt = localAttempt ?? attemptQuery.data ?? null;
   const state = useMemo<ActivityInteractionState>(() => {
-    if (attemptQuery.isLoading) return 'loading';
+    if (attemptQuery.isLoading || attemptQuery.isFetching) return 'loading';
+    if (loadError) return 'error';
     if (submitMutation.isPending) return 'submitting';
     if (saveMutation.isPending) return 'saving';
     if (error instanceof SynaploomApiError && error.code === 'ACTIVITY_MAX_ATTEMPTS_REACHED') {
@@ -168,7 +181,9 @@ export function useActivityAttempt({
   }, [
     answer,
     attempt,
+    attemptQuery.isFetching,
     attemptQuery.isLoading,
+    loadError,
     error,
     isDirty,
     saveMutation.isPending,
@@ -186,12 +201,19 @@ export function useActivityAttempt({
     state: attemptsExhausted ? 'max-attempt' : state,
     answer,
     attempt,
-    error,
-    disabled: saveMutation.isPending || submitMutation.isPending || attemptsExhausted,
+    error: error ?? loadError,
+    disabled:
+      attemptQuery.isFetching ||
+      loadError !== null ||
+      saveMutation.isPending ||
+      submitMutation.isPending ||
+      attemptsExhausted,
     isDirty,
+    loadFailed: loadError !== null,
     setAnswer,
     saveDraft,
     saveIfDirty,
     submit,
+    retryLoad,
   };
 }

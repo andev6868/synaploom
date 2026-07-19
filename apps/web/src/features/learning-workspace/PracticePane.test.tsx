@@ -48,6 +48,8 @@ it('mounts exactly one focused host and exposes explicit next and retry actions'
     selectNextActivity,
     retryLastSave,
     registerPersistenceHandle: vi.fn(),
+    registerPracticeHeading: vi.fn(),
+    registerInlineHeading: vi.fn(),
     collapsePracticePane: vi.fn(),
     expandPracticePane: vi.fn(),
     returnActivityInline: vi.fn(),

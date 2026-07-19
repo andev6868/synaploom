@@ -44,8 +44,10 @@ export interface ActivityAttemptController {
   readonly error: Error | null;
   readonly disabled: boolean;
   readonly isDirty: boolean;
+  readonly loadFailed: boolean;
   readonly setAnswer: (answer: ActivityAnswer) => void;
   readonly saveDraft: () => Promise<void>;
   readonly saveIfDirty: () => Promise<void>;
   readonly submit: () => Promise<void>;
+  readonly retryLoad: () => Promise<void>;
 }

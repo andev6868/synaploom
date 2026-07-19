@@ -133,6 +133,9 @@ export function AssessmentWorkspaceContent({
                 onPersistenceHandleChange={(activityId, handle) =>
                   controller.registerPersistenceHandle(activityId, handle)
                 }
+                onRegisterInlineHeading={(activityId, element) =>
+                  controller.registerInlineHeading(activityId, element)
+                }
               />
             ))}
           </section>

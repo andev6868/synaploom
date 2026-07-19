@@ -1,4 +1,8 @@
-import type { ActivityOwner, WorkspacePresentationState } from '@synaploom/protocol';
+import type {
+  ActivityOwner,
+  UpdateWorkspacePresentationPayload,
+  WorkspacePresentationState,
+} from '@synaploom/protocol';
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -91,10 +95,12 @@ function dirtyHandle(calls: string[], id: string, error?: Error): ActivityPersis
 describe('useLearningWorkspaceController', () => {
   it('saves the inline target before focusing it', async () => {
     const calls: string[] = [];
-    const update = vi.fn(async (_owner, payload) => {
-      calls.push(`update:${payload.focusedActivityId}:${payload.paneMode}`);
-      return state({ ...payload, revision: payload.revision + 1 });
-    });
+    const update = vi.fn(
+      async (_owner: ActivityOwner, payload: UpdateWorkspacePresentationPayload) => {
+        calls.push(`update:${payload.focusedActivityId}:${payload.paneMode}`);
+        return state({ ...payload, revision: payload.revision + 1 });
+      },
+    );
     const { result } = renderHook(
       () => useLearningWorkspaceController({ owner, initialState: state(), activities }),
       { wrapper: wrapper(api(update)) },
@@ -137,8 +143,9 @@ describe('useLearningWorkspaceController', () => {
   });
 
   it('distinguishes collapse from returning inline', async () => {
-    const update = vi.fn(async (_owner, payload) =>
-      state({ ...payload, revision: payload.revision + 1 }),
+    const update = vi.fn(
+      async (_owner: ActivityOwner, payload: UpdateWorkspacePresentationPayload) =>
+        state({ ...payload, revision: payload.revision + 1 }),
     );
     const { result } = renderHook(
       () =>
@@ -195,8 +202,9 @@ describe('useLearningWorkspaceController', () => {
           current,
         ),
       )
-      .mockImplementation(async (_owner, payload) =>
-        state({ ...payload, revision: payload.revision + 1 }),
+      .mockImplementation(
+        async (_owner: ActivityOwner, payload: UpdateWorkspacePresentationPayload) =>
+          state({ ...payload, revision: payload.revision + 1 }),
       );
     const { result } = renderHook(
       () =>
@@ -221,8 +229,9 @@ describe('useLearningWorkspaceController', () => {
   });
 
   it('moves only after explicit next selection', async () => {
-    const update = vi.fn(async (_owner, payload) =>
-      state({ ...payload, revision: payload.revision + 1 }),
+    const update = vi.fn(
+      async (_owner: ActivityOwner, payload: UpdateWorkspacePresentationPayload) =>
+        state({ ...payload, revision: payload.revision + 1 }),
     );
     const { result } = renderHook(
       () =>
@@ -239,5 +248,59 @@ describe('useLearningWorkspaceController', () => {
       owner,
       expect.objectContaining({ focusedActivityId: 'reflection' }),
     );
+  });
+  it('moves focus through registered headings only after successful transitions', async () => {
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0);
+      return 1;
+    });
+    const update = vi.fn(
+      async (_owner: ActivityOwner, payload: UpdateWorkspacePresentationPayload) =>
+        state({ ...payload, revision: payload.revision + 1 }),
+    );
+    const { result } = renderHook(
+      () => useLearningWorkspaceController({ owner, initialState: state(), activities }),
+      { wrapper: wrapper(api(update)) },
+    );
+    const practiceHeading = document.createElement('h2');
+    practiceHeading.tabIndex = -1;
+    document.body.append(practiceHeading);
+    act(() => result.current.registerPracticeHeading('quiz-a', practiceHeading));
+    await act(() => result.current.focusActivity('quiz-a'));
+    expect(document.activeElement).toBe(practiceHeading);
+
+    const inlineHeading = document.createElement('h3');
+    inlineHeading.tabIndex = -1;
+    document.body.append(inlineHeading);
+    act(() => result.current.registerInlineHeading('quiz-a', inlineHeading));
+    await act(() => result.current.returnActivityInline());
+    expect(document.activeElement).toBe(inlineHeading);
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps focus inside the current activity when save-before-switch fails', async () => {
+    const update = vi.fn();
+    const { result } = renderHook(
+      () =>
+        useLearningWorkspaceController({
+          owner,
+          initialState: state({ focusedActivityId: 'quiz-a', paneMode: 'split' }),
+          activities,
+        }),
+      { wrapper: wrapper(api(update)) },
+    );
+    const currentControl = document.createElement('button');
+    document.body.append(currentControl);
+    currentControl.focus();
+    act(() =>
+      result.current.registerPersistenceHandle(
+        'quiz-a',
+        dirtyHandle([], 'quiz-a', new Error('save failed')),
+      ),
+    );
+    await act(async () => {
+      await expect(result.current.focusActivity('coding-lab')).rejects.toThrow('save failed');
+    });
+    expect(document.activeElement).toBe(currentControl);
   });
 });

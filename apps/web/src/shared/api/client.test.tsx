@@ -83,7 +83,7 @@ describe('hierarchical API client', () => {
   });
 
   it('requests navigation in the context of the viewed assessment', async () => {
-    const fetchImpl = vi.fn(
+    const fetchImpl = vi.fn<typeof fetch>(
       async () =>
         new Response('{}', {
           status: 200,
@@ -121,7 +121,7 @@ describe('hierarchical API client', () => {
       chapterId: 'runtime',
       label: 'Event Loop',
     } as const;
-    const fetchImpl = vi.fn(
+    const fetchImpl = vi.fn<typeof fetch>(
       async () =>
         new Response(
           JSON.stringify({
@@ -268,13 +268,14 @@ describe('workspace presentation API client', () => {
       revision: 4,
       updatedAt: '2026-07-19T00:00:00Z',
     } as const;
-    const fetchImpl = vi.fn(
-      async (_input: RequestInfo | URL, _init?: RequestInit) =>
-        new Response(JSON.stringify(state), {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
-    );
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      void input;
+      void init;
+      return new Response(JSON.stringify(state), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
     const client = createApiClient(fetchImpl as typeof fetch);
     const owner = { courseId: 'course', ownerKind: 'lessons' as const, ownerId: 'lesson-a' };
     await client.getWorkspacePresentation(owner);
@@ -291,7 +292,9 @@ describe('workspace presentation API client', () => {
       '/api/v1/courses/course/lessons/lesson-a/workspace-presentation',
       '/api/v1/courses/course/lessons/lesson-a/activity-statuses',
     ]);
-    expect(JSON.parse(String(fetchImpl.mock.calls[1]?.[1]?.body))).toEqual({
+    const updateBody = fetchImpl.mock.calls[1]?.[1]?.body;
+    expect(typeof updateBody).toBe('string');
+    expect(JSON.parse(updateBody as string)).toEqual({
       focusedActivityId: 'quiz-a',
       paneMode: 'split',
       splitRatio: 0.45,
@@ -312,17 +315,18 @@ describe('workspace presentation API client', () => {
       revision: 4,
       updatedAt: '2026-07-19T00:00:00Z',
     } as const;
-    const fetchImpl = vi.fn(
-      async (_input: RequestInfo | URL, _init?: RequestInit) =>
-        new Response(
-          JSON.stringify({
-            code: 'WORKSPACE_PRESENTATION_CONFLICT',
-            message: 'conflict',
-            details: { currentWorkspacePresentation },
-          }),
-          { status: 409, headers: { 'content-type': 'application/json' } },
-        ),
-    );
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      void input;
+      void init;
+      return new Response(
+        JSON.stringify({
+          code: 'WORKSPACE_PRESENTATION_CONFLICT',
+          message: 'conflict',
+          details: { currentWorkspacePresentation },
+        }),
+        { status: 409, headers: { 'content-type': 'application/json' } },
+      );
+    });
     const error = await createApiClient(fetchImpl as typeof fetch)
       .getWorkspacePresentation({ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson-a' })
       .catch((value: unknown) => value);

@@ -78,6 +78,8 @@ it('renders embedded activities in document position and appends remaining activ
         {
           state: { paneMode: 'collapsed' },
           registerPersistenceHandle: vi.fn(),
+          registerPracticeHeading: vi.fn(),
+          registerInlineHeading: vi.fn(),
           focusActivity: vi.fn(),
           restoreSplitPane: vi.fn(),
         } as unknown as LearningWorkspaceController
@@ -119,6 +121,8 @@ it('fails closed before rendering when an activity is embedded more than once', 
         {
           state: { paneMode: 'collapsed' },
           registerPersistenceHandle: vi.fn(),
+          registerPracticeHeading: vi.fn(),
+          registerInlineHeading: vi.fn(),
           focusActivity: vi.fn(),
           restoreSplitPane: vi.fn(),
         } as unknown as LearningWorkspaceController
@@ -147,6 +151,8 @@ it('replaces a focused embedded activity with a summary at the same document pos
         {
           state: { paneMode: 'collapsed' },
           registerPersistenceHandle: vi.fn(),
+          registerPracticeHeading: vi.fn(),
+          registerInlineHeading: vi.fn(),
           focusActivity: vi.fn(),
           restoreSplitPane: vi.fn(),
         } as unknown as LearningWorkspaceController

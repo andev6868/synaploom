@@ -31,7 +31,7 @@ export function ActivityTray({
   readonly controller: Pick<LearningWorkspaceController, 'focusActivity'>;
 }): ReactNode {
   return (
-    <section className="syn-activity-tray" role="region" aria-label="Hoạt động trong bài">
+    <section className="syn-activity-tray" aria-label="Hoạt động trong bài">
       <h3>Hoạt động trong bài</h3>
       <ul>
         {activities.map((item) => {

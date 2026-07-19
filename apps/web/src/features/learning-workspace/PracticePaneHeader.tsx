@@ -19,7 +19,13 @@ export function PracticePaneHeader({
         <span>
           {ordinal}/{total}
         </span>
-        <h2 data-workspace-activity-heading tabIndex={-1}>
+        <h2
+          ref={(element) =>
+            controller.registerPracticeHeading(focusedActivity.activity.id, element)
+          }
+          data-workspace-activity-heading
+          tabIndex={-1}
+        >
           {focusedActivity.activity.title}
         </h2>
       </div>

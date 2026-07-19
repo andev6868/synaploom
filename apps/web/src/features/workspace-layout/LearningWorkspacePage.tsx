@@ -144,6 +144,7 @@ function LessonWorkspaceComposition({
       practiceTitle={controller.focusedActivity?.activity.title ?? 'Khu vực thực hành'}
       onSplitRatioCommit={(ratio) => controller.setSplitRatio(ratio)}
       onCloseMobilePractice={() => controller.collapsePracticePane()}
+      eventOwner={owner}
     />
   );
 }
@@ -233,6 +234,7 @@ function AssessmentWorkspaceComposition({
       practiceTitle={controller.focusedActivity?.activity.title ?? 'Khu vực thực hành'}
       onSplitRatioCommit={(ratio) => controller.setSplitRatio(ratio)}
       onCloseMobilePractice={() => controller.collapsePracticePane()}
+      eventOwner={owner}
     />
   );
 }
@@ -507,7 +509,7 @@ export function LearningWorkspacePage({
         : 'Đang học';
   const activitySets = (activitySetsQuery.data ?? []) as readonly PublicActivitySetPayload[];
   const presentation = presentationQuery.data;
-  if (!activityOwner || activityOwner.ownerKind !== 'lessons' || !presentation) return null;
+  if (activityOwner?.ownerKind !== 'lessons' || !presentation) return null;
   const heading = (
     <div className="syn-lesson-panel__heading">
       <div>

@@ -211,10 +211,10 @@ function validateActivityShape(
     const { allowInline, allowPractice, defaultSurface, supportsFullscreen } =
       activity.presentation;
     if (
-      (allowInline === false && allowPractice === false) ||
-      (defaultSurface === 'inline' && allowInline === false) ||
-      (defaultSurface === 'practice' && allowPractice === false) ||
-      (supportsFullscreen === true && allowPractice === false)
+      (!allowInline && !allowPractice) ||
+      (defaultSurface === 'inline' && !allowInline) ||
+      (defaultSurface === 'practice' && !allowPractice) ||
+      (supportsFullscreen && !allowPractice)
     ) {
       issue(
         issues,

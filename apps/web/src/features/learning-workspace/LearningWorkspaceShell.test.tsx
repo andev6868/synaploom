@@ -55,3 +55,23 @@ it('maps active mobile practice to a controlled dialog', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Đóng' }));
   expect(common.onCloseMobilePractice).toHaveBeenCalled();
 });
+
+it('emits a sanitized viewport mapping event for the active owner', () => {
+  viewport('wide');
+  const listener = vi.fn();
+  window.addEventListener('synaploom:workspace-event', listener);
+  render(
+    <LearningWorkspaceShell
+      {...common}
+      mode="collapsed"
+      eventOwner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
+    />,
+  );
+  expect(listener).toHaveBeenCalled();
+  expect((listener.mock.calls[0]?.[0] as CustomEvent).detail).toMatchObject({
+    name: 'workspace.viewport.mapped',
+    viewport: 'wide',
+    ownerId: 'lesson',
+  });
+  window.removeEventListener('synaploom:workspace-event', listener);
+});

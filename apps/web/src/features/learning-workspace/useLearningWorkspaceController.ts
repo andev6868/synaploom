@@ -4,7 +4,7 @@ import type {
   WorkspacePresentationState,
 } from '@synaploom/protocol';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useApi } from '#src/app/providers/AppProviders';
 import type { ActivityPersistenceHandle } from '#src/features/activity-engine/types';
 import {
@@ -12,6 +12,7 @@ import {
   findWorkspaceActivity,
   type ResolvedWorkspaceActivity,
 } from '#src/features/learning-workspace/workspace-model';
+import { emitWorkspaceEvent } from '#src/features/learning-workspace/workspace-events';
 import { SynaploomApiError } from '#src/shared/api/client';
 
 export type WorkspaceSaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'conflict';
@@ -30,6 +31,8 @@ export interface LearningWorkspaceController {
   readonly conflictState: WorkspacePresentationState | null;
   readonly focusedActivity: ResolvedWorkspaceActivity | null;
   registerPersistenceHandle(activityId: string, handle: ActivityPersistenceHandle | null): void;
+  registerPracticeHeading(activityId: string, element: HTMLElement | null): void;
+  registerInlineHeading(activityId: string, element: HTMLElement | null): void;
   focusActivity(activityId: string): Promise<void>;
   returnActivityInline(): Promise<void>;
   collapsePracticePane(): Promise<void>;
@@ -68,6 +71,8 @@ export function useLearningWorkspaceController({
   const stateRef = useRef(initialState);
   const conflictStateRef = useRef<WorkspacePresentationState | null>(null);
   const handlesRef = useRef(new Map<string, ActivityPersistenceHandle>());
+  const practiceHeadingsRef = useRef(new Map<string, HTMLElement>());
+  const inlineHeadingsRef = useRef(new Map<string, HTMLElement>());
   const lastIntentRef = useRef<WorkspaceTransitionIntent | null>(null);
 
   const publishState = useCallback(
@@ -92,6 +97,43 @@ export function useLearningWorkspaceController({
     [],
   );
 
+  const registerPracticeHeading = useCallback(
+    (activityId: string, element: HTMLElement | null): void => {
+      if (element) practiceHeadingsRef.current.set(activityId, element);
+      else practiceHeadingsRef.current.delete(activityId);
+    },
+    [],
+  );
+  const registerInlineHeading = useCallback(
+    (activityId: string, element: HTMLElement | null): void => {
+      if (element) inlineHeadingsRef.current.set(activityId, element);
+      else inlineHeadingsRef.current.delete(activityId);
+    },
+    [],
+  );
+  const scheduleFocus = useCallback((resolveElement: () => HTMLElement | undefined): void => {
+    const schedule =
+      typeof requestAnimationFrame === 'function'
+        ? requestAnimationFrame
+        : (callback: FrameRequestCallback): number => {
+            callback(0);
+            return 0;
+          };
+    schedule(() => resolveElement()?.focus());
+  }, []);
+
+  useEffect(() => {
+    emitWorkspaceEvent({
+      name: 'workspace.presentation.loaded',
+      courseId: owner.courseId,
+      ownerKind: owner.ownerKind,
+      ownerId: owner.ownerId,
+      paneMode: initialState.paneMode,
+      revision: initialState.revision,
+      ...(initialState.focusedActivityId ? { activityId: initialState.focusedActivityId } : {}),
+    });
+  }, [initialState.focusedActivityId, initialState.paneMode, initialState.revision, owner]);
+
   const transition = useCallback(
     async (intent: WorkspaceTransitionIntent): Promise<void> => {
       const currentId = stateRef.current.focusedActivityId;
@@ -107,6 +149,28 @@ export function useLearningWorkspaceController({
         publishConflict(null);
         setSaveStatus('saved');
         lastIntentRef.current = null;
+        if (intent.kind === 'return-inline' && currentId) {
+          scheduleFocus(() => inlineHeadingsRef.current.get(currentId));
+        } else if (saved.focusedActivityId && saved.paneMode !== 'collapsed') {
+          scheduleFocus(() => practiceHeadingsRef.current.get(saved.focusedActivityId as string));
+        }
+        const eventName =
+          intent.kind === 'focus' || intent.kind === 'next'
+            ? 'workspace.activity.focused'
+            : intent.kind === 'expand'
+              ? 'workspace.pane.expanded'
+              : intent.kind === 'restore-split' || intent.kind === 'resize'
+                ? 'workspace.pane.split'
+                : 'workspace.pane.collapsed';
+        emitWorkspaceEvent({
+          name: eventName,
+          courseId: owner.courseId,
+          ownerKind: owner.ownerKind,
+          ownerId: owner.ownerId,
+          paneMode: saved.paneMode,
+          revision: saved.revision,
+          ...(saved.focusedActivityId ? { activityId: saved.focusedActivityId } : {}),
+        });
       } catch (cause) {
         const nextError =
           cause instanceof Error ? cause : new Error('Workspace transition failed.');
@@ -121,10 +185,23 @@ export function useLearningWorkspaceController({
         } else {
           setSaveStatus('error');
         }
+        emitWorkspaceEvent({
+          name:
+            cause instanceof SynaploomApiError && cause.code === 'WORKSPACE_PRESENTATION_CONFLICT'
+              ? 'workspace.presentation.conflict'
+              : 'workspace.activity.switch_save_failed',
+          courseId: owner.courseId,
+          ownerKind: owner.ownerKind,
+          ownerId: owner.ownerId,
+          paneMode: stateRef.current.paneMode,
+          revision: stateRef.current.revision,
+          ...(currentId ? { activityId: currentId } : {}),
+          errorCode: cause instanceof SynaploomApiError ? cause.code : nextError.name,
+        });
         throw nextError;
       }
     },
-    [api, owner, publishConflict, publishState],
+    [api, owner, publishConflict, publishState, scheduleFocus],
   );
 
   const payload = useCallback(
@@ -231,6 +308,8 @@ export function useLearningWorkspaceController({
     conflictState,
     focusedActivity,
     registerPersistenceHandle,
+    registerPracticeHeading,
+    registerInlineHeading,
     focusActivity,
     returnActivityInline,
     collapsePracticePane,

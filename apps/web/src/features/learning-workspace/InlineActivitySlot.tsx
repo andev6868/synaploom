@@ -14,6 +14,7 @@ export interface InlineActivitySlotProps {
   readonly onOpenPractice: (activityId: string) => Promise<void>;
   readonly onProgressChanged: () => Promise<void> | void;
   readonly onPersistenceHandleChange: NonNullable<ActivityHostProps['onPersistenceHandleChange']>;
+  readonly onRegisterInlineHeading?: (activityId: string, element: HTMLElement | null) => void;
   readonly renderHost?: (props: ActivityHostProps) => ReactNode;
 }
 
@@ -26,6 +27,7 @@ export function InlineActivitySlot({
   onOpenPractice,
   onProgressChanged,
   onPersistenceHandleChange,
+  onRegisterInlineHeading = () => undefined,
   renderHost = (props) => <ActivityHost {...props} />,
 }: InlineActivitySlotProps): ReactNode {
   if (focused) {
@@ -35,7 +37,12 @@ export function InlineActivitySlot({
         data-activity-id={item.activity.id}
         aria-labelledby={`inline-summary-${item.activity.id}`}
       >
-        <h3 id={`inline-summary-${item.activity.id}`} data-inline-activity-heading tabIndex={-1}>
+        <h3
+          ref={(element) => onRegisterInlineHeading(item.activity.id, element)}
+          id={`inline-summary-${item.activity.id}`}
+          data-inline-activity-heading
+          tabIndex={-1}
+        >
           {item.activity.title}
         </h3>
         <p>{activityStatusLabel(status?.status ?? 'AVAILABLE')}</p>
@@ -59,7 +66,13 @@ export function InlineActivitySlot({
   if (!item.activity.presentation.allowInline) {
     return (
       <section className="syn-inline-activity-launch" data-activity-id={item.activity.id}>
-        <h3>{item.activity.title}</h3>
+        <h3
+          ref={(element) => onRegisterInlineHeading(item.activity.id, element)}
+          data-inline-activity-heading
+          tabIndex={-1}
+        >
+          {item.activity.title}
+        </h3>
         <p>{activityStatusLabel(status?.status ?? 'AVAILABLE')}</p>
         {item.activity.presentation.allowPractice ? (
           <button
@@ -84,6 +97,13 @@ export function InlineActivitySlot({
   };
   return (
     <section className="syn-inline-activity-slot" data-activity-id={item.activity.id}>
+      <h3
+        ref={(element) => onRegisterInlineHeading(item.activity.id, element)}
+        data-inline-activity-heading
+        tabIndex={-1}
+      >
+        {item.activity.title}
+      </h3>
       {renderHost(hostProps)}
       {item.activity.presentation.allowPractice ? (
         <button

@@ -111,7 +111,19 @@ function AttemptActivityHost({
           Đã lưu bản nháp.
         </p>
       ) : null}
-      {controller.state === 'error' && controller.error ? (
+      {controller.loadFailed && controller.error ? (
+        <div role="alert">
+          <p>{controller.error.message}</p>
+          <button
+            type="button"
+            onClick={() => {
+              void controller.retryLoad().catch(() => undefined);
+            }}
+          >
+            Thử tải lại
+          </button>
+        </div>
+      ) : controller.state === 'error' && controller.error ? (
         <p role="alert">{controller.error.message}</p>
       ) : null}
       {controller.state === 'max-attempt' ? (

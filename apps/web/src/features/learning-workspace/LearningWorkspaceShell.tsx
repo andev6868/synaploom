@@ -1,6 +1,7 @@
-import type { PracticePaneMode } from '@synaploom/protocol';
+import type { ActivityOwner, PracticePaneMode } from '@synaploom/protocol';
 import { Dialog, WorkspaceShell } from '@synaploom/ui';
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { emitWorkspaceEvent } from '#src/features/learning-workspace/workspace-events';
 import { useWorkspaceViewport } from '#src/features/learning-workspace/useWorkspaceViewport';
 
 export interface LearningWorkspaceShellProps {
@@ -13,6 +14,7 @@ export interface LearningWorkspaceShellProps {
   readonly practiceTitle: string;
   readonly onSplitRatioCommit: (ratio: number) => Promise<void> | void;
   readonly onCloseMobilePractice: () => Promise<void> | void;
+  readonly eventOwner?: ActivityOwner;
 }
 
 type CompactSurface = 'theory' | 'split' | 'practice';
@@ -27,6 +29,7 @@ export function LearningWorkspaceShell({
   practiceTitle,
   onSplitRatioCommit,
   onCloseMobilePractice,
+  eventOwner,
 }: LearningWorkspaceShellProps): ReactNode {
   const viewport = useWorkspaceViewport();
   const [compactSurface, setCompactSurface] = useState<CompactSurface>(() =>
@@ -34,6 +37,18 @@ export function LearningWorkspaceShell({
   );
   const theoryScrollTopRef = useRef(0);
   const theoryScrollRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!eventOwner) return;
+    emitWorkspaceEvent({
+      name: 'workspace.viewport.mapped',
+      courseId: eventOwner.courseId,
+      ownerKind: eventOwner.ownerKind,
+      ownerId: eventOwner.ownerId,
+      viewport,
+      paneMode: mode,
+    });
+  }, [eventOwner, mode, viewport]);
+
   const theoryVisible =
     viewport === 'wide'
       ? mode !== 'expanded'

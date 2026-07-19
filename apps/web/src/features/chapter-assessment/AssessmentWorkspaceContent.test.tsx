@@ -160,6 +160,8 @@ function controller(focusedActivityId: string | null = null): LearningWorkspaceC
     conflictState: null,
     focusedActivity,
     registerPersistenceHandle: vi.fn(),
+    registerPracticeHeading: vi.fn(),
+    registerInlineHeading: vi.fn(),
     focusActivity: vi.fn().mockResolvedValue(undefined),
     returnActivityInline: vi.fn().mockResolvedValue(undefined),
     collapsePracticePane: vi.fn().mockResolvedValue(undefined),
