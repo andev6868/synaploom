@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -36,8 +37,12 @@ func TestSecuritySetsLocalHeaders(t *testing.T) {
 	if response.Header().Get("X-Content-Type-Options") != "nosniff" {
 		t.Fatal("missing nosniff")
 	}
-	if response.Header().Get("Content-Security-Policy") == "" {
+	csp := response.Header().Get("Content-Security-Policy")
+	if csp == "" {
 		t.Fatal("missing CSP")
+	}
+	if !strings.Contains(csp, "font-src 'self' data:") {
+		t.Fatalf("CSP does not permit bundled KaTeX fonts: %q", csp)
 	}
 	if response.Header().Get("Cache-Control") != "no-store" {
 		t.Fatalf("cache=%q", response.Header().Get("Cache-Control"))

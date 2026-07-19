@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { execFile, spawn, type ChildProcess } from 'node:child_process';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { copyFile, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
@@ -28,18 +28,23 @@ async function stopRuntime(): Promise<void> {
 
 test.beforeAll(async () => {
   home = await mkdtemp(path.join(tmpdir(), 'synaploom-e2e-'));
-  const command = goCommand(['build', '-o', path.join(home, 'synaploom'), './cmd/synaploom']);
-  await exec(command.file, command.args, command.options);
-  await exec(
-    path.join(home, 'synaploom'),
-    ['course', 'import', 'examples/frontend-performance-foundations'],
-    { env: { ...process.env, SYNAPLOOM_HOME: home } },
-  );
-  proc = spawn(
-    path.join(home, 'synaploom'),
-    ['start', 'frontend-performance-foundations', '--port', '0'],
-    { env: { ...process.env, SYNAPLOOM_HOME: home }, stdio: ['ignore', 'pipe', 'pipe'] },
-  );
+  const binary = path.join(home, 'synaploom');
+  if (process.env.SYNAPLOOM_E2E_BINARY) {
+    await copyFile(process.env.SYNAPLOOM_E2E_BINARY, binary);
+  } else {
+    const command = goCommand(['build', '-p=1', '-o', binary, './cmd/synaploom']);
+    await exec(command.file, command.args, {
+      ...command.options,
+      env: { ...command.options.env, GOMAXPROCS: '2' },
+    });
+  }
+  await exec(binary, ['course', 'import', 'examples/frontend-performance-foundations'], {
+    env: { ...process.env, SYNAPLOOM_HOME: home },
+  });
+  proc = spawn(binary, ['start', 'frontend-performance-foundations', '--port', '0'], {
+    env: { ...process.env, SYNAPLOOM_HOME: home },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
   bootstrap = await new Promise<string>((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('startup timeout')), 30_000);
     proc?.stdout?.on('data', (chunk) => {
@@ -67,7 +72,11 @@ test('serves the embedded learner UI from the Go runtime', async ({ page }) => {
 
   await page.goto(bootstrap);
   await expect(page.locator('#root')).not.toBeEmpty();
-  await expect(page.locator('body')).toContainText(/Frontend Performance Foundations/i);
+  await expect(page.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Main Thread', level: 1 })).toBeVisible();
+  await expect(page.getByRole('combobox', { name: 'Chọn chương' })).toHaveValue(
+    'javascript-runtime',
+  );
   expect(browserErrors).toEqual([]);
   expect(await readFile('internal/webassets/inventory.json', 'utf8')).toContain('index.html');
 });
