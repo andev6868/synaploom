@@ -339,6 +339,7 @@ describe('LearningWorkspacePage', () => {
     ).toBeVisible();
     expect(screen.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
     expect(screen.getByText('Trợ lý AI')).toBeVisible();
+    expect(screen.getAllByLabelText('Trợ lý AI')[0]).toHaveClass('syn-assistant-context');
     expect(
       screen.getByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
     ).toBeVisible();

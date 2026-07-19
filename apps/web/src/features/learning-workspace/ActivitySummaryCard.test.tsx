@@ -53,7 +53,10 @@ it('describes the focused activity as open in Practice', () => {
   );
 
   expect(screen.getByText('Đang làm · Đã lưu bản nháp')).toBeVisible();
-  expect(screen.getByText('Activity đang mở trong khu vực thực hành.')).toBeVisible();
+  const activeSummary = screen
+    .getByText('Activity đang mở trong khu vực thực hành.')
+    .closest('section');
+  expect(activeSummary).toHaveClass('syn-activity-summary--active');
   expect(screen.getByRole('button', { name: 'Quay lại thực hành' })).toBeVisible();
 });
 

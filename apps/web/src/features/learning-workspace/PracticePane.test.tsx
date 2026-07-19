@@ -72,6 +72,7 @@ it('mounts exactly one focused host and exposes explicit next and retry actions'
       renderHost={() => <input aria-label="active editor" />}
     />,
   );
+  expect(screen.getByLabelText('Khu vực thực hành')).toHaveClass('syn-practice-pane');
   expect(screen.getByRole('heading', { name: 'Quiz', level: 2 })).toHaveAttribute('tabindex', '-1');
   expect(screen.getAllByRole('textbox', { name: 'active editor' })).toHaveLength(1);
   expect(screen.getByText('Lưu thất bại')).toBeVisible();

@@ -1330,3 +1330,66 @@ body,
   font-size: 0.75rem;
   font-weight: 600;
 }
+
+/* Approved Single Active Workspace visual hierarchy */
+.syn-activity-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--syn-color-border, #d8dde6);
+  border-radius: 0.75rem;
+  background: var(--syn-color-surface, #fff);
+}
+
+.syn-activity-summary--active {
+  border-color: color-mix(in srgb, var(--syn-color-primary, #2563eb) 35%, white);
+  background: color-mix(in srgb, var(--syn-color-primary, #2563eb) 5%, white);
+}
+
+.syn-activity-summary__content > :first-child,
+.syn-activity-summary__content > :last-child {
+  margin-block: 0;
+}
+
+.syn-activity-summary__status {
+  margin-block: 0.35rem;
+  color: var(--syn-color-text-muted, #64748b);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.syn-practice-pane {
+  height: 100%;
+  border-color: color-mix(in srgb, var(--syn-color-primary, #2563eb) 40%, white);
+  box-shadow: 0 12px 32px rgb(15 23 42 / 0.08);
+}
+
+.syn-practice-pane__header,
+.syn-practice-pane__actions {
+  flex: none;
+}
+
+.syn-practice-pane__actions {
+  position: sticky;
+  z-index: 1;
+  bottom: 0;
+  background: var(--syn-color-surface, #fff);
+}
+
+.syn-lesson-panel__article,
+.syn-assessment-workspace__article {
+  width: min(54rem, 100%);
+  margin-inline: auto;
+}
+
+@media (max-width: 719px) {
+  .syn-activity-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .syn-activity-summary > button {
+    width: 100%;
+  }
+}
