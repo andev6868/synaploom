@@ -26,11 +26,15 @@ async function collectTests(directory) {
 
 function runVitest(args) {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [vitestEntry, 'run', ...args], {
-      cwd: root,
-      env: process.env,
-      stdio: 'inherit',
-    });
+    const child = spawn(
+      process.execPath,
+      [vitestEntry, 'run', '--pool=forks', '--reporter=verbose', ...args],
+      {
+        cwd: root,
+        env: process.env,
+        stdio: 'inherit',
+      },
+    );
     child.once('error', reject);
     child.once('exit', (code, signal) => {
       if (code === 0) resolve();

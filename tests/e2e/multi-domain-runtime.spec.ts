@@ -32,7 +32,9 @@ async function isVisible(locator: Locator): Promise<boolean> {
 
 async function openActivity(page: Page, title: string): Promise<Locator> {
   const practice = page.getByRole('region', { name: 'Khu vực thực hành' });
-  const practiceHeading = practice.locator('h2[data-workspace-activity-heading="true"]', { hasText: title });
+  const practiceHeading = practice.locator('h2[data-workspace-activity-heading="true"]', {
+    hasText: title,
+  });
   if (await isVisible(practiceHeading)) {
     return practice;
   }

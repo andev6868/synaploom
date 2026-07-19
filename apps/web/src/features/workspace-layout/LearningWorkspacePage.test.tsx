@@ -343,9 +343,7 @@ describe('LearningWorkspacePage', () => {
     expect(
       screen.getByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
     ).toBeVisible();
-    expect(
-      screen.getByText('Activity đang mở trong khu vực thực hành.'),
-    ).toBeVisible();
+    expect(screen.getByText('Activity đang mở trong khu vực thực hành.')).toBeVisible();
     expect(screen.getAllByRole('radio', { name: 'Đúng' })).toHaveLength(1);
     expect(screen.getByRole('heading', { name: 'Yêu cầu hoàn thành đánh giá' })).toBeVisible();
     expect(document.querySelector('.syn-assessment-workspace')).not.toBeInTheDocument();
@@ -495,9 +493,7 @@ describe('LearningWorkspacePage', () => {
       </AppProviders>,
     );
 
-    expect(
-      await screen.findByText('Activity đang mở trong khu vực thực hành.'),
-    ).toBeVisible();
+    expect(await screen.findByText('Activity đang mở trong khu vực thực hành.')).toBeVisible();
     expect(document.querySelector('h2[data-workspace-activity-heading="true"]')).toHaveTextContent(
       'Main Thread Lab',
     );

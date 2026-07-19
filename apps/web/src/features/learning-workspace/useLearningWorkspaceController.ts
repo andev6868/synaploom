@@ -247,7 +247,6 @@ export function useLearningWorkspaceController({
     [activities, payload, transition],
   );
 
-
   const collapsePracticePane = useCallback(async (): Promise<void> => {
     await transition({
       kind: 'collapse',

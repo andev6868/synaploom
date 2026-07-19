@@ -87,9 +87,13 @@ it('renders embedded activities in document position and appends remaining activ
   );
 
   const before = screen.getByText('Before activity');
-  const embedded = screen.getByRole('heading', { name: 'Embedded question' }).closest('section') as HTMLElement;
+  const embedded = screen
+    .getByRole('heading', { name: 'Embedded question' })
+    .closest('section') as HTMLElement;
   const after = screen.getByText('After activity');
-  const appended = screen.getByRole('heading', { name: 'Appended question' }).closest('section') as HTMLElement;
+  const appended = screen
+    .getByRole('heading', { name: 'Appended question' })
+    .closest('section') as HTMLElement;
   expect(before.compareDocumentPosition(embedded) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(embedded.compareDocumentPosition(after) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(after.compareDocumentPosition(appended) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

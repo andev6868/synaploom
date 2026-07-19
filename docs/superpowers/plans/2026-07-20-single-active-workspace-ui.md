@@ -48,12 +48,14 @@
 ### Task 1: Lock the summary-only activity contract
 
 **Files:**
+
 - Create: `apps/web/src/features/learning-workspace/ActivitySummaryCard.tsx`
 - Create: `apps/web/src/features/learning-workspace/ActivitySummaryCard.test.tsx`
 - Modify: `apps/web/src/features/learning-workspace/InlineActivitySlot.tsx`
 - Modify: `apps/web/src/features/learning-workspace/InlineActivitySlot.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `ResolvedWorkspaceActivity`, `ActivityStatusPayload | null`, `PracticePaneMode`, and `(activityId: string) => Promise<void>`.
 - Produces:
 
@@ -220,12 +222,14 @@ git commit -m "feat: render theory activities as summaries"
 ### Task 2: Remove return-inline behavior from the controller and header
 
 **Files:**
+
 - Modify: `apps/web/src/features/learning-workspace/useLearningWorkspaceController.ts`
 - Modify: `apps/web/src/features/learning-workspace/useLearningWorkspaceController.test.tsx`
 - Modify: `apps/web/src/features/learning-workspace/PracticePaneHeader.tsx`
 - Modify: `apps/web/src/features/learning-workspace/PracticePane.test.tsx`
 
 **Interfaces:**
+
 - Consumes: existing `focusActivity`, `collapsePracticePane`, `expandPracticePane`, `restoreSplitPane`, `setSplitRatio`, and `retryLastSave` transitions.
 - Produces: `WorkspaceTransitionKind` without `'return-inline'`; `LearningWorkspaceController` without `returnActivityInline()`.
 
@@ -260,12 +264,7 @@ Make these exact changes:
 
 ```ts
 export type WorkspaceTransitionKind =
-  | 'focus'
-  | 'collapse'
-  | 'expand'
-  | 'restore-split'
-  | 'resize'
-  | 'next';
+  'focus' | 'collapse' | 'expand' | 'restore-split' | 'resize' | 'next';
 ```
 
 Delete `returnActivityInline` from `LearningWorkspaceController`, delete its callback implementation, remove the `intent.kind === 'return-inline'` focus branch, and always focus the Practice heading after a successful non-collapsed transition.
@@ -299,6 +298,7 @@ git commit -m "refactor: make practice the only activity surface"
 ### Task 3: Make the Practice Pane the complete active-workspace surface
 
 **Files:**
+
 - Modify: `apps/web/src/features/learning-workspace/PracticePane.tsx`
 - Modify: `apps/web/src/features/learning-workspace/PracticePaneHeader.tsx`
 - Modify: `apps/web/src/features/learning-workspace/PracticePane.test.tsx`
@@ -306,6 +306,7 @@ git commit -m "refactor: make practice the only activity surface"
 - Modify: `apps/web/src/features/learning-workspace/ActivityTray.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `LearningWorkspaceController`, `ActivityStatusPayload[]`, `ResolvedWorkspaceActivity[]`, and one `renderHost` function.
 - Produces: one `data-active-activity-editor` host, active tray state, save-state label, and shell-level navigation controls.
 
@@ -322,8 +323,18 @@ it('mounts exactly one active editor and exposes active activity metadata', () =
 });
 
 it('marks the focused activity in the activity list', () => {
-  render(<ActivityTray activities={activities} statuses={statuses} controller={controller} focusedActivityId="ordering" />);
-  expect(screen.getByRole('button', { name: /Sắp xếp thuật toán/ })).toHaveAttribute('aria-current', 'true');
+  render(
+    <ActivityTray
+      activities={activities}
+      statuses={statuses}
+      controller={controller}
+      focusedActivityId="ordering"
+    />,
+  );
+  expect(screen.getByRole('button', { name: /Sắp xếp thuật toán/ })).toHaveAttribute(
+    'aria-current',
+    'true',
+  );
 });
 ```
 
@@ -396,6 +407,7 @@ git commit -m "feat: unify active practice workspace hierarchy"
 ### Task 4: Replace the blank collapsed column with a compact Practice Rail
 
 **Files:**
+
 - Modify: `apps/web/src/features/learning-workspace/WorkspacePaneRail.tsx`
 - Modify: `apps/web/src/features/learning-workspace/WorkspacePaneRail.test.tsx`
 - Modify: `apps/web/src/features/learning-workspace/LearningWorkspaceShell.tsx`
@@ -403,6 +415,7 @@ git commit -m "feat: unify active practice workspace hierarchy"
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
+
 - Consumes: focused activity, authored activity count, status list, and `restoreSplitPane()`.
 - Produces: a desktop rail with `data-workspace-practice-rail`, `aria-expanded="false"`, and width constrained to `3.5rem`.
 
@@ -523,12 +536,14 @@ git commit -m "feat: add compact collapsed practice rail"
 ### Task 5: Stabilize wide, compact, and mobile surface behavior
 
 **Files:**
+
 - Modify: `apps/web/src/features/learning-workspace/LearningWorkspaceShell.tsx`
 - Modify: `apps/web/src/features/learning-workspace/LearningWorkspaceShell.test.tsx`
 - Modify: `apps/web/src/features/learning-workspace/useWorkspaceViewport.test.tsx`
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
+
 - Consumes: persisted `PracticePaneMode`, local `CompactSurface`, and viewport classification.
 - Produces: wide split/collapsed/expanded mapping; compact Theory/Practice tabs; mobile full-screen Practice dialog; independent Theory and Practice scroll ownership.
 
@@ -630,6 +645,7 @@ git commit -m "fix: stabilize responsive workspace surfaces"
 ### Task 6: Apply the shared model to lesson and assessment compositions
 
 **Files:**
+
 - Modify: `apps/web/src/features/lesson-content/LessonActivities.tsx`
 - Modify: `apps/web/src/features/lesson-content/LessonActivities.test.tsx`
 - Modify: `apps/web/src/features/chapter-assessment/AssessmentWorkspaceContent.tsx`
@@ -638,6 +654,7 @@ git commit -m "fix: stabilize responsive workspace surfaces"
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `ActivitySummaryCard` through `InlineActivitySlot`, `LearningWorkspaceController.focusActivity`, and the shared `PracticePane`.
 - Produces: lesson and assessment Theory surfaces containing summary cards only, with exactly one Practice-hosted editor.
 
@@ -656,7 +673,9 @@ it('uses the same summary plus Practice model for assessment questions', async (
   renderAssessmentWorkspace();
   await screen.findByRole('heading', { name: 'Đánh giá chương' });
 
-  expect(screen.getAllByRole('button', { name: /Thực hành bài này|Quay lại thực hành/ }).length).toBeGreaterThan(0);
+  expect(
+    screen.getAllByRole('button', { name: /Thực hành bài này|Quay lại thực hành/ }).length,
+  ).toBeGreaterThan(0);
   expect(screen.getAllByTestId('activity-editor')).toHaveLength(1);
 });
 ```
@@ -722,12 +741,14 @@ git commit -m "feat: unify lesson and assessment activity surfaces"
 ### Task 7: Add contextual AI dock semantics
 
 **Files:**
+
 - Modify: `apps/web/src/features/ai-assistant/AssistantPanel.tsx`
 - Create: `apps/web/src/features/ai-assistant/AssistantPanel.test.tsx`
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx`
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
+
 - Consumes: lesson title and optional focused activity title.
 - Produces:
 
@@ -766,9 +787,7 @@ Expected: FAIL because `AssistantPanel` accepts no context props and renders no 
 
 ```tsx
 export function AssistantPanel({ lessonTitle, activityTitle }: AssistantPanelProps): ReactNode {
-  const context = activityTitle
-    ? `Hoạt động: ${activityTitle}`
-    : `Bài học: ${lessonTitle}`;
+  const context = activityTitle ? `Hoạt động: ${activityTitle}` : `Bài học: ${lessonTitle}`;
 
   const request = async (mode: AssistantMode): Promise<void> => {
     const response = await api.requestAi({
@@ -781,7 +800,10 @@ export function AssistantPanel({ lessonTitle, activityTitle }: AssistantPanelPro
   return (
     <section className="syn-assistant-context" aria-label="Trợ lý AI">
       <p>{context}</p>
-      <AssistantDock {...(message === undefined ? {} : { message })} onRequest={(mode) => void request(mode)} />
+      <AssistantDock
+        {...(message === undefined ? {} : { message })}
+        onRequest={(mode) => void request(mode)}
+      />
     </section>
   );
 }
@@ -814,21 +836,23 @@ git commit -m "feat: contextualize workspace AI assistance"
 ### Task 8: Implement the approved visual hierarchy
 
 **Files:**
+
 - Modify: `apps/web/src/application.css`
 - Modify: `apps/web/src/features/learning-workspace/ActivitySummaryCard.test.tsx`
 - Modify: `apps/web/src/features/learning-workspace/PracticePane.test.tsx`
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.test.tsx`
 
 **Interfaces:**
+
 - Consumes: semantic class names introduced by Tasks 1–7.
 - Produces: stable 55–65% Theory split, visually dominant Practice surface, restrained active summary, sticky/reachable Practice actions, and integrated assistant dock.
 
 - [ ] **Step 1: Add semantic class assertions before styling**
 
 ```tsx
-expect(screen.getByText('Activity đang mở trong khu vực thực hành.').closest('section')).toHaveClass(
-  'syn-activity-summary--active',
-);
+expect(
+  screen.getByText('Activity đang mở trong khu vực thực hành.').closest('section'),
+).toHaveClass('syn-activity-summary--active');
 expect(screen.getByLabelText('Khu vực thực hành')).toHaveClass('syn-practice-pane');
 expect(screen.getByLabelText('Trợ lý AI')).toHaveClass('syn-assistant-context');
 ```
@@ -918,10 +942,12 @@ git commit -m "style: align workspace with approved single-active UI"
 ### Task 9: Add browser acceptance for the single-editor model
 
 **Files:**
+
 - Modify: `tests/e2e/dual-surface-workspace-runtime.spec.ts`
 - Modify: `tests/e2e/multi-domain-runtime.spec.ts`
 
 **Interfaces:**
+
 - Consumes: staged Go runtime, example courses, persisted workspace presentation, and browser-visible activity controls.
 - Produces: acceptance evidence for one editor, save-before-switch, compact rail, independent scroll, all activity kinds, assessment, refresh, and process restart.
 
@@ -931,7 +957,9 @@ Add these checks to the existing runtime flow:
 
 ```ts
 await expect(page.locator('[data-active-activity-editor]')).toHaveCount(1);
-await expect(page.locator('.syn-activity-summary input, .syn-activity-summary textarea')).toHaveCount(0);
+await expect(
+  page.locator('.syn-activity-summary input, .syn-activity-summary textarea'),
+).toHaveCount(0);
 await expect(page.locator('.syn-workspace-pane-rail')).toHaveCSS('width', '56px');
 ```
 
@@ -939,8 +967,8 @@ For save-before-switch:
 
 ```ts
 await page.getByRole('textbox', { name: 'Câu trả lời' }).fill('Bản nháp chưa lưu');
-const saveRequest = page.waitForRequest((request) =>
-  request.method() === 'PUT' && request.url().includes('/attempts/'),
+const saveRequest = page.waitForRequest(
+  (request) => request.method() === 'PUT' && request.url().includes('/attempts/'),
 );
 await page.getByRole('button', { name: 'Thực hành bài này' }).nth(1).click();
 await saveRequest;
@@ -995,10 +1023,12 @@ git commit -m "test: verify single active workspace runtime"
 ### Task 10: Run release verification and record evidence
 
 **Files:**
+
 - Modify: `docs/verification/workspace-presentation-verification.md`
 - Modify only if generated/staged output changes: `internal/server/web_dist/**`
 
 **Interfaces:**
+
 - Consumes: the complete implementation from Tasks 1–9.
 - Produces: fresh release evidence with exact commands, exit status, test counts, commit hash, and known limitations.
 

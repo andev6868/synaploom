@@ -139,7 +139,6 @@ describe('useLearningWorkspaceController', () => {
     expect(result.current.saveStatus).toBe('error');
   });
 
-
   it('does not expose a return-inline transition', () => {
     const update = vi.fn();
     const { result } = renderHook(

@@ -110,7 +110,9 @@ test('scrolls lesson content and persists workspace state across restart', async
   ).toBeVisible();
   await expect(page.getByText('Activity đang mở trong khu vực thực hành.')).toBeVisible();
   await expect(page.locator('[data-active-activity-editor]')).toHaveCount(1);
-  await expect(page.locator('.syn-activity-summary input, .syn-activity-summary textarea')).toHaveCount(0);
+  await expect(
+    page.locator('.syn-activity-summary input, .syn-activity-summary textarea'),
+  ).toHaveCount(0);
   await expect(page.getByRole('button', { name: /Di chuyển Đọc hai số a và b xuống/ })).toHaveCount(
     1,
   );
@@ -134,11 +136,15 @@ test('scrolls lesson content and persists workspace state across restart', async
   );
   await page.getByRole('button', { name: 'Thu gọn' }).click();
   expect((await draftWrite).ok()).toBe(true);
-  await expect(page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' }),
+  ).toBeVisible();
   await expect(page.getByRole('region', { name: 'Khu vực thực hành' })).toHaveCount(0);
 
   await page.reload();
-  await expect(page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' }),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' }).click();
   await expect(page.getByRole('textbox', { name: 'Trình soạn thảo mã' })).toHaveValue(source);
 
@@ -146,7 +152,9 @@ test('scrolls lesson content and persists workspace state across restart', async
   await stopRuntime();
   bootstrap = await startRuntime();
   await page.goto(bootstrap);
-  await expect(page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' }),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Mở lại Viết chương trình tính tổng' }).click();
   await expect(page.getByRole('textbox', { name: 'Trình soạn thảo mã' })).toHaveValue(source);
 });

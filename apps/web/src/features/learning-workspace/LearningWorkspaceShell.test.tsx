@@ -77,7 +77,6 @@ it('emits a sanitized viewport mapping event for the active owner', () => {
   window.removeEventListener('synaploom:workspace-event', listener);
 });
 
-
 it('mounts Practice once inside the mobile dialog', () => {
   viewport('mobile');
   render(<LearningWorkspaceShell {...common} mode="split" />);
@@ -89,11 +88,7 @@ it('keeps compact switching local without persisting split ratio', () => {
   viewport('compact');
   const onSplitRatioCommit = vi.fn();
   render(
-    <LearningWorkspaceShell
-      {...common}
-      mode="split"
-      onSplitRatioCommit={onSplitRatioCommit}
-    />,
+    <LearningWorkspaceShell {...common} mode="split" onSplitRatioCommit={onSplitRatioCommit} />,
   );
   fireEvent.click(screen.getByRole('button', { name: 'Thực hành' }));
   expect(screen.getByTestId('practice-surface')).toBeVisible();

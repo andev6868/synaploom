@@ -234,9 +234,7 @@ describe('AssessmentWorkspaceContent', () => {
 
   it('renders focused activities as summaries and practice-only activities as launch cards', () => {
     renderContent(controller('event-loop-order'));
-    expect(
-      screen.getByText('Activity đang mở trong khu vực thực hành.'),
-    ).toBeVisible();
+    expect(screen.getByText('Activity đang mở trong khu vực thực hành.')).toBeVisible();
     expect(
       screen.queryByRole('group', { name: 'Promise chạy trước timer' }),
     ).not.toBeInTheDocument();
