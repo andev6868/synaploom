@@ -15,7 +15,7 @@ async function text(path: string): Promise<string> {
   return readFile(path, 'utf8');
 }
 
-test('publishes complete Activity Engine authoring and operations documentation', async () => {
+void test('publishes complete Activity Engine authoring and operations documentation', async () => {
   for (const path of documents) {
     const content = await text(path);
     assert.ok(content.length > 500, `${path} is unexpectedly short`);
@@ -39,7 +39,7 @@ test('publishes complete Activity Engine authoring and operations documentation'
   }
 });
 
-test('advertises Course Schema 1.2 and runs Activity Engine release gates', async () => {
+void test('advertises Course Schema 1.2 and runs Activity Engine release gates', async () => {
   const buildInfo = await text('internal/buildinfo/buildinfo.go');
   assert.match(buildInfo, /SchemaVersion\s*=\s*"1\.2\.0"/);
 
