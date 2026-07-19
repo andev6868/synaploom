@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1.0",
+  "id": "word-meaning",
+  "kind": "matching",
+  "title": "Ghép từ với nghĩa",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Ghép từ tiếng Anh với nghĩa tiếng Việt."
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "left": [
+      {
+        "id": "book",
+        "label": "book"
+      },
+      {
+        "id": "learn",
+        "label": "learn"
+      }
+    ],
+    "right": [
+      {
+        "id": "sach",
+        "label": "sách"
+      },
+      {
+        "id": "hoc",
+        "label": "học"
+      }
+    ],
+    "correctMatches": {
+      "book": "sach",
+      "learn": "hoc"
+    },
+    "randomize": false
+  },
+  "evaluation": {
+    "mode": "automatic",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  },
+  "feedback": {
+    "showExplanation": true
+  }
+}

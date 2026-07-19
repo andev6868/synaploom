@@ -1,0 +1,84 @@
+{
+  "$schema": "https://synaploom.local/schemas/course-v1.json",
+  "schemaVersion": "1.2.0",
+  "id": "multi-domain-foundations",
+  "title": "Nền tảng học tập đa lĩnh vực",
+  "description": "Khóa học mẫu minh họa nội dung phong phú và mười mô típ hoạt động cho lập trình, toán, tiếng Anh, ngữ văn, khoa học và lịch sử.",
+  "version": "1.2.0",
+  "language": "vi",
+  "author": "Synaploom Contributors",
+  "chapters": [
+    {
+      "id": "programming",
+      "title": "Tư duy lập trình",
+      "required": true,
+      "lessons": [
+        {
+          "id": "algorithm-flow",
+          "required": true
+        }
+      ],
+      "assessments": []
+    },
+    {
+      "id": "mathematics",
+      "title": "Toán học",
+      "required": true,
+      "lessons": [
+        {
+          "id": "linear-reasoning",
+          "required": true
+        }
+      ],
+      "assessments": []
+    },
+    {
+      "id": "english",
+      "title": "Tiếng Anh",
+      "required": true,
+      "lessons": [
+        {
+          "id": "daily-communication",
+          "required": true
+        }
+      ],
+      "assessments": []
+    },
+    {
+      "id": "literature",
+      "title": "Ngữ văn",
+      "required": true,
+      "lessons": [
+        {
+          "id": "reading-evidence",
+          "required": true
+        }
+      ],
+      "assessments": []
+    },
+    {
+      "id": "science-history",
+      "title": "Khoa học và lịch sử",
+      "required": true,
+      "lessons": [
+        {
+          "id": "evidence-and-time",
+          "required": true
+        }
+      ],
+      "assessments": [
+        {
+          "id": "multi-domain-checkpoint",
+          "title": "Đánh giá tổng hợp",
+          "required": true,
+          "path": "assessments/multi-domain-checkpoint",
+          "requiresLessons": ["evidence-and-time"],
+          "completion": {
+            "type": "minimum-score",
+            "threshold": 0.75
+          }
+        }
+      ]
+    }
+  ]
+}

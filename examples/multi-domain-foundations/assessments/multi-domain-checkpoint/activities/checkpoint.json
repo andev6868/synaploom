@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0",
+  "id": "multi-domain-assessment",
+  "title": "Đánh giá tổng hợp",
+  "policy": {
+    "purpose": "assessment",
+    "maxAttempts": 2,
+    "feedbackMode": "after-submit",
+    "revealAnswers": "after-final-attempt",
+    "scoring": "points",
+    "passingScore": 1.5
+  },
+  "activities": [
+    {
+      "id": "checkpoint-choice",
+      "path": "checkpoint-choice.activity.json",
+      "required": true
+    },
+    {
+      "id": "checkpoint-number",
+      "path": "checkpoint-number.activity.json",
+      "required": true
+    }
+  ]
+}

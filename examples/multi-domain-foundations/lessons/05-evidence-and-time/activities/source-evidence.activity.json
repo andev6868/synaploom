@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0",
+  "id": "source-evidence",
+  "kind": "multiple-choice",
+  "title": "Đánh giá nguồn sử liệu",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Chọn các nguồn có thể là bằng chứng trực tiếp về một sự kiện lịch sử."
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "options": [
+      {
+        "id": "letter",
+        "label": "Lá thư viết trong thời gian sự kiện"
+      },
+      {
+        "id": "photo",
+        "label": "Ảnh chụp tại hiện trường"
+      },
+      {
+        "id": "novel",
+        "label": "Tiểu thuyết hư cấu xuất bản nhiều năm sau"
+      }
+    ],
+    "correctOptionIds": ["letter", "photo"],
+    "evaluationMode": "exact-set",
+    "randomize": false
+  },
+  "evaluation": {
+    "mode": "automatic",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  },
+  "feedback": {
+    "showExplanation": true
+  }
+}

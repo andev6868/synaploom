@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0",
+  "id": "evidence-paragraph",
+  "kind": "writing",
+  "title": "Viết đoạn phân tích",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Viết một đoạn ngắn giải thích tác dụng của hình ảnh so sánh."
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "minimumCharacters": 40,
+    "maximumCharacters": 600,
+    "answerFormat": "safe-markdown",
+    "rubric": [
+      {
+        "id": "claim",
+        "label": "Có nhận xét chính"
+      },
+      {
+        "id": "evidence",
+        "label": "Dẫn lại hình ảnh trong câu thơ"
+      }
+    ],
+    "outlinePrompts": ["Nêu cảm nhận chính", "Dẫn chứng từ câu thơ", "Giải thích hiệu quả biểu đạt"]
+  },
+  "evaluation": {
+    "mode": "submission",
+    "points": 0
+  },
+  "completion": {
+    "required": true
+  },
+  "feedback": {
+    "showExplanation": true
+  }
+}

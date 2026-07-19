@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0",
+  "id": "water-cycle",
+  "kind": "single-choice",
+  "title": "Chu trình nước",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Quá trình nào biến nước lỏng thành hơi nước?"
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "options": [
+      {
+        "id": "evaporation",
+        "label": "Bay hơi",
+        "explanation": "Nước nhận nhiệt và chuyển thành hơi."
+      },
+      {
+        "id": "condensation",
+        "label": "Ngưng tụ"
+      },
+      {
+        "id": "freezing",
+        "label": "Đóng băng"
+      }
+    ],
+    "correctOptionId": "evaporation",
+    "randomize": false
+  },
+  "evaluation": {
+    "mode": "automatic",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  },
+  "feedback": {
+    "showExplanation": true
+  }
+}

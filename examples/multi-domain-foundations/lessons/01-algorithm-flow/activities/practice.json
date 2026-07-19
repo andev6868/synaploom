@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0",
+  "id": "programming-practice",
+  "title": "Thực hành",
+  "policy": {
+    "purpose": "practice",
+    "maxAttempts": null,
+    "feedbackMode": "immediate",
+    "revealAnswers": "after-submit",
+    "scoring": "none",
+    "passingScore": null
+  },
+  "activities": [
+    {
+      "id": "algorithm-order",
+      "path": "algorithm-order.activity.json",
+      "required": true
+    },
+    {
+      "id": "sum-program",
+      "path": "sum-program.activity.json",
+      "required": true
+    }
+  ]
+}

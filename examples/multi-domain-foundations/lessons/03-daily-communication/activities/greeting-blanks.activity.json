@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0",
+  "id": "greeting-blanks",
+  "kind": "fill-blanks",
+  "title": "Hoàn thành lời chào",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Điền từ còn thiếu trong câu chào."
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "blanks": [
+      {
+        "id": "hello",
+        "label": "___, how are you?",
+        "acceptedAnswers": ["Hello", "Hi"],
+        "normalization": {
+          "trim": true,
+          "caseSensitive": false,
+          "collapseWhitespace": true
+        }
+      }
+    ],
+    "scoring": "all-or-nothing"
+  },
+  "evaluation": {
+    "mode": "automatic",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  },
+  "feedback": {
+    "showExplanation": true
+  }
+}

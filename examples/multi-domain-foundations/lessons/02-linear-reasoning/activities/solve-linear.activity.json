@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0",
+  "id": "solve-linear",
+  "kind": "numeric",
+  "title": "Giải phương trình",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Giải phương trình 2x + 3 = 11."
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "answerMode": "number",
+    "expected": "4",
+    "absoluteTolerance": 0,
+    "unit": "",
+    "requireUnit": false
+  },
+  "evaluation": {
+    "mode": "automatic",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  },
+  "feedback": {
+    "showExplanation": true
+  }
+}

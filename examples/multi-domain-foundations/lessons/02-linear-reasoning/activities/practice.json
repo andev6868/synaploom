@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0",
+  "id": "mathematics-practice",
+  "title": "Thực hành",
+  "policy": {
+    "purpose": "practice",
+    "maxAttempts": null,
+    "feedbackMode": "immediate",
+    "revealAnswers": "after-submit",
+    "scoring": "none",
+    "passingScore": null
+  },
+  "activities": [
+    {
+      "id": "solve-linear",
+      "path": "solve-linear.activity.json",
+      "required": true
+    },
+    {
+      "id": "equation-truth",
+      "path": "equation-truth.activity.json",
+      "required": true
+    }
+  ]
+}

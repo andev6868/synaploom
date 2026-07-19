@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0",
+  "id": "checkpoint-number",
+  "kind": "numeric",
+  "title": "Tính nhanh",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Nếu hoàn thành 4 trong 5 chương, tỉ lệ phần trăm là bao nhiêu?"
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "answerMode": "number",
+    "expected": "80",
+    "absoluteTolerance": 0,
+    "unit": "%",
+    "requireUnit": false
+  },
+  "evaluation": {
+    "mode": "automatic",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  },
+  "feedback": {
+    "showExplanation": true
+  }
+}

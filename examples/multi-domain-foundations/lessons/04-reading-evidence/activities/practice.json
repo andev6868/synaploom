@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0",
+  "id": "literature-practice",
+  "title": "Thực hành",
+  "policy": {
+    "purpose": "practice",
+    "maxAttempts": null,
+    "feedbackMode": "immediate",
+    "revealAnswers": "after-submit",
+    "scoring": "none",
+    "passingScore": null
+  },
+  "activities": [
+    {
+      "id": "identify-image",
+      "path": "identify-image.activity.json",
+      "required": true
+    },
+    {
+      "id": "evidence-paragraph",
+      "path": "evidence-paragraph.activity.json",
+      "required": true
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "schemaVersion": "1.0",
+  "id": "multi-domain-checkpoint",
+  "title": "Đánh giá tổng hợp",
+  "activitySet": "activities/checkpoint.json"
+}

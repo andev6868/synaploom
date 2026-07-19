@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "id": "checkpoint-choice",
+  "kind": "single-choice",
+  "title": "Chọn chiến lược học",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Khi gặp một khái niệm mới, hành động nào giúp kiểm tra hiểu biết?"
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "options": [
+      {
+        "id": "explain",
+        "label": "Tự giải thích bằng lời của mình"
+      },
+      {
+        "id": "copy",
+        "label": "Chép lại nguyên văn nhiều lần"
+      },
+      {
+        "id": "skip",
+        "label": "Bỏ qua ví dụ"
+      }
+    ],
+    "correctOptionId": "explain",
+    "randomize": false
+  },
+  "evaluation": {
+    "mode": "automatic",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  },
+  "feedback": {
+    "showExplanation": true
+  }
+}

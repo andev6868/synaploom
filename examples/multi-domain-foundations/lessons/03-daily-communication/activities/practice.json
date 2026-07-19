@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0",
+  "id": "english-practice",
+  "title": "Thực hành",
+  "policy": {
+    "purpose": "practice",
+    "maxAttempts": null,
+    "feedbackMode": "immediate",
+    "revealAnswers": "after-submit",
+    "scoring": "none",
+    "passingScore": null
+  },
+  "activities": [
+    {
+      "id": "greeting-blanks",
+      "path": "greeting-blanks.activity.json",
+      "required": true
+    },
+    {
+      "id": "word-meaning",
+      "path": "word-meaning.activity.json",
+      "required": true
+    }
+  ]
+}

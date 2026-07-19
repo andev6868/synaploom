@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0",
+  "id": "algorithm-order",
+  "kind": "ordering",
+  "title": "Sắp xếp thuật toán",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Sắp xếp các bước để tính tổng hai số."
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "items": [
+      {
+        "id": "read",
+        "label": "Đọc hai số a và b"
+      },
+      {
+        "id": "add",
+        "label": "Tính a + b"
+      },
+      {
+        "id": "show",
+        "label": "Hiển thị kết quả"
+      }
+    ],
+    "correctOrder": ["read", "add", "show"],
+    "evaluationMode": "exact",
+    "randomize": false
+  },
+  "evaluation": {
+    "mode": "automatic",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  },
+  "feedback": {
+    "showExplanation": true
+  }
+}

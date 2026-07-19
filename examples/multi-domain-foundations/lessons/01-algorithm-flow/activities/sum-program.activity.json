@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "1.0",
+  "id": "sum-program",
+  "kind": "coding",
+  "title": "Viết chương trình tính tổng",
+  "prompt": {
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Hoàn thiện hàm sum để chương trình in ra 5."
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "schemaVersion": "1.0",
+    "id": "sum-program",
+    "title": "Viết chương trình tính tổng",
+    "runtime": {
+      "kind": "local",
+      "requires": ["node"]
+    },
+    "workspace": {
+      "starter": "starter",
+      "editable": ["index.js"]
+    },
+    "actions": {
+      "run": {
+        "label": "Chạy chương trình",
+        "executable": "node",
+        "args": ["index.js"],
+        "timeoutMs": 3000,
+        "maxOutputBytes": 100000
+      },
+      "check": {
+        "label": "Kiểm tra kết quả",
+        "executable": "node",
+        "args": [".synaploom/checks/check.mjs"],
+        "timeoutMs": 5000,
+        "maxOutputBytes": 100000
+      }
+    },
+    "checks": [
+      {
+        "id": "sum-output",
+        "title": "Chương trình in ra 5",
+        "required": true
+      }
+    ],
+    "completion": {
+      "requireAllRequiredChecks": true
+    }
+  },
+  "evaluation": {
+    "mode": "coding",
+    "points": 1
+  },
+  "completion": {
+    "required": true
+  }
+}
