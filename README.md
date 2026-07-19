@@ -9,7 +9,7 @@ The Go runtime is authoritative for course validation, lesson progression, works
 ## Current release
 
 - Synaploom: `0.2.0`
-- Course schema: `1.0.0`
+- Course schema: `1.2.0`
 - Native targets:
   - macOS: `amd64`, `arm64`
   - Linux: `amd64`, `arm64`
@@ -98,12 +98,16 @@ Imported courses, progress, submissions, and learner workspaces survive process 
 
 ## Course format
 
-A course v1 source contains a `course.json` manifest and lesson Markdown content. Lessons may reference starter files, checks, and explicitly declared local actions.
+A course v1 source contains a `course.json` manifest and lesson Markdown content. Lessons may combine rich typed Markdown with activity sets for quizzes, mathematics, writing, matching, ordering, and isolated coding workspaces. Existing starter files, checks, and explicitly declared local actions remain supported through the coding compatibility adapter.
 
 Start with:
 
 - [`docs/course-authoring/course-format-v1.md`](docs/course-authoring/course-format-v1.md)
+- [`docs/authoring/rich-lesson-content.md`](docs/authoring/rich-lesson-content.md)
+- [`docs/authoring/activity-engine.md`](docs/authoring/activity-engine.md)
+- [`docs/authoring/activity-kinds.md`](docs/authoring/activity-kinds.md)
 - [`examples/frontend-performance-foundations`](examples/frontend-performance-foundations)
+- [`examples/multi-domain-foundations`](examples/multi-domain-foundations)
 
 Synaploom treats imported content as data. Import does not execute course actions.
 
@@ -196,12 +200,15 @@ Run the complete verification flow:
 pnpm verify
 ```
 
-Additional contract gates:
+Additional contract and Activity Engine gates:
 
 ```bash
 pnpm contracts:check
 pnpm conformance:contracts
 pnpm conformance:runner
+pnpm validate:multi-domain
+pnpm test:activity-engine
+pnpm test:activity-engine-docs
 ```
 
 See [`docs/contributing/development.md`](docs/contributing/development.md) for the contributor workflow.

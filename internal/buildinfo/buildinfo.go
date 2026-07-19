@@ -7,5 +7,5 @@ var (
 	// Commit identifies the source revision used for the build.
 	Commit = "development"
 	// SchemaVersion identifies the canonical compatibility schema set.
-	SchemaVersion = "1.1.0"
+	SchemaVersion = "1.2.0"
 )

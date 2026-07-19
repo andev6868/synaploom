@@ -17,7 +17,7 @@
     "test": "vitest run --project dom && vitest run --project node",
     "test:e2e": "playwright test",
     "build": "pnpm -r --if-present build",
-    "validate:example": "bash scripts/go/with-internal-toolchain.sh run ./cmd/synaploom course validate examples/frontend-performance-foundations",
+    "validate:example": "pnpm course:validate examples/frontend-performance-foundations",
     "verify:fast": "pnpm format:check && pnpm lint && pnpm test && pnpm typecheck && pnpm check:type-strip && pnpm build",
     "verify": "pnpm verify:fast && pnpm test:e2e --project=go-runtime",
     "go:fmt": "test -z \"$(gofmt -l cmd internal generated/go 2>/dev/null)\"",
@@ -37,7 +37,11 @@
     "go:verify-release": "node scripts/go/verify-native-release.mjs",
     "go:build": "node scripts/go/build-native.mjs",
     "go:archive-source": "node scripts/go/archive-source.mjs",
-    "go:write-release-evidence": "node scripts/go/write-release-evidence.mjs"
+    "go:write-release-evidence": "node scripts/go/write-release-evidence.mjs",
+    "course:validate": "bash scripts/go/with-internal-toolchain.sh run ./cmd/synaploom course validate",
+    "validate:multi-domain": "pnpm course:validate examples/multi-domain-foundations",
+    "test:activity-engine": "pnpm exec vitest run --project dom apps/web/src/features/activity-engine apps/web/src/features/lesson-content apps/web/src/features/chapter-assessment --maxWorkers=2 && bash scripts/go/with-internal-toolchain.sh test ./internal/activity ./internal/course ./internal/server ./internal/progression ./internal/storage",
+    "test:activity-engine-docs": "node --experimental-strip-types --test tests/activity-engine-docs.spec.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
