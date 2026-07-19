@@ -232,11 +232,12 @@ describe('activity API client', () => {
   });
 
   it('builds assessment coding workspace URLs', async () => {
-    const fetchImpl = vi.fn(async () =>
-      new Response(JSON.stringify({ files: ['answer.js'] }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      }),
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ files: ['answer.js'] }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
     );
     const client = createApiClient(fetchImpl as typeof fetch);
 
