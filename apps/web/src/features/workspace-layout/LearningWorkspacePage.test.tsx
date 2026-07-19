@@ -260,6 +260,65 @@ describe('LearningWorkspacePage', () => {
           actions: [{ id: 'check', label: 'Kiểm tra kết quả' }],
           editable: [],
         }),
+      getWorkspacePresentation: () =>
+        Promise.resolve({
+          courseId: course.id,
+          ownerKind: 'assessments',
+          ownerId: 'runtime-checkpoint',
+          focusedActivityId: 'assessment-question',
+          paneMode: 'split',
+          splitRatio: 0.45,
+          userCollapsed: false,
+          revision: 1,
+          updatedAt: '2026-07-19T00:00:00Z',
+        }),
+      getActivityStatuses: () =>
+        Promise.resolve([
+          {
+            activityId: 'assessment-question',
+            status: 'AVAILABLE',
+            attemptNumber: 0,
+            score: null,
+            maxScore: null,
+            passed: null,
+          },
+        ]),
+      getActivitySets: () =>
+        Promise.resolve([
+          {
+            id: 'runtime-checkpoint-set',
+            title: 'Runtime Checkpoint',
+            policy: {
+              purpose: 'assessment',
+              maxAttempts: 2,
+              feedbackMode: 'after-submit',
+              revealAnswers: 'after-final-attempt',
+              scoring: 'points',
+              passingScore: 1,
+            },
+            activities: [
+              {
+                required: true,
+                activity: {
+                  id: 'assessment-question',
+                  kind: 'true-false',
+                  title: 'Promise chạy trước timer',
+                  prompt: { blocks: [] },
+                  config: {},
+                  evaluation: { mode: 'automatic', points: 1 },
+                  completion: { required: true },
+                  presentation: {
+                    defaultSurface: 'practice',
+                    allowInline: true,
+                    allowPractice: true,
+                    preferredWidth: 'compact',
+                    supportsFullscreen: false,
+                  },
+                },
+              },
+            ],
+          },
+        ]),
     };
 
     render(
@@ -280,7 +339,15 @@ describe('LearningWorkspacePage', () => {
     ).toBeVisible();
     expect(screen.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
     expect(screen.getByText('Trợ lý AI')).toBeVisible();
-    expect(document.querySelector('.syn-assessment-page')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
+    ).toBeVisible();
+    expect(
+      screen.getByText('Promise chạy trước timer đang mở trong khu vực thực hành.'),
+    ).toBeVisible();
+    expect(screen.getAllByRole('radio', { name: 'Đúng' })).toHaveLength(1);
+    expect(screen.getByRole('heading', { name: 'Yêu cầu hoàn thành đánh giá' })).toBeVisible();
+    expect(document.querySelector('.syn-assessment-workspace')).not.toBeInTheDocument();
   });
 
   it('renders embedded non-coding activities inline with the lesson document', async () => {
