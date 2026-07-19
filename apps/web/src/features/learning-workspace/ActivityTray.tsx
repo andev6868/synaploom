@@ -25,10 +25,12 @@ export function ActivityTray({
   activities,
   statuses,
   controller,
+  focusedActivityId,
 }: {
   readonly activities: readonly ResolvedWorkspaceActivity[];
   readonly statuses: readonly ActivityStatusPayload[];
   readonly controller: Pick<LearningWorkspaceController, 'focusActivity'>;
+  readonly focusedActivityId: string | null;
 }): ReactNode {
   return (
     <section className="syn-activity-tray" aria-label="Hoạt động trong bài">
@@ -41,6 +43,7 @@ export function ActivityTray({
             <li key={item.activity.id}>
               <button
                 type="button"
+                aria-current={item.activity.id === focusedActivityId ? 'true' : undefined}
                 onClick={() => {
                   void controller.focusActivity(item.activity.id).catch(() => undefined);
                 }}

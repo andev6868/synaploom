@@ -47,12 +47,18 @@ export function PracticePane({
         ordinal={ordinal}
         total={activities.length}
         controller={controller}
+        status={status}
       />
       <details className="syn-practice-pane__tray">
         <summary>Hoạt động trong bài</summary>
-        <ActivityTray activities={activities} statuses={statuses} controller={controller} />
+        <ActivityTray
+          activities={activities}
+          statuses={statuses}
+          controller={controller}
+          focusedActivityId={focused.activity.id}
+        />
       </details>
-      <div className="syn-practice-pane__body">{renderHost(hostProps)}</div>
+      <div className="syn-practice-pane__body" data-active-activity-editor>{renderHost(hostProps)}</div>
       {controller.saveStatus === 'error' || controller.saveStatus === 'conflict' ? (
         <div className="syn-practice-pane__feedback" role="alert">
           <p>{controller.error?.message ?? 'Không thể lưu trạng thái khu vực học.'}</p>

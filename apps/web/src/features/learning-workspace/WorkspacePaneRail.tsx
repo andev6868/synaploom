@@ -36,7 +36,12 @@ export function WorkspacePaneRail({
     <aside className="syn-workspace-pane-rail">
       <details>
         <summary>Chọn hoạt động thực hành, {activities.length} hoạt động</summary>
-        <ActivityTray activities={activities} statuses={statuses} controller={controller} />
+        <ActivityTray
+          activities={activities}
+          statuses={statuses}
+          controller={controller}
+          focusedActivityId={null}
+        />
       </details>
     </aside>
   );

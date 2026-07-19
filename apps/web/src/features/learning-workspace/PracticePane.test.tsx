@@ -69,11 +69,13 @@ it('mounts exactly one focused host and exposes explicit next and retry actions'
       ]}
       controller={controller}
       onProgressChanged={vi.fn()}
-      renderHost={() => <input aria-label="focused editor" />}
+      renderHost={() => <input aria-label="active editor" />}
     />,
   );
   expect(screen.getByRole('heading', { name: 'Quiz', level: 2 })).toHaveAttribute('tabindex', '-1');
-  expect(screen.getAllByRole('textbox')).toHaveLength(1);
+  expect(screen.getAllByRole('textbox', { name: 'active editor' })).toHaveLength(1);
+  expect(screen.getByText('Lưu thất bại')).toBeVisible();
+  expect(screen.getByText('1/2')).toBeVisible();
   expect(screen.getByText('1/2')).toBeVisible();
   expect(screen.getByRole('alert')).toHaveTextContent('save failed');
   fireEvent.click(screen.getByRole('button', { name: 'Thử lưu lại' }));

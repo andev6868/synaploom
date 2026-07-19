@@ -1,4 +1,6 @@
+import type { ActivityStatusPayload } from '@synaploom/protocol';
 import type { ReactNode } from 'react';
+import { activityStatusLabel } from '#src/features/learning-workspace/ActivityTray';
 import type { LearningWorkspaceController } from '#src/features/learning-workspace/useLearningWorkspaceController';
 import type { ResolvedWorkspaceActivity } from '#src/features/learning-workspace/workspace-model';
 
@@ -7,11 +9,13 @@ export function PracticePaneHeader({
   ordinal,
   total,
   controller,
+  status,
 }: {
   readonly focusedActivity: ResolvedWorkspaceActivity;
   readonly ordinal: number;
   readonly total: number;
   readonly controller: LearningWorkspaceController;
+  readonly status: ActivityStatusPayload | null;
 }): ReactNode {
   return (
     <header className="syn-practice-pane__header">
@@ -28,6 +32,15 @@ export function PracticePaneHeader({
         >
           {focusedActivity.activity.title}
         </h2>
+        <p className="syn-practice-pane__save-status" aria-live="polite">
+          {controller.saveStatus === 'saving'
+            ? 'Đang lưu…'
+            : controller.saveStatus === 'saved'
+              ? 'Đã lưu bản nháp'
+              : controller.saveStatus === 'error'
+                ? 'Lưu thất bại'
+                : activityStatusLabel(status?.status ?? 'AVAILABLE')}
+        </p>
       </div>
       <div>
         {focusedActivity.activity.presentation.supportsFullscreen ? (

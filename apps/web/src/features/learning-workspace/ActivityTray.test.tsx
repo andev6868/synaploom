@@ -65,6 +65,7 @@ it('renders authored order, required labels and text statuses without mounting e
         },
       ]}
       controller={{ focusActivity } as unknown as LearningWorkspaceController}
+      focusedActivityId="Coding lab"
     />,
   );
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
@@ -74,6 +75,7 @@ it('renders authored order, required labels and text statuses without mounting e
   ]);
   expect(screen.getByText('Đã đạt')).toBeVisible();
   expect(screen.getByText('Bản nháp')).toBeVisible();
+  expect(screen.getByRole('button', { name: /Coding lab/ })).toHaveAttribute('aria-current', 'true');
   expect(screen.getByText('Chưa bắt đầu')).toBeVisible();
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: /Coding lab/ }));
