@@ -60,7 +60,10 @@ it('restores a collapsed focused activity', () => {
       controller={{ restoreSplitPane } as unknown as LearningWorkspaceController}
     />,
   );
-  expect(screen.getByText('B đang tạm ẩn.')).toBeVisible();
-  fireEvent.click(screen.getByRole('button', { name: 'Mở lại B' }));
+  const rail = screen.getByLabelText('Khu vực thực hành đang thu gọn');
+  expect(rail).toHaveAttribute('data-workspace-practice-rail');
+  const restore = screen.getByRole('button', { name: 'Mở lại B' });
+  expect(restore).toHaveAttribute('aria-expanded', 'false');
+  fireEvent.click(restore);
   expect(restoreSplitPane).toHaveBeenCalled();
 });

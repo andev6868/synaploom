@@ -18,7 +18,7 @@ const common = {
   splitRatio: 0.45,
   theory: <div>Theory content</div>,
   practice: <div>Practice editor</div>,
-  practiceRail: <div>Practice rail</div>,
+  practiceRail: <div data-testid="practice-rail">Practice rail</div>,
   theoryRail: <div>Theory rail</div>,
   practiceTitle: 'Practice',
   onSplitRatioCommit: vi.fn(),
@@ -29,7 +29,8 @@ it('maps wide collapsed, split and expanded surfaces', () => {
   viewport('wide');
   const view = render(<LearningWorkspaceShell {...common} mode="collapsed" />);
   expect(screen.getByText('Theory content')).toBeVisible();
-  expect(screen.getByText('Practice rail')).toBeVisible();
+  expect(screen.getByRole('main')).toHaveClass('syn-learning-workspace--collapsed');
+  expect(screen.getByTestId('practice-rail')).toBeVisible();
   expect(screen.queryByText('Practice editor')).not.toBeInTheDocument();
   view.rerender(<LearningWorkspaceShell {...common} mode="split" />);
   expect(screen.getByText('Practice editor')).toBeVisible();

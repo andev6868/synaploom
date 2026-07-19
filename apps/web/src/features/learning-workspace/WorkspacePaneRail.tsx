@@ -18,22 +18,27 @@ export function WorkspacePaneRail({
   if (activities.length === 0) return null;
   if (focusedActivity) {
     return (
-      <aside className="syn-workspace-pane-rail" aria-label="Khu vực thực hành đang thu gọn">
-        <strong>Thực hành · {activities.length} hoạt động</strong>
-        <p>{focusedActivity.activity.title} đang tạm ẩn.</p>
+      <aside
+        className="syn-workspace-pane-rail"
+        data-workspace-practice-rail
+        aria-label="Khu vực thực hành đang thu gọn"
+      >
         <button
           type="button"
-          onClick={() => {
-            void controller.restoreSplitPane().catch(() => undefined);
-          }}
+          aria-expanded="false"
+          aria-controls="syn-practice-pane"
+          aria-label={`Mở lại ${focusedActivity.activity.title}`}
+          onClick={() => void controller.restoreSplitPane().catch(() => undefined)}
         >
-          Mở lại {focusedActivity.activity.title}
+          <span aria-hidden="true">↤</span>
+          <strong>Thực hành</strong>
+          <span>{activities.length}</span>
         </button>
       </aside>
     );
   }
   return (
-    <aside className="syn-workspace-pane-rail">
+    <aside className="syn-workspace-pane-rail" data-workspace-practice-rail>
       <details>
         <summary>Chọn hoạt động thực hành, {activities.length} hoạt động</summary>
         <ActivityTray
