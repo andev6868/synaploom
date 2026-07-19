@@ -39,3 +39,17 @@ func TestWritingEvaluatorRejectsLengthAndShape(t *testing.T) {
 		}
 	}
 }
+
+func TestWritingEvaluatorAcceptsSafeMarkdownContract(t *testing.T) {
+	definition := ActivityDefinition{
+		ID: "writing", Kind: ActivityKindWriting,
+		Config: map[string]any{"minimumCharacters": float64(1), "maximumCharacters": float64(500), "answerFormat": "safe-markdown"},
+	}
+	result, err := NewWritingEvaluator().Evaluate(context.Background(), definition, json.RawMessage(`{"kind":"writing","value":"**Dẫn chứng** rõ ràng."}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !result.Completed {
+		t.Fatalf("result=%#v", result)
+	}
+}

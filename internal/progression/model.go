@@ -33,6 +33,7 @@ type ActivitySetRequirement struct {
 // LessonDefinition contains lesson metadata loaded from lesson.md and exercise manifests.
 type LessonDefinition struct {
 	ID              string
+	Title           string
 	Position        int
 	ReadingRequired bool
 	Practices       []Practice
@@ -42,6 +43,7 @@ type LessonDefinition struct {
 // LessonRef places a lesson definition inside a chapter.
 type LessonRef struct {
 	ID              string
+	Title           string
 	ChapterID       string
 	Position        int
 	Required        bool

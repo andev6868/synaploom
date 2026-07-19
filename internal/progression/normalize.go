@@ -169,6 +169,7 @@ func lessonRef(chapterID string, position int, required bool, definition LessonD
 	activitySets := append([]ActivitySetRequirement(nil), definition.ActivitySets...)
 	return LessonRef{
 		ID:              definition.ID,
+		Title:           definition.Title,
 		ChapterID:       chapterID,
 		Position:        position,
 		Required:        required,

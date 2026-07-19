@@ -12,9 +12,32 @@ var keyboardPattern = regexp.MustCompile(`^<kbd>([^<]+)</kbd>$`)
 
 func (s *markdownState) inlineChildren(parent ast.Node, source []byte) []any {
 	result := []any{}
-	for child := parent.FirstChild(); child != nil; child = child.NextSibling() {
-		result = append(result, s.inlineNode(child, source)...)
+	var text strings.Builder
+	flushText := func() {
+		if text.Len() == 0 {
+			return
+		}
+		result = append(result, tokenizeInlineMath(text.String(), s)...)
+		text.Reset()
 	}
+	for child := parent.FirstChild(); child != nil; child = child.NextSibling() {
+		switch current := child.(type) {
+		case *ast.Text:
+			text.Write(current.Segment.Value(source))
+			if current.HardLineBreak() {
+				flushText()
+				result = append(result, map[string]any{"type": "hard-break"})
+			} else if current.SoftLineBreak() {
+				text.WriteByte('\n')
+			}
+		case *ast.String:
+			text.Write(current.Value)
+		default:
+			flushText()
+			result = append(result, s.inlineNode(child, source)...)
+		}
+	}
+	flushText()
 	return result
 }
 

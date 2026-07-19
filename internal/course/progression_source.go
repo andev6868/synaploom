@@ -34,6 +34,7 @@ func (s *FilesystemService) ProgressionGraph() (progression.CourseGraph, error) 
 		}
 		definition := progression.LessonDefinition{
 			ID:              lesson.ID,
+			Title:           frontMatter.Title,
 			Position:        lesson.Position,
 			ReadingRequired: true,
 		}

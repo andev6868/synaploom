@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"time"
 
@@ -50,7 +51,9 @@ func (h executionHandlers) start(w http.ResponseWriter, r *http.Request) {
 					if event.Type != runner.EventExited {
 						result.Err = errors.New(event.Type)
 					}
-					_ = h.record(context.Background(), lessonID, activityID, actionID, request.ExecutionID, result)
+					if err := h.record(context.Background(), lessonID, activityID, actionID, request.ExecutionID, result); err != nil {
+						log.Printf("record execution result %s: %v", request.ExecutionID, err)
+					}
 				},
 			}
 		}

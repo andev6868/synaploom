@@ -113,7 +113,10 @@ export function LessonActivities({
     return <p role="alert">Không tìm thấy hoạt động “{missing}” trong activity set của bài học.</p>;
   }
 
+  const embedded = new Set(embeddedIds);
+  const excluded = new Set(excludedActivityIds);
   const renderActivity = (activityId: string): ReactNode => {
+    if (excluded.has(activityId)) return null;
     const item = byId.get(activityId);
     if (!item) return null;
     return renderHost({
@@ -123,8 +126,6 @@ export function LessonActivities({
       onProgressChanged,
     });
   };
-  const embedded = new Set(embeddedIds);
-  const excluded = new Set(excludedActivityIds);
   const remaining = activities.filter(
     (item) => !embedded.has(item.activity.id) && !excluded.has(item.activity.id),
   );

@@ -44,31 +44,31 @@ func (matchingEvaluator) Evaluate(_ context.Context, definition ActivityDefiniti
 	}
 
 	var answer struct {
-		Kind    ActivityKind `json:"kind"`
-		Matches any          `json:"matches"`
+		Kind  ActivityKind `json:"kind"`
+		Pairs any          `json:"pairs"`
 	}
 	if err := decodeAnswer(raw, ActivityKindMatching, &answer); err != nil {
 		return EvaluationResult{}, err
 	}
-	matches, ok := answer.Matches.(map[string]any)
+	matches, ok := answer.Pairs.(map[string]any)
 	if answer.Kind != ActivityKindMatching || !ok || len(matches) != len(left) {
-		return EvaluationResult{}, malformedAnswer(ActivityKindMatching, "matches must map every configured left item")
+		return EvaluationResult{}, malformedAnswer(ActivityKindMatching, "pairs must map every configured left item")
 	}
 	usedRight := make(map[string]struct{}, len(matches))
 	correctCount := 0
 	for leftID, rawRightID := range matches {
 		rightID, ok := rawRightID.(string)
 		if !ok {
-			return EvaluationResult{}, malformedAnswer(ActivityKindMatching, "match values must be strings")
+			return EvaluationResult{}, malformedAnswer(ActivityKindMatching, "pair values must be strings")
 		}
 		if _, exists := left[leftID]; !exists {
-			return EvaluationResult{}, malformedAnswer(ActivityKindMatching, "matches contains an unknown left id")
+			return EvaluationResult{}, malformedAnswer(ActivityKindMatching, "pairs contains an unknown left id")
 		}
 		if _, exists := right[rightID]; !exists {
-			return EvaluationResult{}, malformedAnswer(ActivityKindMatching, "matches contains an unknown right id")
+			return EvaluationResult{}, malformedAnswer(ActivityKindMatching, "pairs contains an unknown right id")
 		}
 		if _, duplicate := usedRight[rightID]; duplicate {
-			return EvaluationResult{}, malformedAnswer(ActivityKindMatching, "matches must be one-to-one")
+			return EvaluationResult{}, malformedAnswer(ActivityKindMatching, "pairs must be one-to-one")
 		}
 		usedRight[rightID] = struct{}{}
 		if correctStrings[leftID] == rightID {

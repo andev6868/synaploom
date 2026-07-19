@@ -144,3 +144,30 @@ func TestMarkdownGoldenOutputIsStable(t *testing.T) {
 		t.Fatalf("golden mismatch\nactual:\n%s\nexpected:\n%s", actual, expected)
 	}
 }
+
+func TestParseLessonDocumentKeepsInlineMathBalancedAcrossAdjacentTextNodes(t *testing.T) {
+	document, issues := ParseLessonDocument(`:::worked-example title="Giải từng bước"
+$2x = 8$, vì vậy $x = 4$.
+:::
+`, MarkdownParseOptions{Metadata: LessonMetadata{ID: "math", CourseID: "course", Position: 1, Title: "Math", Type: generated.LessonDocumentTypeMixed}})
+	if len(issues) != 0 {
+		t.Fatalf("issues=%#v", issues)
+	}
+	block := lessonBlockAt(t, document, 0)
+	blocks, ok := block["blocks"].([]any)
+	if !ok || len(blocks) != 1 {
+		t.Fatalf("block=%#v", block)
+	}
+	paragraph := blocks[0].(map[string]any)
+	children := paragraph["children"].([]any)
+	math := []string{}
+	for _, raw := range children {
+		node := raw.(map[string]any)
+		if node["type"] == "math" {
+			math = append(math, node["source"].(string))
+		}
+	}
+	if len(math) != 2 || math[0] != "2x = 8" || math[1] != "x = 4" {
+		t.Fatalf("children=%#v", children)
+	}
+}

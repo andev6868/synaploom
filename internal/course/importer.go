@@ -34,6 +34,9 @@ func Import(ctx context.Context, sourcePath, destinationRoot string) (InstalledC
 	if err != nil {
 		return InstalledCourse{}, err
 	}
+	if err := Validate(source); err != nil {
+		return InstalledCourse{}, fmt.Errorf("validate course package: %w", err)
+	}
 	manifestPath := filepath.Join(source, "course.json")
 	data, err := os.ReadFile(manifestPath)
 	if err != nil {

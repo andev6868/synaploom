@@ -36,8 +36,8 @@ func (writingEvaluator) Evaluate(_ context.Context, definition ActivityDefinitio
 		return EvaluationResult{}, evaluatorConfigError(ActivityKindWriting, "maximumCharacters must be at least minimumCharacters and greater than zero")
 	}
 	format, _ := definition.Config["answerFormat"].(string)
-	if format != "plain-text" && format != "markdown" {
-		return EvaluationResult{}, evaluatorConfigError(ActivityKindWriting, "answerFormat must be plain-text or markdown")
+	if format != "plain-text" && format != "safe-markdown" {
+		return EvaluationResult{}, evaluatorConfigError(ActivityKindWriting, "answerFormat must be plain-text or safe-markdown")
 	}
 	length := utf8.RuneCountInString(strings.TrimSpace(value))
 	if length < minimum || length > maximum {

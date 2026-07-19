@@ -119,14 +119,14 @@ func navigationPayload(n progression.LearningNavigation) map[string]any {
 		lessons := make([]map[string]any, 0, len(chapter.Lessons))
 		for _, lesson := range chapter.Lessons {
 			lessons = append(lessons, map[string]any{
-				"id": lesson.ID, "title": lesson.ID, "status": lesson.Status, "required": lesson.Required,
+				"id": lesson.ID, "title": lesson.Title, "status": lesson.Status, "required": lesson.Required,
 				"current": lesson.Current, "viewed": lesson.Viewed, "blockingRequirements": []any{},
 			})
 		}
 		assessments := make([]map[string]any, 0, len(chapter.Assessments))
 		for _, assessment := range chapter.Assessments {
 			assessments = append(assessments, map[string]any{
-				"id": assessment.ID, "title": assessment.ID, "status": assessment.Status, "required": assessment.Required,
+				"id": assessment.ID, "title": assessment.Title, "status": assessment.Status, "required": assessment.Required,
 				"viewed": assessment.Viewed, "blockingRequirements": []any{},
 			})
 		}

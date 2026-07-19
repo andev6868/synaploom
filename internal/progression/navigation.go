@@ -45,11 +45,13 @@ type NextAction struct {
 }
 type LessonNavigationItem struct {
 	ID                        string
+	Title                     string
 	Status                    Status
 	Required, Viewed, Current bool
 }
 type AssessmentNavigationItem struct {
 	ID               string
+	Title            string
 	Status           Status
 	Required, Viewed bool
 }
@@ -92,7 +94,7 @@ func BuildNavigation(graph CourseGraph, evaluation Evaluation, viewed ItemRef) (
 		item := ChapterNavigationItem{ID: chapter.ID, Title: chapter.Title, Status: ce.Status, Required: chapter.Required}
 		for _, lesson := range chapter.Lessons {
 			le := evaluation.Lessons[lesson.ID]
-			item.Lessons = append(item.Lessons, LessonNavigationItem{ID: lesson.ID, Status: le.Status, Required: lesson.Required, Viewed: viewed.Kind == ItemLesson && viewed.ID == lesson.ID, Current: evaluation.CurrentLessonID == lesson.ID})
+			item.Lessons = append(item.Lessons, LessonNavigationItem{ID: lesson.ID, Title: lesson.Title, Status: le.Status, Required: lesson.Required, Viewed: viewed.Kind == ItemLesson && viewed.ID == lesson.ID, Current: evaluation.CurrentLessonID == lesson.ID})
 		}
 		for _, assessment := range chapter.Assessments {
 			status := StatusLocked
@@ -105,7 +107,7 @@ func BuildNavigation(graph CourseGraph, evaluation Evaluation, viewed ItemRef) (
 					}
 				}
 			}
-			item.Assessments = append(item.Assessments, AssessmentNavigationItem{ID: assessment.ID, Status: status, Required: assessment.Required, Viewed: viewed.Kind == ItemChapterAssessment && viewed.ID == assessment.ID})
+			item.Assessments = append(item.Assessments, AssessmentNavigationItem{ID: assessment.ID, Title: assessment.Title, Status: status, Required: assessment.Required, Viewed: viewed.Kind == ItemChapterAssessment && viewed.ID == assessment.ID})
 		}
 		nav.Chapters = append(nav.Chapters, item)
 	}

@@ -76,3 +76,30 @@ func TestCompletedCourseHasNoSyntheticSummaryAction(t *testing.T) {
 		t.Fatalf("got %s want %s", action.Type, NextActionNone)
 	}
 }
+
+func TestNavigationCarriesAuthoredLessonAndAssessmentTitles(t *testing.T) {
+	graph := CourseGraph{
+		ID: "course", Version: "1", LessonIndex: map[string]LessonRef{},
+		Chapters: []Chapter{{
+			ID: "chapter", Title: "Chương", Required: true,
+			Lessons:     []LessonRef{{ID: "lesson", Title: "Tên bài học", ChapterID: "chapter", Required: true}},
+			Assessments: []Assessment{{ID: "checkpoint", Title: "Đánh giá tổng hợp", ChapterID: "chapter", Required: true}},
+		}},
+	}
+	graph.LessonIndex["lesson"] = graph.Chapters[0].Lessons[0]
+	evaluation := Evaluation{
+		CourseStatus: StatusInProgress, CurrentLessonID: "lesson",
+		Lessons:  map[string]LessonEvaluation{"lesson": {LessonID: "lesson", Status: StatusAvailable}},
+		Chapters: map[string]ChapterEvaluation{"chapter": {ChapterID: "chapter", Status: StatusInProgress}},
+	}
+	navigation, err := BuildNavigation(graph, evaluation, ItemRef{Kind: ItemLesson, ID: "lesson", ChapterID: "chapter"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := navigation.Chapters[0].Lessons[0].Title; got != "Tên bài học" {
+		t.Fatalf("lesson title=%q", got)
+	}
+	if got := navigation.Chapters[0].Assessments[0].Title; got != "Đánh giá tổng hợp" {
+		t.Fatalf("assessment title=%q", got)
+	}
+}

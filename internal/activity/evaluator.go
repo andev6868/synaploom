@@ -76,6 +76,9 @@ func ApplyRevealPolicy(result EvaluationResult, policy ActivitySetPolicy, attemp
 }
 
 func evaluatedResult(definition ActivityDefinition, score float64, fullyCorrect bool, details []ActivityFeedbackItem, correctAnswer any) EvaluationResult {
+	if details == nil {
+		details = []ActivityFeedbackItem{}
+	}
 	maxScore := definition.Evaluation.Points
 	passed := fullyCorrect
 	if definition.Completion.PassingScore != nil {

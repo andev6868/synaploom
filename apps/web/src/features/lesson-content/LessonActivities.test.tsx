@@ -94,3 +94,25 @@ it('fails closed before rendering when an activity is embedded more than once', 
   expect(screen.getByRole('alert')).toHaveTextContent('được nhúng nhiều hơn một lần');
   expect(screen.queryByText('Embedded question')).not.toBeInTheDocument();
 });
+
+it('excludes focused activities even when they are embedded in the lesson document', () => {
+  const blocks: readonly LessonBlock[] = [
+    { type: 'paragraph', children: [{ type: 'text', value: 'Before focused activity' }] },
+    { type: 'activity', activityId: 'embedded' },
+  ];
+  render(
+    <LessonActivities
+      blocks={blocks}
+      owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
+      activitySets={sets}
+      excludedActivityIds={['embedded']}
+      onProgressChanged={vi.fn()}
+      renderHost={({ activity }) => (
+        <div data-testid={`activity-${activity.id}`}>{activity.title}</div>
+      )}
+    />,
+  );
+
+  expect(screen.getByText('Before focused activity')).toBeInTheDocument();
+  expect(screen.queryByTestId('activity-embedded')).not.toBeInTheDocument();
+});

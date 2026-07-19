@@ -15,18 +15,18 @@ func TestMatchingEvaluatorScoresOneToOnePairs(t *testing.T) {
 		"correctMatches": map[string]any{"l1": "r1", "l2": "r2"},
 	})
 	registry := NewRegistry(NewMatchingEvaluator())
-	result, err := registry.Evaluate(context.Background(), definition, json.RawMessage(`{"kind":"matching","matches":{"l1":"r1","l2":"r1"}}`))
+	result, err := registry.Evaluate(context.Background(), definition, json.RawMessage(`{"kind":"matching","pairs":{"l1":"r1","l2":"r1"}}`))
 	if !errors.Is(err, ErrMalformedAnswer) {
 		t.Fatalf("duplicate right-side match error = %v, want ErrMalformedAnswer", err)
 	}
-	result, err = registry.Evaluate(context.Background(), definition, json.RawMessage(`{"kind":"matching","matches":{"l1":"r1","l2":"r2"}}`))
+	result, err = registry.Evaluate(context.Background(), definition, json.RawMessage(`{"kind":"matching","pairs":{"l1":"r1","l2":"r2"}}`))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if resultScore(result) != 4 || !resultPassed(result) {
 		t.Fatalf("exact result = %+v", result)
 	}
-	result, err = registry.Evaluate(context.Background(), definition, json.RawMessage(`{"kind":"matching","matches":{"l1":"r2","l2":"r1"}}`))
+	result, err = registry.Evaluate(context.Background(), definition, json.RawMessage(`{"kind":"matching","pairs":{"l1":"r2","l2":"r1"}}`))
 	if err != nil {
 		t.Fatal(err)
 	}

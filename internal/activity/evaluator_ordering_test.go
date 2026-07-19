@@ -62,3 +62,35 @@ func TestOrderingEvaluatorRejectsInvalidPermutation(t *testing.T) {
 		}
 	}
 }
+
+func TestOrderingEvaluatorSerializesEmptyFeedbackDetailsAsArray(t *testing.T) {
+	t.Parallel()
+	definition := evaluatorDefinition(ActivityKindOrdering, 1, map[string]any{
+		"items": []any{map[string]any{"id": "a"}, map[string]any{"id": "b"}},
+		"correctOrder": []any{"a", "b"}, "evaluationMode": "exact",
+	})
+	result, err := NewRegistry(NewOrderingEvaluator()).Evaluate(
+		context.Background(),
+		definition,
+		json.RawMessage(`{"kind":"ordering","itemIds":["a","b"]}`),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	payload, err := json.Marshal(result.Feedback)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(payload) == "" || !json.Valid(payload) {
+		t.Fatalf("invalid feedback JSON: %s", payload)
+	}
+	var decoded struct {
+		Details []ActivityFeedbackItem `json:"details"`
+	}
+	if err := json.Unmarshal(payload, &decoded); err != nil {
+		t.Fatal(err)
+	}
+	if decoded.Details == nil {
+		t.Fatalf("details serialized as null: %s", payload)
+	}
+}
