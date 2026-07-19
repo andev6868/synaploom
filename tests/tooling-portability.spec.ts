@@ -42,3 +42,9 @@ test('documents the native architecture and verified release matrix', async () =
   await readFile('docs/architecture/go-core.md', 'utf8');
   await readFile('scripts/go/archive-source.mjs', 'utf8');
 });
+
+test('keeps Node-native documentation specs out of the Vitest project', async () => {
+  const config = await readFile('vitest.config.ts', 'utf8');
+  assert.match(config, /tests\/activity-engine-docs\.spec\.ts/);
+  assert.match(config, /tests\/workspace-presentation-docs\.spec\.ts/);
+});

@@ -49,11 +49,9 @@ const activityTests = domTests.filter((file) =>
 const workspaceTests = domTests.filter((file) => !activityTests.includes(file));
 
 try {
-  await Promise.all([
-    runVitest(['--project', 'dom', '--maxWorkers=2', ...activityTests]),
-    runVitest(['--project', 'dom', '--maxWorkers=2', ...workspaceTests]),
-  ]);
-  await runVitest(['--project', 'node', '--maxWorkers=2']);
+  await runVitest(['--project', 'dom', '--maxWorkers=1', ...activityTests]);
+  await runVitest(['--project', 'dom', '--maxWorkers=1', ...workspaceTests]);
+  await runVitest(['--project', 'node', '--maxWorkers=1']);
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);
   process.exit(1);

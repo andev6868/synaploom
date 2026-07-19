@@ -19,7 +19,11 @@ export default defineConfig({
             'tests/**/*.test.ts',
             'tests/conformance/**/*.test.ts',
           ],
-          exclude: ['tests/e2e/**', 'tests/activity-engine-docs.spec.ts'],
+          exclude: [
+            'tests/e2e/**',
+            'tests/activity-engine-docs.spec.ts',
+            'tests/workspace-presentation-docs.spec.ts',
+          ],
         },
       },
       {
