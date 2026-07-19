@@ -62,15 +62,24 @@ type FeedbackPolicy struct {
 	ShowExplanation bool `json:"showExplanation,omitempty"`
 }
 
+type ActivityPresentation struct {
+	DefaultSurface     string `json:"defaultSurface"`
+	AllowInline        bool   `json:"allowInline"`
+	AllowPractice      bool   `json:"allowPractice"`
+	PreferredWidth     string `json:"preferredWidth"`
+	SupportsFullscreen bool   `json:"supportsFullscreen"`
+}
+
 type ActivityDefinition struct {
-	ID         string           `json:"id"`
-	Kind       ActivityKind     `json:"kind"`
-	Title      string           `json:"title"`
-	Prompt     map[string]any   `json:"prompt"`
-	Config     map[string]any   `json:"config"`
-	Evaluation EvaluationPolicy `json:"evaluation"`
-	Completion CompletionPolicy `json:"completion"`
-	Feedback   FeedbackPolicy   `json:"feedback,omitempty"`
+	ID           string                `json:"id"`
+	Kind         ActivityKind          `json:"kind"`
+	Title        string                `json:"title"`
+	Prompt       map[string]any        `json:"prompt"`
+	Config       map[string]any        `json:"config"`
+	Evaluation   EvaluationPolicy      `json:"evaluation"`
+	Completion   CompletionPolicy      `json:"completion"`
+	Feedback     FeedbackPolicy        `json:"feedback,omitempty"`
+	Presentation *ActivityPresentation `json:"presentation,omitempty"`
 }
 
 type ActivityPurpose string
@@ -123,14 +132,15 @@ type ActivitySetCatalog interface {
 }
 
 type PublicActivityView struct {
-	ID         string           `json:"id"`
-	Kind       ActivityKind     `json:"kind"`
-	Title      string           `json:"title"`
-	Prompt     map[string]any   `json:"prompt"`
-	Config     map[string]any   `json:"config"`
-	Evaluation EvaluationPolicy `json:"evaluation"`
-	Completion CompletionPolicy `json:"completion"`
-	Feedback   *FeedbackPolicy  `json:"feedback,omitempty"`
+	ID           string               `json:"id"`
+	Kind         ActivityKind         `json:"kind"`
+	Title        string               `json:"title"`
+	Prompt       map[string]any       `json:"prompt"`
+	Config       map[string]any       `json:"config"`
+	Evaluation   EvaluationPolicy     `json:"evaluation"`
+	Completion   CompletionPolicy     `json:"completion"`
+	Feedback     *FeedbackPolicy      `json:"feedback,omitempty"`
+	Presentation ActivityPresentation `json:"presentation"`
 }
 
 type AttemptStatus string
@@ -228,14 +238,15 @@ func DefinitionFromMap(raw map[string]any) (ActivityDefinition, error) {
 		return ActivityDefinition{}, err
 	}
 	var wire struct {
-		ID         string           `json:"id"`
-		Kind       ActivityKind     `json:"kind"`
-		Title      string           `json:"title"`
-		Prompt     map[string]any   `json:"prompt"`
-		Config     map[string]any   `json:"config"`
-		Evaluation EvaluationPolicy `json:"evaluation"`
-		Completion CompletionPolicy `json:"completion"`
-		Feedback   FeedbackPolicy   `json:"feedback"`
+		ID           string                `json:"id"`
+		Kind         ActivityKind          `json:"kind"`
+		Title        string                `json:"title"`
+		Prompt       map[string]any        `json:"prompt"`
+		Config       map[string]any        `json:"config"`
+		Evaluation   EvaluationPolicy      `json:"evaluation"`
+		Completion   CompletionPolicy      `json:"completion"`
+		Feedback     FeedbackPolicy        `json:"feedback"`
+		Presentation *ActivityPresentation `json:"presentation"`
 	}
 	if err := json.Unmarshal(data, &wire); err != nil {
 		return ActivityDefinition{}, err
@@ -243,5 +254,5 @@ func DefinitionFromMap(raw map[string]any) (ActivityDefinition, error) {
 	if wire.ID == "" || wire.Title == "" || wire.Kind == "" || wire.Config == nil || wire.Prompt == nil {
 		return ActivityDefinition{}, ErrActivityNotFound
 	}
-	return ActivityDefinition{ID: wire.ID, Kind: wire.Kind, Title: wire.Title, Prompt: wire.Prompt, Config: wire.Config, Evaluation: wire.Evaluation, Completion: wire.Completion, Feedback: wire.Feedback}, nil
+	return ActivityDefinition{ID: wire.ID, Kind: wire.Kind, Title: wire.Title, Prompt: wire.Prompt, Config: wire.Config, Evaluation: wire.Evaluation, Completion: wire.Completion, Feedback: wire.Feedback, Presentation: wire.Presentation}, nil
 }

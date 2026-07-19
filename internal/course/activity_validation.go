@@ -33,6 +33,19 @@ func ValidateActivitySet(set ActivitySetSource, activities map[string]ActivitySo
 			issues = append(issues, ValidationIssue{Code: "ACTIVITY_REFERENCE_NOT_FOUND", Message: fmt.Sprintf("activity %s was not loaded", id), Path: issuePath})
 			continue
 		}
+		if presentation, ok := activity.Definition["presentation"].(map[string]any); ok {
+			allowInline, _ := presentation["allowInline"].(bool)
+			allowPractice, _ := presentation["allowPractice"].(bool)
+			defaultSurface, _ := presentation["defaultSurface"].(string)
+			supportsFullscreen, _ := presentation["supportsFullscreen"].(bool)
+			invalid := (!allowInline && !allowPractice) ||
+				(defaultSurface == "inline" && !allowInline) ||
+				(defaultSurface == "practice" && !allowPractice) ||
+				(supportsFullscreen && !allowPractice)
+			if invalid {
+				issues = append(issues, ValidationIssue{Code: "ACTIVITY_PRESENTATION_INVALID", Message: "activity presentation policy is impossible", Path: activity.Path})
+			}
+		}
 		if set.Definition.Policy.Purpose == contracts.ActivitySetPolicyPurposeAssessment &&
 			set.Definition.Policy.Scoring == contracts.ActivitySetPolicyScoringPoints &&
 			activity.Kind == "writing" && activity.EvaluationMode == "submission" {

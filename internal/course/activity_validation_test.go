@@ -40,3 +40,25 @@ func TestValidateActivitySetReportsCrossFileDiagnostics(t *testing.T) {
 		}
 	}
 }
+
+func TestValidateActivitySetRejectsImpossiblePresentationPolicy(t *testing.T) {
+	set := ActivitySetSource{
+		Definition: contracts.ActivitySetDefinition{
+			Id:         "practice",
+			Activities: []contracts.ActivityReference{{Id: "quiz", Path: "quiz.activity.json", Required: true}},
+		},
+	}
+	activities := map[string]ActivitySource{
+		"quiz": {
+			ID: "quiz", Kind: "true-false", Path: "quiz.activity.json",
+			Definition: map[string]any{"presentation": map[string]any{
+				"defaultSurface": "inline", "allowInline": false, "allowPractice": true,
+				"preferredWidth": "compact", "supportsFullscreen": false,
+			}},
+		},
+	}
+	issues := ValidateActivitySet(set, activities)
+	if len(issues) != 1 || issues[0].Code != "ACTIVITY_PRESENTATION_INVALID" {
+		t.Fatalf("issues=%#v", issues)
+	}
+}

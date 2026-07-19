@@ -14,6 +14,7 @@ import (
 type Service interface {
 	PublicActivity(context.Context, OwnerIdentity, string) (PublicActivityView, error)
 	PublicActivitySets(context.Context, OwnerIdentity) ([]PublicActivitySetView, error)
+	ActivityStatuses(context.Context, OwnerIdentity) ([]ActivityStatus, error)
 	CurrentAttempt(context.Context, AttemptIdentity) (*ActivityAttempt, error)
 	SaveDraft(context.Context, SaveDraftCommand) (ActivityAttempt, error)
 	Submit(context.Context, SubmitCommand) (ActivityAttempt, error)

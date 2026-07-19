@@ -121,3 +121,71 @@ Write.
     invalid.issues.some((issue) => issue.code === 'ASSESSMENT_SCORE_REQUIRES_SCORABLE_ACTIVITY'),
   );
 });
+
+test('rejects impossible activity presentation policies', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'synaploom-presentation-course-'));
+  await mkdir(path.join(root, 'lessons', '01-quiz', 'activities'), { recursive: true });
+  await writeFile(
+    path.join(root, 'course.json'),
+    JSON.stringify({
+      schemaVersion: '1.2.0',
+      id: 'presentation-course',
+      title: 'Presentation Course',
+      description: 'Presentation',
+      version: '1.0.0',
+      language: 'en',
+      chapters: [
+        {
+          id: 'quiz',
+          title: 'Quiz',
+          required: true,
+          lessons: [{ id: 'quiz', required: true }],
+          assessments: [],
+        },
+      ],
+    }),
+  );
+  await writeFile(
+    path.join(root, 'lessons', '01-quiz', 'lesson.md'),
+    `---\nid: quiz\ntitle: Quiz\nposition: 1\ntype: theory\nactivitySets:\n  - activities/practice.json\n---\nQuiz.\n`,
+  );
+  await writeFile(
+    path.join(root, 'lessons', '01-quiz', 'activities', 'practice.json'),
+    JSON.stringify({
+      schemaVersion: '1.0',
+      id: 'practice',
+      policy: {
+        purpose: 'practice',
+        maxAttempts: null,
+        feedbackMode: 'immediate',
+        revealAnswers: 'never',
+        scoring: 'none',
+        passingScore: null,
+      },
+      activities: [{ id: 'quiz', path: 'quiz.activity.json', required: true }],
+    }),
+  );
+  await writeFile(
+    path.join(root, 'lessons', '01-quiz', 'activities', 'quiz.activity.json'),
+    JSON.stringify({
+      schemaVersion: '1.0',
+      id: 'quiz',
+      kind: 'true-false',
+      title: 'Quiz',
+      prompt: { blocks: [] },
+      config: { expected: true },
+      evaluation: { mode: 'automatic', points: 1 },
+      completion: { required: true },
+      presentation: {
+        defaultSurface: 'inline',
+        allowInline: false,
+        allowPractice: true,
+        preferredWidth: 'compact',
+        supportsFullscreen: false,
+      },
+    }),
+  );
+  const report = await validateCoursePackage(root);
+  assert.equal(report.valid, false);
+  assert.ok(report.issues.some((issue) => issue.code === 'ACTIVITY_PRESENTATION_INVALID'));
+});

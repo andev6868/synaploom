@@ -207,6 +207,23 @@ function validateActivityShape(
 ): void {
   if (!COURSE_ID_PATTERN.test(activity.id))
     issue(issues, 'ACTIVITY_CONFIG_INVALID', 'Activity id must be kebab-case', activityPath);
+  if (isRecord(activity.presentation)) {
+    const { allowInline, allowPractice, defaultSurface, supportsFullscreen } =
+      activity.presentation;
+    if (
+      (allowInline === false && allowPractice === false) ||
+      (defaultSurface === 'inline' && allowInline === false) ||
+      (defaultSurface === 'practice' && allowPractice === false) ||
+      (supportsFullscreen === true && allowPractice === false)
+    ) {
+      issue(
+        issues,
+        'ACTIVITY_PRESENTATION_INVALID',
+        'Activity presentation policy is impossible',
+        activityPath,
+      );
+    }
+  }
   if (activity.kind !== 'coding' && isRecord(activity.config)) {
     for (const capability of ['runtime', 'workspace', 'actions', 'executable', 'args']) {
       if (capability in activity.config) {

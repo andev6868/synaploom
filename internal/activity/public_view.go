@@ -11,6 +11,7 @@ func publicView(definition ActivityDefinition) (PublicActivityView, error) {
 		ID: definition.ID, Kind: definition.Kind, Title: definition.Title,
 		Prompt: cloneMap(definition.Prompt), Config: config,
 		Evaluation: definition.Evaluation, Completion: definition.Completion,
+		Presentation: ResolvePresentation(definition),
 	}
 	if definition.Feedback.ShowExplanation {
 		feedback := definition.Feedback
