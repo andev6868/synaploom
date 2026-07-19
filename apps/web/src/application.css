@@ -1216,18 +1216,30 @@ body,
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
 }
+.syn-learning-workspace--compact {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
 .syn-learning-workspace__theory {
   min-width: 0;
   min-height: 0;
   overflow: auto;
+}
+.syn-workspace-shell__pane > .syn-learning-workspace__theory {
+  height: 100%;
 }
 .syn-learning-workspace__segments {
   display: flex;
   gap: 0.5rem;
   padding: 0.5rem;
 }
-.syn-learning-workspace__compact-content--split {
+.syn-learning-workspace__compact-content {
   display: grid;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+.syn-learning-workspace__compact-content--split {
   grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
 }
 .syn-learning-workspace__mobile-practice {

@@ -57,6 +57,24 @@ async function returnCodingInline(page: Page): Promise<void> {
   await expect(practice).toHaveCount(0);
 }
 
+async function expectTheoryScrolls(page: Page, width: number): Promise<void> {
+  await page.setViewportSize({ width, height: 900 });
+  const viewport = page.locator('.syn-scroll-area__viewport').first();
+  const dimensions = await viewport.evaluate((element) => ({
+    clientHeight: element.clientHeight,
+    scrollHeight: element.scrollHeight,
+  }));
+
+  expect(dimensions.scrollHeight).toBeGreaterThan(dimensions.clientHeight);
+
+  await viewport.hover();
+  await page.mouse.wheel(0, 600);
+  await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+  await viewport.evaluate((element) => {
+    element.scrollTop = 0;
+  });
+}
+
 test.beforeAll(async () => {
   home = await mkdtemp(path.join(tmpdir(), 'synaploom-dual-surface-e2e-'));
   binary = path.join(home, 'synaploom');
@@ -80,11 +98,12 @@ test.afterAll(async () => {
   if (home) await rm(home, { recursive: true, force: true });
 });
 
-test('persists focused and collapsed workspace state across refresh and runtime restart', async ({
-  page,
-}) => {
+test('scrolls lesson content and persists workspace state across restart', async ({ page }) => {
   await page.goto(bootstrap);
   await expect(page.getByRole('heading', { name: 'Dòng chảy thuật toán', level: 1 })).toBeVisible();
+  await expectTheoryScrolls(page, 1440);
+  await expectTheoryScrolls(page, 1000);
+  await page.setViewportSize({ width: 1440, height: 900 });
 
   await returnCodingInline(page);
   await expect(
