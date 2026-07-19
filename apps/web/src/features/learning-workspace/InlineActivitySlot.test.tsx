@@ -33,7 +33,7 @@ const item: ResolvedWorkspaceActivity = {
 };
 const owner = { courseId: 'course', ownerKind: 'lessons' as const, ownerId: 'lesson' };
 
-it('mounts one editable inline host and opens practice explicitly', () => {
+it('never mounts an editable activity host', () => {
   const open = vi.fn(() => Promise.resolve());
   render(
     <InlineActivitySlot
@@ -48,8 +48,8 @@ it('mounts one editable inline host and opens practice explicitly', () => {
       renderHost={() => <input aria-label="editor" />}
     />,
   );
-  expect(screen.getAllByRole('textbox')).toHaveLength(1);
-  fireEvent.click(screen.getByRole('button', { name: 'Mở trong khu vực thực hành' }));
+  expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Thực hành bài này' }));
   expect(open).toHaveBeenCalledWith('quiz');
 });
 
@@ -75,6 +75,6 @@ it('renders a read-only summary rather than a duplicate editor while focused', (
     />,
   );
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
-  expect(screen.getByText('Quiz đang mở trong khu vực thực hành.')).toBeVisible();
-  expect(screen.getByText('Bản nháp')).toBeVisible();
+  expect(screen.getByText('Activity đang mở trong khu vực thực hành.')).toBeVisible();
+  expect(screen.getByText('Đang làm · Đã lưu bản nháp')).toBeVisible();
 });
