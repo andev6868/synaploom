@@ -14,7 +14,7 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc -b",
     "check:type-strip": "node --disable-warning=ExperimentalWarning scripts/check-type-strip.mjs",
-    "test": "vitest run --project dom && vitest run --project node",
+    "test": "node scripts/test/run-vitest-batches.mjs",
     "test:e2e": "playwright test",
     "build": "pnpm -r --if-present build",
     "validate:example": "pnpm course:validate examples/frontend-performance-foundations",
