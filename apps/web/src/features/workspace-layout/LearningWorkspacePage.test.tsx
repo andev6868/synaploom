@@ -155,6 +155,7 @@ describe('LearningWorkspacePage', () => {
     expect(screen.getByRole('progressbar', { name: 'Tiến độ bài học' })).toBeVisible();
     expect(document.querySelector('[data-theory-reading-column]')).toBeVisible();
     expect(document.querySelector('[data-lesson-progress-card]')).toBeVisible();
+    expect(document.querySelectorAll('[data-activity-summary-card]')).toHaveLength(0);
     expect(screen.getByRole('heading', { name: 'Mục tiêu học tập' })).toBeVisible();
     expect(screen.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Nội dung' })).toBeEnabled();

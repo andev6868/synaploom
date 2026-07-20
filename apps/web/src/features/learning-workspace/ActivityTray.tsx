@@ -7,7 +7,7 @@ import type { ResolvedWorkspaceActivity } from '#src/features/learning-workspace
 export function activityStatusLabel(status: ActivityWorkspaceStatus): string {
   switch (status) {
     case 'AVAILABLE':
-      return 'Chưa bắt đầu';
+      return 'Chưa mở';
     case 'DRAFT':
       return 'Bản nháp';
     case 'IN_PROGRESS':

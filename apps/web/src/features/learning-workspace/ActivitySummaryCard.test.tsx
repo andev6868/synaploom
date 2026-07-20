@@ -82,3 +82,18 @@ it('uses a restore action when focused Practice is collapsed', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Mở lại thực hành' }));
   expect(open).toHaveBeenCalledWith('quiz');
 });
+
+it('renders an unopened inactive activity as a compact summary', () => {
+  render(
+    <ActivitySummaryCard
+      item={item}
+      focused={false}
+      paneMode="split"
+      status={null}
+      onOpenPractice={vi.fn(() => Promise.resolve())}
+    />,
+  );
+
+  expect(screen.getByText('Chưa mở')).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Thực hành bài này' })).toBeVisible();
+});

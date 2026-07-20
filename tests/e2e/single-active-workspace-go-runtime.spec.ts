@@ -160,6 +160,32 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(navigatorBox!.width).toBeLessThanOrEqual(232);
   expect(practiceNavigatorGap).toBeGreaterThanOrEqual(12);
   expect(practiceNavigatorGap).toBeLessThanOrEqual(24);
+
+  const theoryArticle = page.locator('[data-theory-reading-column]');
+  const progressCard = page.locator('[data-lesson-progress-card]');
+  const summaries = page.locator('[data-activity-summary-card]');
+  const [articleBox, progressBox, firstSummaryBox, compactSecondSummaryBox] = await Promise.all([
+    theoryArticle.boundingBox(),
+    progressCard.boundingBox(),
+    summaries.nth(0).boundingBox(),
+    summaries.nth(1).boundingBox(),
+  ]);
+  expect(articleBox).not.toBeNull();
+  expect(progressBox).not.toBeNull();
+  expect(firstSummaryBox).not.toBeNull();
+  expect(compactSecondSummaryBox).not.toBeNull();
+  expect(articleBox!.x - theoryBox!.x).toBeGreaterThanOrEqual(40);
+  expect(articleBox!.x - theoryBox!.x).toBeLessThanOrEqual(56);
+  expect(
+    theoryBox!.x + theoryBox!.width - (articleBox!.x + articleBox!.width),
+  ).toBeGreaterThanOrEqual(40);
+  expect(progressBox!.height).toBeLessThanOrEqual(92);
+  expect(firstSummaryBox!.height).toBeGreaterThanOrEqual(84);
+  expect(firstSummaryBox!.height).toBeLessThanOrEqual(104);
+  expect(compactSecondSummaryBox!.y + compactSecondSummaryBox!.height).toBeLessThanOrEqual(
+    noteBox!.y,
+  );
+
   const panelBottoms = [theoryBox!, practiceBox!, navigatorBox!].map((box) => box.y + box.height);
   expect(Math.max(...panelBottoms) - Math.min(...panelBottoms)).toBeLessThanOrEqual(2);
 

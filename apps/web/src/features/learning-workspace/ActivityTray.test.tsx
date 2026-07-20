@@ -79,7 +79,7 @@ it('renders authored order, required labels and text statuses without mounting e
     'aria-current',
     'true',
   );
-  expect(screen.getByText('Chưa bắt đầu')).toBeVisible();
+  expect(screen.getByText('Chưa mở')).toBeVisible();
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: /Coding lab/ }));
   expect(focusActivity).toHaveBeenCalledWith('Coding lab');
