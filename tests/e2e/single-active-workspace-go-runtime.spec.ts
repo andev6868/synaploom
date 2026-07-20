@@ -160,6 +160,14 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(navigatorBox!.width).toBeLessThanOrEqual(232);
   expect(practiceNavigatorGap).toBeGreaterThanOrEqual(12);
   expect(practiceNavigatorGap).toBeLessThanOrEqual(24);
+  const navigator = page.getByRole('navigation', { name: 'Danh sách hoạt động' });
+  await expect(
+    navigator.getByRole('button', { name: /1\. Sắp xếp thuật toán\. Đang làm/ }),
+  ).toHaveAttribute('aria-current', 'true');
+  await expect(
+    navigator.getByRole('button', { name: /2\. Viết chương trình tính tổng\. Chưa mở/ }),
+  ).toBeVisible();
+  await expect(navigator.locator('[data-navigator-header-chevron]')).toBeVisible();
 
   const theoryArticle = page.locator('[data-theory-reading-column]');
   const progressCard = page.locator('[data-lesson-progress-card]');

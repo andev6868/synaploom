@@ -96,3 +96,21 @@ it('stays open when save-before-switch fails', async () => {
   fireEvent.click(screen.getByRole('button', { name: /2\. B/ }));
   await waitFor(() => expect(close).not.toHaveBeenCalled());
 });
+
+it('presents the canonical focused and unopened labels', () => {
+  render(
+    <PracticeActivityNavigator
+      activities={activities}
+      statuses={[]}
+      focusedActivityId="A"
+      onSelectActivity={vi.fn(() => Promise.resolve())}
+    />,
+  );
+
+  expect(screen.getByRole('button', { name: /1\. A\. Đang làm/ })).toHaveAttribute(
+    'aria-current',
+    'true',
+  );
+  expect(screen.getByRole('button', { name: /2\. B\. Chưa mở/ })).toBeVisible();
+  expect(document.querySelector('[data-navigator-header-chevron]')).toBeVisible();
+});

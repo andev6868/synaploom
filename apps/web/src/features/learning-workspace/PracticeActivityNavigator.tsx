@@ -1,11 +1,19 @@
-import type { ActivityStatusPayload } from '@synaploom/protocol';
-import { Check, Circle, Info } from 'lucide-react';
+import type { ActivityStatusPayload, ActivityWorkspaceStatus } from '@synaploom/protocol';
+import { Check, ChevronRight, Circle, Info } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { activityStatusLabel } from '#src/features/learning-workspace/ActivityTray';
 import {
   findActivityStatus,
   type ResolvedWorkspaceActivity,
 } from '#src/features/learning-workspace/workspace-model';
+
+export function activityNavigatorStatusLabel(
+  status: ActivityWorkspaceStatus,
+  active: boolean,
+): string {
+  if (active && status !== 'PASSED' && status !== 'FAILED') return 'Đang làm';
+  return activityStatusLabel(status);
+}
 
 export interface PracticeActivityNavigatorProps {
   readonly activities: readonly ResolvedWorkspaceActivity[];
@@ -26,12 +34,14 @@ export function PracticeActivityNavigator({
     <nav className="syn-practice-activity-navigator" aria-label="Danh sách hoạt động">
       <header className="syn-practice-activity-navigator__header">
         <strong>Thực hành · {activities.length} hoạt động</strong>
+        <ChevronRight data-navigator-header-chevron aria-hidden="true" size={16} />
       </header>
       <ol className="syn-practice-activity-navigator__list">
         {activities.map((item, index) => {
           const status = findActivityStatus(statuses, item.activity.id);
-          const label = activityStatusLabel(status?.status ?? 'AVAILABLE');
           const active = item.activity.id === focusedActivityId;
+          const workspaceStatus = status?.status ?? 'AVAILABLE';
+          const label = activityNavigatorStatusLabel(workspaceStatus, active);
           return (
             <li key={item.activity.id}>
               <button
@@ -51,7 +61,7 @@ export function PracticeActivityNavigator({
                 </span>
                 <span className="syn-practice-activity-navigator__copy">
                   <strong>{item.activity.title}</strong>
-                  <span data-navigator-status data-status={status?.status ?? 'AVAILABLE'}>
+                  <span data-navigator-status data-status={workspaceStatus}>
                     <span
                       className="syn-practice-activity-navigator__status-icon"
                       aria-hidden="true"

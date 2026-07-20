@@ -1562,99 +1562,6 @@ body,
   background: var(--syn-color-primary);
 }
 
-.syn-practice-activity-navigator {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  padding: 0.875rem 0.75rem;
-  background: var(--syn-color-surface);
-}
-
-.syn-practice-activity-navigator__header {
-  padding: 0.25rem 0.25rem 0.75rem;
-  font-size: 0.82rem;
-}
-
-.syn-practice-activity-navigator__list {
-  display: grid;
-  align-content: start;
-  gap: 0.5rem;
-  min-height: 0;
-  margin: 0;
-  padding: 0;
-  overflow: auto;
-  list-style: none;
-}
-
-.syn-practice-activity-navigator__item {
-  display: grid;
-  grid-template-columns: 1.75rem minmax(0, 1fr);
-  align-items: start;
-  width: 100%;
-  gap: 0.625rem;
-  padding: 0.75rem;
-  border: 1px solid var(--syn-color-border);
-  border-radius: 0.625rem;
-  color: var(--syn-color-text);
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-}
-
-.syn-practice-activity-navigator__item:hover,
-.syn-practice-activity-navigator__item:focus-visible {
-  border-color: var(--syn-color-primary);
-  outline: none;
-}
-
-.syn-practice-activity-navigator__item[aria-current='true'] {
-  border-color: color-mix(in srgb, var(--syn-color-primary) 45%, white);
-  background: var(--syn-color-primary-soft);
-  box-shadow: inset 3px 0 0 var(--syn-color-primary);
-}
-
-.syn-practice-activity-navigator__ordinal {
-  display: grid;
-  place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 999px;
-  color: var(--syn-color-text-muted);
-  background: var(--syn-color-surface-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.syn-practice-activity-navigator__item[aria-current='true']
-  .syn-practice-activity-navigator__ordinal {
-  color: white;
-  background: var(--syn-color-primary);
-}
-
-.syn-practice-activity-navigator__copy {
-  display: grid;
-  min-width: 0;
-  gap: 0.25rem;
-  font-size: 0.78rem;
-}
-
-.syn-practice-activity-navigator__copy strong {
-  overflow-wrap: anywhere;
-}
-
-.syn-practice-activity-navigator__copy span {
-  color: var(--syn-color-text-muted);
-}
-
-.syn-practice-activity-navigator__guidance {
-  margin: 0.75rem 0.25rem 0;
-  color: var(--syn-color-text-muted);
-  font-size: 0.72rem;
-  line-height: 1.45;
-}
-
 .syn-assistant-context {
   display: block;
   width: 100%;
@@ -1990,77 +1897,6 @@ body,
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-}
-
-.syn-practice-activity-navigator {
-  padding: 0.95rem 0.8rem;
-}
-
-.syn-practice-activity-navigator__header {
-  padding: 0.2rem 0.25rem 0.85rem;
-  font-size: 0.84rem;
-}
-
-.syn-practice-activity-navigator__list {
-  gap: 0.65rem;
-}
-
-.syn-practice-activity-navigator__item {
-  gap: 0.65rem;
-  min-height: 4.5rem;
-  padding: 0.8rem;
-  border-radius: 0.7rem;
-  background: var(--syn-color-surface);
-}
-
-.syn-practice-activity-navigator__item[aria-current='true'] {
-  border-color: color-mix(in srgb, var(--syn-color-primary) 42%, var(--syn-color-border));
-  background: color-mix(in srgb, var(--syn-color-primary) 7%, white);
-  box-shadow: inset 2px 0 0 var(--syn-color-primary);
-}
-
-.syn-practice-activity-navigator__copy {
-  gap: 0.3rem;
-  font-size: 0.8rem;
-  line-height: 1.35;
-}
-
-.syn-practice-activity-navigator__copy > span {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.74rem;
-}
-
-.syn-practice-activity-navigator__status-icon {
-  display: inline-grid;
-  place-items: center;
-  color: var(--syn-color-text-muted);
-}
-
-.syn-practice-activity-navigator__copy > span[data-status='PASSED'] {
-  color: var(--syn-color-success);
-}
-
-.syn-practice-activity-navigator__copy > span[data-status='DRAFT'],
-.syn-practice-activity-navigator__item[aria-current='true']
-  .syn-practice-activity-navigator__copy
-  > span {
-  color: var(--syn-color-primary);
-}
-
-.syn-practice-activity-navigator__guidance {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.45rem;
-  margin-top: 0.9rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--syn-color-border);
-}
-
-.syn-practice-activity-navigator__guidance svg {
-  flex: none;
-  margin-top: 0.1rem;
 }
 
 /* Revision 2.1: Practice header, content, and footer hierarchy. */
@@ -2422,42 +2258,140 @@ body,
   margin-top: 0.35rem;
 }
 
+/* Revision 3: approved Activity Navigator anatomy and states. */
 .syn-practice-activity-navigator {
-  padding: 1rem 0.875rem;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  padding: 1rem 0.75rem;
+  background: var(--syn-color-workspace-panel);
 }
 
 .syn-practice-activity-navigator__header {
-  padding: 0.125rem 0.25rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0.25rem 0.85rem;
+  font-size: 0.84rem;
+}
+
+.syn-practice-activity-navigator__header svg {
+  flex: none;
+  color: var(--syn-color-text-muted);
 }
 
 .syn-practice-activity-navigator__list {
-  gap: 0.625rem;
+  display: grid;
+  align-content: start;
+  gap: 0.65rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
 }
 
 .syn-practice-activity-navigator__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  width: 100%;
   min-height: 4.5rem;
-  gap: 0.625rem;
+  gap: 0.65rem;
   padding: 0.75rem;
   border: 1px solid var(--syn-color-border);
-  border-radius: var(--syn-radius-md);
+  border-radius: 0.7rem;
+  color: var(--syn-color-text);
   background: var(--syn-color-workspace-panel);
-  box-shadow: none;
-}
-
-.syn-practice-activity-navigator__item[aria-current='true'] {
-  border-color: color-mix(in srgb, var(--syn-color-primary) 35%, var(--syn-color-border));
-  background: var(--syn-color-workspace-active);
+  text-align: left;
+  cursor: pointer;
   box-shadow: none;
 }
 
 .syn-practice-activity-navigator__item:hover,
 .syn-practice-activity-navigator__item:focus-visible {
   border-color: color-mix(in srgb, var(--syn-color-primary) 55%, var(--syn-color-border));
+  outline: none;
+}
+
+.syn-practice-activity-navigator__item[aria-current='true'] {
+  border-color: color-mix(in srgb, var(--syn-color-primary) 40%, var(--syn-color-border));
+  background: var(--syn-color-workspace-active);
+  box-shadow: none;
+}
+
+.syn-practice-activity-navigator__ordinal {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  color: var(--syn-color-text-muted);
+  background: var(--syn-color-surface-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.syn-practice-activity-navigator__item[aria-current='true']
+  .syn-practice-activity-navigator__ordinal {
+  color: white;
+  background: var(--syn-color-primary);
+}
+
+.syn-practice-activity-navigator__copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.syn-practice-activity-navigator__copy strong {
+  overflow-wrap: anywhere;
+}
+
+.syn-practice-activity-navigator__copy > span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--syn-color-text-muted);
+  font-size: 0.74rem;
+}
+
+.syn-practice-activity-navigator__status-icon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--syn-color-text-muted);
+}
+
+.syn-practice-activity-navigator__copy > span[data-status='PASSED'] {
+  color: var(--syn-color-success);
+}
+
+.syn-practice-activity-navigator__copy > span[data-status='DRAFT'],
+.syn-practice-activity-navigator__item[aria-current='true']
+  .syn-practice-activity-navigator__copy
+  > span {
+  color: var(--syn-color-primary);
 }
 
 .syn-practice-activity-navigator__guidance {
-  margin: 0.875rem 0.25rem 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: auto 0.25rem 0;
   padding-top: 0.75rem;
+  border-top: 0;
+  color: var(--syn-color-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.syn-practice-activity-navigator__guidance svg {
+  flex: none;
+  margin-top: 0.1rem;
 }
 
 /* Revision 2.2: inset contextual assistant dock. */

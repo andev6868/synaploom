@@ -74,7 +74,7 @@ it('renders authored order, required labels and text statuses without mounting e
     expect.stringContaining('Bài viết phản tư'),
   ]);
   expect(screen.getByText('Đã đạt')).toBeVisible();
-  expect(screen.getByText('Bản nháp')).toBeVisible();
+  expect(screen.getByText('Đang làm')).toBeVisible();
   expect(screen.getByRole('button', { name: /Coding lab/ })).toHaveAttribute(
     'aria-current',
     'true',
