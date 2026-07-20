@@ -1499,3 +1499,38 @@ body,
     display: none;
   }
 }
+
+/* Revision 2: coding is contained by the Practice workspace card. */
+.syn-practice-panel--contained {
+  height: clamp(32rem, 58vh, 44rem);
+  min-height: 32rem;
+  max-height: 44rem;
+  overflow: hidden;
+  border: 1px solid rgb(148 163 184 / 0.22);
+  border-radius: 0.625rem;
+  background: #0f172a;
+}
+
+.syn-practice-panel--contained .syn-practice-panel__body {
+  grid-template-rows: minmax(18rem, 1.7fr) minmax(10rem, 0.8fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.syn-practice-panel--contained .syn-code-editor,
+.syn-practice-panel--contained .syn-terminal,
+.syn-practice-panel--contained .syn-check-results {
+  min-height: 0;
+  overflow: auto;
+}
+
+@media (max-width: 719px) {
+  .syn-practice-panel--contained {
+    height: min(38rem, calc(100dvh - 13rem));
+    min-height: 28rem;
+  }
+
+  .syn-practice-panel--contained .syn-practice-panel__body {
+    grid-template-rows: minmax(17rem, 1fr) minmax(9rem, 0.65fr);
+  }
+}
