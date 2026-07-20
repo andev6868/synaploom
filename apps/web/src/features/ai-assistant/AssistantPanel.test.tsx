@@ -15,9 +15,14 @@ it('shows activity context when Practice has focus', () => {
     </AppProviders>,
   );
   expect(screen.getByText('Hoạt động: Sắp xếp thuật toán')).toHaveClass(
-    'syn-assistant-context__label',
+    'syn-assistant-dock__context',
   );
   expect(screen.getByRole('region', { name: 'Trợ lý AI' })).toHaveClass('syn-assistant-context');
+  expect(screen.getByRole('textbox', { name: 'Câu hỏi cho Trợ lý AI' })).toHaveAttribute(
+    'placeholder',
+    'Đặt câu hỏi về hoạt động này…',
+  );
+  expect(screen.getByRole('button', { name: 'Gửi câu hỏi' })).toBeDisabled();
 });
 
 it('falls back to lesson context without a focused activity', () => {

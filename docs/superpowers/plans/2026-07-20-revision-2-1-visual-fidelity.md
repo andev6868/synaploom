@@ -1,6 +1,6 @@
 # Revision 2.1 Visual Fidelity Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Bring the approved Single Active Workspace Revision 2 implementation into visual fidelity with the accepted mockup without changing persistence, save-before-switch, or single-editor behavior.
 
@@ -35,7 +35,7 @@
 - Consumes: existing `LearningWorkspaceShellProps.assistant` and viewport mapping.
 - Produces: `.syn-learning-workspace-layout` with one bounded main row and one complete dock row; `data-workspace-main` for geometry assertions.
 
-- [ ] **Step 1: Write the failing component and browser assertions**
+- [x] **Step 1: Write the failing component and browser assertions**
 
 ```tsx
 expect(screen.getByTestId('workspace-layout')).toContainElement(
@@ -52,7 +52,7 @@ expect(
 ).toBeLessThanOrEqual(page.viewportSize()!.height);
 ```
 
-- [ ] **Step 2: Run focused tests and confirm RED**
+- [x] **Step 2: Run focused tests and confirm RED**
 
 Run:
 
@@ -62,7 +62,7 @@ pnpm exec vitest run --project dom apps/web/src/features/learning-workspace/Lear
 
 Expected: FAIL because the main and assistant geometry hooks do not exist and the dock is clipped by page-height composition.
 
-- [ ] **Step 3: Implement bounded workspace composition**
+- [x] **Step 3: Implement bounded workspace composition**
 
 Add explicit layout hooks:
 
@@ -83,11 +83,11 @@ Add explicit layout hooks:
 
 Use `height: 100%`, `min-height: 0`, `overflow: hidden`, and a fixed `3.75rem` dock row. Ensure the top-level learning app uses `100dvh` minus the app header rather than document growth.
 
-- [ ] **Step 4: Verify focused tests and geometry pass**
+- [x] **Step 4: Verify focused tests and geometry pass**
 
 Run the focused component test and the single-active runtime spec. Expected: PASS, with Theory, Practice, Navigator, and dock all contained in the viewport.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add apps/web/src/features/learning-workspace/LearningWorkspaceShell.tsx \
@@ -111,7 +111,7 @@ git commit -m "fix: bound learning workspace composition"
 - Consumes: `buildLearningProgressSummary`, lesson blockquote/callout AST.
 - Produces: progress card with progress bar and completion icon; GitHub-style admonition blockquotes rendered as `.syn-lesson-callout`; consistent table and section spacing.
 
-- [ ] **Step 1: Write RED tests for progress anatomy and NOTE conversion**
+- [x] **Step 1: Write RED tests for progress anatomy and NOTE conversion**
 
 ```tsx
 expect(screen.getByRole('progressbar', { name: 'Tiến độ bài học' })).toBeVisible();
@@ -125,19 +125,19 @@ expect(screen.getByRole('note', { name: 'Ghi chú' })).toHaveTextContent(
 expect(screen.queryByText('[!NOTE]')).not.toBeInTheDocument();
 ```
 
-- [ ] **Step 2: Run tests and confirm RED**
+- [x] **Step 2: Run tests and confirm RED**
 
 Expected: progress bar/icon absent and `[!NOTE]` exposed as text.
 
-- [ ] **Step 3: Implement progress and callout rendering**
+- [x] **Step 3: Implement progress and callout rendering**
 
 Render a native progress element in `.syn-learning-progress-summary`. In `LessonDocumentRenderer`, detect blockquotes whose first paragraph is exactly `[!NOTE]`, `[!TIP]`, `[!WARNING]`, or `[!IMPORTANT]`; remove the marker and render the remaining blocks through the existing callout anatomy.
 
-- [ ] **Step 4: Tighten Theory CSS**
+- [x] **Step 4: Tighten Theory CSS**
 
 Set a stable reading measure, `24–32px` section gaps, `8–12px` paragraph gaps, table row separators, compact activity-embed margins, and a complete callout surface.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
 Run page/renderer tests, lint, and typecheck. Commit:
 
@@ -159,19 +159,19 @@ git commit -m "fix: align theory content with approved mockup"
 
 - Produces: semantic status dot/check, directional CTA icon, lighter active Navigator surface, and guidance icon.
 
-- [ ] **Step 1: Write RED anatomy tests**
+- [x] **Step 1: Write RED anatomy tests**
 
 Require `data-activity-status-indicator`, CTA arrow icon, `data-navigator-status`, and an information icon in Navigator guidance.
 
-- [ ] **Step 2: Implement component anatomy**
+- [x] **Step 2: Implement component anatomy**
 
 Use `ArrowRight`, `Circle`, `Check`, and `Info` from `lucide-react`; keep all status labels textual for accessibility.
 
-- [ ] **Step 3: Apply mockup spacing and color hierarchy**
+- [x] **Step 3: Apply mockup spacing and color hierarchy**
 
 Use neutral borders by default, a subtle blue active surface, `12–16px` card gaps, and `14px` body/button typography.
 
-- [ ] **Step 4: Verify and commit**
+- [x] **Step 4: Verify and commit**
 
 Run both focused suites, lint, and typecheck. Commit:
 
@@ -192,23 +192,23 @@ git commit -m "style: refine activity cards and navigator"
 
 - Produces: explicit active and save statuses, grouped controls, neutral nested borders, save timestamp label, and completion status outside the action group.
 
-- [ ] **Step 1: Write RED tests for header and footer anatomy**
+- [x] **Step 1: Write RED tests for header and footer anatomy**
 
 Require separate active status and save status, grouped controls, footer save metadata, action group, and completion status region.
 
-- [ ] **Step 2: Implement header hierarchy**
+- [x] **Step 2: Implement header hierarchy**
 
 Render ordinal, title, `Đang làm`, and save state as separate semantic elements. Keep list, expand, and collapse controls in consistent button surfaces.
 
-- [ ] **Step 3: Implement footer hierarchy**
+- [x] **Step 3: Implement footer hierarchy**
 
 Keep save state left and activity actions right. Move “Tất cả hoạt động…” into a compact completion status above or beside the footer without centering it between actions.
 
-- [ ] **Step 4: Reduce dark renderer dominance**
+- [x] **Step 4: Reduce dark renderer dominance**
 
 Add a neutral Practice content surface, preserve contained coding bounds, and reduce empty terminal height while keeping internal scrolling.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
 Run Practice, ActivityHost, and Coding focused tests plus typecheck. Commit:
 
@@ -231,19 +231,19 @@ git commit -m "style: refine contained practice workspace"
 - Extends `AssistantDockProps` with optional `placeholder` and `contextLabel` while preserving `onRequest(mode)`.
 - Produces a complete 56–64px dock with title, passive prompt field, three actions, and send affordance.
 
-- [ ] **Step 1: Write RED tests for full dock anatomy**
+- [x] **Step 1: Write RED tests for full dock anatomy**
 
 Require the contextual label, textbox with lesson/activity placeholder, three mode buttons, and send button within the `Trợ lý AI` region.
 
-- [ ] **Step 2: Implement compact dock**
+- [x] **Step 2: Implement compact dock**
 
 Render a single horizontal row on desktop. The prompt field is local-only UI until an explicit free-form AI API contract exists; mode buttons retain current request behavior. Disable send when the prompt is empty.
 
-- [ ] **Step 3: Add responsive behavior**
+- [x] **Step 3: Add responsive behavior**
 
 Desktop stays 56–64px. Compact/mobile may wrap into two rows without clipping or increasing the main document height.
 
-- [ ] **Step 4: Verify and commit**
+- [x] **Step 4: Verify and commit**
 
 Run UI package tests, AssistantPanel tests, lint, typecheck, and build. Commit:
 

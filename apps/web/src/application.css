@@ -1317,20 +1317,6 @@ body,
   overscroll-behavior: contain;
 }
 
-.syn-assistant-context {
-  flex: none;
-  border-top: 1px solid var(--syn-color-border, #d8dde6);
-  background: var(--syn-color-surface, #fff);
-}
-
-.syn-assistant-context > p {
-  margin: 0;
-  padding: 0.5rem 0.75rem 0;
-  color: var(--syn-color-text-muted, #64748b);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
 /* Approved Single Active Workspace visual hierarchy */
 .syn-activity-summary {
   display: grid;
@@ -1669,36 +1655,21 @@ body,
 }
 
 .syn-assistant-context {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  min-height: 3.5rem;
-  max-height: 4rem;
-  padding-inline: 0.75rem;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
   overflow: hidden;
-  border: 1px solid var(--syn-color-border);
-  border-radius: 0.75rem 0.75rem 0 0;
-  background: var(--syn-color-surface);
-  box-shadow: 0 -8px 24px rgb(15 23 42 / 0.06);
-}
-
-.syn-assistant-context__label {
-  max-width: 16rem;
-  margin: 0 !important;
-  padding: 0 0.75rem 0 0 !important;
-  overflow: hidden;
-  color: var(--syn-color-text-muted);
-  font-size: 0.72rem;
-  font-weight: 650;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  border: 0;
+  background: transparent;
 }
 
 .syn-assistant-context .syn-assistant-dock {
+  height: 100%;
   min-width: 0;
-  padding: 0.45rem 0;
-  border-top: 0;
-  background: transparent;
+  border-radius: 0.75rem 0.75rem 0 0;
+  box-shadow: 0 -8px 24px rgb(15 23 42 / 0.06);
 }
 
 @media (min-width: 1440px) {
@@ -1714,15 +1685,6 @@ body,
 
   .syn-activity-summary > button {
     grid-column: 1 / -1;
-  }
-
-  .syn-assistant-context {
-    grid-template-columns: 1fr;
-    max-height: none;
-  }
-
-  .syn-assistant-context__label {
-    display: none;
   }
 }
 
