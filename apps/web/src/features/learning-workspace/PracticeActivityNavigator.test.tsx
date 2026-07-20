@@ -62,6 +62,7 @@ it('renders authored order, ordinal, status and active state', () => {
   expect(screen.getByText('Đã đạt')).toHaveAttribute('data-navigator-status');
   expect(document.querySelector('[data-navigator-guidance-icon]')).toBeVisible();
   expect(screen.getByRole('button', { name: /2\. B/ })).toHaveAttribute('aria-current', 'true');
+  expect(screen.getByRole('button', { name: /2\. B/ })).toHaveAttribute('data-navigator-item');
 });
 
 it('closes only after selection succeeds', async () => {

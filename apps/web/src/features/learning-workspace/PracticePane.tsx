@@ -47,7 +47,7 @@ export function PracticePane({
     onPersistenceHandleChange: controller.registerPersistenceHandle,
   };
   return (
-    <section className="syn-practice-pane" aria-label="Khu vực thực hành">
+    <section className="syn-practice-pane" aria-label="Khu vực thực hành" data-practice-surface>
       <div className="syn-practice-workspace-card" data-testid="practice-workspace-card">
         <PracticePaneHeader
           focusedActivity={focused}

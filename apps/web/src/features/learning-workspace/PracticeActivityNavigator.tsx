@@ -37,6 +37,7 @@ export function PracticeActivityNavigator({
               <button
                 type="button"
                 className="syn-practice-activity-navigator__item"
+                data-navigator-item
                 aria-label={`${index + 1}. ${item.activity.title}. ${label}`}
                 aria-current={active ? 'true' : undefined}
                 onClick={() => {
