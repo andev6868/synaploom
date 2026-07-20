@@ -123,6 +123,19 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(noteBox).not.toBeNull();
   expect(secondSummaryBox!.y).toBeLessThan(noteBox!.y);
 
+  const headerBox = await page.locator('.syn-app-header').boundingBox();
+  const brandBox = await page.locator('.syn-app-header__brand').boundingBox();
+  const dividerBox = await page.getByTestId('app-header-divider').boundingBox();
+  const profileBox = await page.getByLabel('Hồ sơ người học').boundingBox();
+  expect(headerBox).not.toBeNull();
+  expect(brandBox).not.toBeNull();
+  expect(dividerBox).not.toBeNull();
+  expect(profileBox).not.toBeNull();
+  expect(headerBox!.height).toBeGreaterThanOrEqual(56);
+  expect(headerBox!.height).toBeLessThanOrEqual(64);
+  expect(dividerBox!.x).toBeGreaterThan(brandBox!.x + brandBox!.width);
+  expect(profileBox!.x + profileBox!.width).toBeLessThanOrEqual(canonicalViewport.width - 24);
+
   const theory = page.locator('[data-workspace-theory-zone]');
   const practiceZone = page.locator('[data-workspace-practice-zone]');
   const navigatorZone = page.locator('[data-workspace-navigator-zone]');

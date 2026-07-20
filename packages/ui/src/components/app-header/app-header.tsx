@@ -26,6 +26,11 @@ export function AppHeader({
         </span>
         <strong>Synaploom</strong>
       </div>
+      <span
+        className="syn-app-header__divider"
+        data-testid="app-header-divider"
+        aria-hidden="true"
+      />
       <div className="syn-app-header__context">
         {navigation ?? (
           <>

@@ -72,7 +72,6 @@ export function LearningTopNavigation(props: LearningTopNavigationProps): ReactN
   const previous = courseItems[viewedIndex - 1];
   const next = courseItems[viewedIndex + 1];
   const completed = courseItems.filter((entry) => entry.item.status === 'COMPLETED').length;
-  const chapterCompleted = chapterItems.filter((entry) => entry.item.status === 'COMPLETED').length;
 
   const activate = (entry: FlatLearningItem): void => {
     if (entry.item.status === 'LOCKED') {
@@ -88,22 +87,6 @@ export function LearningTopNavigation(props: LearningTopNavigationProps): ReactN
 
   return (
     <nav className="syn-learning-top-nav" aria-label="Điều hướng khóa học">
-      <div
-        className="syn-learning-top-nav__steps"
-        aria-label={`${chapterCompleted}/${chapterItems.length} mục trong chương đã hoàn thành`}
-      >
-        {chapterItems.map((entry) => (
-          <span
-            key={`${entry.kind}:${entry.item.id}`}
-            className="syn-learning-top-nav__step"
-            data-testid="chapter-step"
-            data-status={entry.item.status.toLowerCase()}
-            data-current={entry.item.id === viewedItemId || undefined}
-            title={itemLabel(entry)}
-          />
-        ))}
-      </div>
-
       <label className="syn-learning-top-nav__selector syn-learning-top-nav__selector--chapter">
         <span>Chương</span>
         <select
@@ -123,6 +106,12 @@ export function LearningTopNavigation(props: LearningTopNavigationProps): ReactN
           ))}
         </select>
       </label>
+
+      <ChevronRight
+        className="syn-learning-top-nav__breadcrumb-separator"
+        aria-hidden="true"
+        size={16}
+      />
 
       <label className="syn-learning-top-nav__selector syn-learning-top-nav__selector--item">
         <span>Bài học</span>

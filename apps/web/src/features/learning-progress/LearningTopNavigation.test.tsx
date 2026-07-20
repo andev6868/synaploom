@@ -94,9 +94,10 @@ describe('LearningTopNavigation', () => {
       />,
     );
 
-    expect(screen.getByLabelText('1/3 mục trong chương đã hoàn thành')).toBeInTheDocument();
-    expect(screen.getAllByTestId('chapter-step')).toHaveLength(3);
-    expect(screen.queryByTitle('Rendering Fundamentals')).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId('chapter-step')).toHaveLength(0);
+    expect(document.querySelector('.syn-learning-top-nav__breadcrumb-separator')).toBeVisible();
+    expect(screen.getByLabelText('Chọn chương')).toBeVisible();
+    expect(screen.getByLabelText('Chọn bài học hoặc đánh giá')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Mục học tiếp theo' })).toBeEnabled();
   });
 

@@ -500,7 +500,14 @@ export function LearningWorkspacePage({
           }
         />
       }
-      trailing={<StatusBadge status="passed">Local</StatusBadge>}
+      trailing={
+        <div className="syn-learning-header-trailing">
+          <StatusBadge status="passed">Local</StatusBadge>
+          <span className="syn-learning-profile" aria-label="Hồ sơ người học">
+            N
+          </span>
+        </div>
+      }
     />
   );
 

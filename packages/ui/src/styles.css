@@ -256,12 +256,12 @@
 
 .syn-app-header {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto 1px minmax(0, 1fr) auto;
   align-items: center;
   min-height: var(--syn-header-height);
-  padding: 0 1rem;
+  padding: 0 1.75rem;
   border-bottom: 1px solid var(--syn-color-border);
-  background: rgb(255 255 255 / 0.92);
+  background: rgb(255 255 255 / 0.96);
   backdrop-filter: blur(12px);
 }
 .syn-app-header__brand,
@@ -271,6 +271,12 @@
   align-items: center;
   gap: 0.7rem;
   min-width: 0;
+}
+.syn-app-header__divider {
+  align-self: stretch;
+  width: 1px;
+  margin-block: 0.8rem;
+  background: var(--syn-color-border);
 }
 .syn-app-header__mark {
   display: grid;
@@ -282,7 +288,8 @@
   background: var(--syn-color-primary);
 }
 .syn-app-header__context {
-  justify-content: center;
+  justify-content: flex-start;
+  padding-inline: 1.25rem;
   color: var(--syn-color-text-muted);
   overflow: hidden;
   white-space: nowrap;

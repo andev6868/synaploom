@@ -589,39 +589,14 @@ body,
 .syn-learning-top-nav {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(5rem, 0.7fr) minmax(10rem, 1fr) minmax(11rem, 1.15fr) auto;
+  grid-template-columns: minmax(11rem, 1fr) auto minmax(14rem, 1.25fr) auto;
   align-items: center;
-  width: min(66rem, 100%);
-  gap: 0.55rem;
+  width: min(62rem, 100%);
+  gap: 0.7rem;
 }
 
-.syn-learning-top-nav__steps {
-  display: flex;
-  justify-content: center;
-  gap: 0.28rem;
-  min-width: 0;
-}
-
-.syn-learning-top-nav__step {
-  width: 0.58rem;
-  height: 0.58rem;
-  border: 1px solid var(--syn-color-border);
-  border-radius: 999px;
-  background: var(--syn-color-surface-muted);
-}
-
-.syn-learning-top-nav__step[data-status='completed'] {
-  border-color: var(--syn-color-success);
-  background: var(--syn-color-success);
-}
-
-.syn-learning-top-nav__step[data-current='true'] {
-  outline: 2px solid var(--syn-color-primary);
-  outline-offset: 2px;
-}
-
-.syn-learning-top-nav__step[data-status='locked'] {
-  opacity: 0.45;
+.syn-learning-top-nav__breadcrumb-separator {
+  color: var(--syn-color-text-muted);
 }
 
 .syn-learning-top-nav__selector {
@@ -682,6 +657,24 @@ body,
 .syn-learning-top-nav__curriculum-trigger span {
   font-size: 0.72rem;
   font-weight: 650;
+}
+
+.syn-learning-header-trailing {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.syn-learning-profile {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--syn-color-text);
+  background: var(--syn-color-surface-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .syn-learning-curriculum-popover {
@@ -792,16 +785,14 @@ body,
 
 @media (max-width: 1100px) {
   .syn-learning-top-nav {
-    grid-template-columns: minmax(10rem, 1fr) minmax(11rem, 1.1fr) auto;
-  }
-  .syn-learning-top-nav__steps {
-    display: none;
+    grid-template-columns: minmax(9rem, 1fr) auto minmax(11rem, 1.1fr) auto;
   }
 }
 
 @media (max-width: 760px) {
   .syn-app-header {
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto 1px minmax(0, 1fr) auto;
+    padding-inline: 0.75rem;
   }
   .syn-app-header__context {
     display: flex;
@@ -811,6 +802,7 @@ body,
     justify-content: flex-end;
   }
   .syn-learning-top-nav__selector,
+  .syn-learning-top-nav__breadcrumb-separator,
   .syn-learning-top-nav__actions > button:not(.syn-learning-top-nav__curriculum-trigger) {
     display: none;
   }

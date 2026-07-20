@@ -158,6 +158,8 @@ describe('LearningWorkspacePage', () => {
     expect(screen.getByRole('heading', { name: 'Mục tiêu học tập' })).toBeVisible();
     expect(screen.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Nội dung' })).toBeEnabled();
+    expect(screen.getByLabelText('Hồ sơ người học')).toHaveTextContent('N');
+    expect(screen.getByTestId('app-header-divider')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Hoàn thành phần đọc' })).toBeEnabled();
     expect(
       screen.queryByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
