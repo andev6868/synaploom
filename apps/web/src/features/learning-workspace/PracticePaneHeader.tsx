@@ -1,8 +1,7 @@
 import type { ActivityStatusPayload } from '@synaploom/protocol';
 import { Button } from '@synaploom/ui';
-import { List, Minimize2, Maximize2 } from 'lucide-react';
+import { Check, Circle, List, Maximize2, Minimize2 } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { activityStatusLabel } from '#src/features/learning-workspace/ActivityTray';
 import type { LearningWorkspaceController } from '#src/features/learning-workspace/useLearningWorkspaceController';
 import type { ResolvedWorkspaceActivity } from '#src/features/learning-workspace/workspace-model';
 
@@ -23,14 +22,15 @@ export function PracticePaneHeader({
   readonly navigatorOpen: boolean;
   readonly onToggleNavigator: () => void;
 }): ReactNode {
+  const activeLabel = status?.status === 'PASSED' ? 'Đã đạt' : 'Đang làm';
   const saveLabel =
     controller.saveStatus === 'saving'
       ? 'Đang lưu…'
       : controller.saveStatus === 'saved'
         ? 'Đã lưu bản nháp'
-        : controller.saveStatus === 'error'
+        : controller.saveStatus === 'error' || controller.saveStatus === 'conflict'
           ? 'Lưu thất bại'
-          : activityStatusLabel(status?.status ?? 'AVAILABLE');
+          : 'Sẵn sàng';
   return (
     <header className="syn-practice-workspace-card__header">
       <div className="syn-practice-workspace-card__heading">
@@ -46,12 +46,29 @@ export function PracticePaneHeader({
         >
           {focusedActivity.activity.title}
         </h2>
-        <p className="syn-practice-pane__save-status" aria-live="polite">
-          <span aria-hidden="true">{controller.saveStatus === 'saved' ? '✓' : '●'}</span>
-          {saveLabel}
-        </p>
+        <div className="syn-practice-workspace-card__statuses">
+          <p
+            className="syn-practice-workspace-card__active-status"
+            data-testid="practice-active-status"
+          >
+            <Circle aria-hidden="true" fill="currentColor" size={8} />
+            <span>{activeLabel}</span>
+          </p>
+          <p
+            className="syn-practice-pane__save-status"
+            data-testid="practice-save-status"
+            aria-live="polite"
+          >
+            {controller.saveStatus === 'saved' ? (
+              <Check aria-hidden="true" size={13} />
+            ) : (
+              <Circle aria-hidden="true" size={8} />
+            )}
+            <span>{saveLabel}</span>
+          </p>
+        </div>
       </div>
-      <div className="syn-practice-workspace-card__controls">
+      <div className="syn-practice-workspace-card__controls" data-testid="practice-header-controls">
         <Button
           size="sm"
           variant="secondary"

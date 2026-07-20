@@ -70,7 +70,10 @@ export function PracticePane({
           className="syn-practice-workspace-card__footer"
           data-testid="practice-workspace-footer"
         >
-          <div className="syn-practice-workspace-card__footer-status">
+          <div
+            className="syn-practice-workspace-card__footer-status"
+            data-testid="practice-footer-status"
+          >
             {controller.saveStatus === 'error' || controller.saveStatus === 'conflict' ? (
               <div className="syn-practice-pane__feedback" role="alert">
                 <p>{controller.error?.message ?? 'Không thể lưu trạng thái khu vực học.'}</p>
@@ -86,21 +89,30 @@ export function PracticePane({
               <span>{controller.saveStatus === 'saved' ? 'Đã lưu bản nháp' : 'Sẵn sàng'}</span>
             )}
           </div>
-          <div className="syn-practice-workspace-card__footer-actions" data-practice-action-outlet>
+          <div
+            className="syn-practice-workspace-card__footer-actions"
+            data-practice-action-outlet
+            data-testid="practice-footer-actions"
+          >
             {activityActions}
-            {status?.status === 'PASSED' ? (
-              nextId ? (
-                <Button
-                  size="sm"
-                  onClick={() => void controller.selectNextActivity().catch(() => undefined)}
-                >
-                  Hoạt động tiếp theo
-                </Button>
-              ) : (
-                <p>Tất cả hoạt động trong bài đã hoàn thành</p>
-              )
+            {status?.status === 'PASSED' && nextId ? (
+              <Button
+                size="sm"
+                onClick={() => void controller.selectNextActivity().catch(() => undefined)}
+              >
+                Hoạt động tiếp theo
+              </Button>
             ) : null}
           </div>
+          {status?.status === 'PASSED' && !nextId ? (
+            <p
+              className="syn-practice-workspace-card__completion"
+              data-testid="practice-completion-status"
+              role="status"
+            >
+              Tất cả hoạt động trong bài đã hoàn thành
+            </p>
+          ) : null}
         </footer>
       </div>
       {navigatorOpen ? (
