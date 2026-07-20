@@ -1,3 +1,4 @@
+import { GripVertical } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { ActivityActions } from '#src/features/activity-engine/renderers/ActivityActions';
@@ -34,12 +35,22 @@ export function OrderingActivity({
 
   return (
     <div className="syn-activity-renderer">
+      <p className="syn-activity-ordering__instruction">
+        Kéo và thả để sắp xếp theo trình tự đúng.
+      </p>
       <ol className="syn-activity-ordering">
         {itemIds.map((id, index) => {
           const label = optionById(config.items, id)?.label ?? id;
           return (
             <li key={id}>
-              <span>{label}</span>
+              <span
+                className="syn-activity-ordering__drag-handle"
+                data-ordering-drag-handle
+                aria-hidden="true"
+              >
+                <GripVertical size={18} />
+              </span>
+              <span className="syn-activity-ordering__label">{label}</span>
               <span className="syn-activity-ordering__actions">
                 <button
                   type="button"

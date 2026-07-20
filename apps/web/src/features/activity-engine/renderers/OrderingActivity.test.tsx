@@ -36,3 +36,11 @@ it('supports moving items with buttons and announces the new position', () => {
   expect(items[1]).toHaveTextContent('First');
   expect(screen.getByRole('status')).toHaveTextContent('First ở vị trí 2');
 });
+
+it('renders a visual drag affordance while preserving keyboard move controls', () => {
+  render(<RendererHarness Renderer={OrderingActivity} activity={activity} />);
+
+  expect(screen.getByText('Kéo và thả để sắp xếp theo trình tự đúng.')).toBeVisible();
+  expect(document.querySelectorAll('[data-ordering-drag-handle]')).toHaveLength(3);
+  expect(screen.getByRole('button', { name: 'Di chuyển First xuống' })).toBeEnabled();
+});

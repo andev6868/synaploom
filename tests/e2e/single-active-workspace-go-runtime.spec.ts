@@ -236,6 +236,15 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   );
   await expect(page.getByRole('button', { name: 'Hoạt động tiếp theo' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Danh sách hoạt động' })).toBeVisible();
+  const orderingRows = page.locator('.syn-activity-ordering > li');
+  const firstRowBox = await orderingRows.nth(0).boundingBox();
+  const secondRowBox = await orderingRows.nth(1).boundingBox();
+  expect(firstRowBox).not.toBeNull();
+  expect(secondRowBox).not.toBeNull();
+  expect(firstRowBox!.height).toBeGreaterThanOrEqual(78);
+  expect(firstRowBox!.height).toBeLessThanOrEqual(88);
+  expect(secondRowBox!.y - (firstRowBox!.y + firstRowBox!.height)).toBeGreaterThanOrEqual(10);
+  await expect(page.locator('[data-ordering-drag-handle]')).toHaveCount(3);
   await expectSingleEditor(page);
   await expect(page).toHaveScreenshot('single-active-ordering-wide.png', { fullPage: true });
 
