@@ -25,13 +25,19 @@ afterEach(() => {
   matches.clear();
 });
 
-it('maps wide, compact and mobile breakpoints and cleans listeners', () => {
-  matches.set('(min-width: 1100px)', true);
+it('maps revision two viewport bands and cleans listeners', () => {
+  matches.set('(min-width: 1440px)', true);
   installMatchMedia();
   const hook = renderHook(() => useWorkspaceViewport());
-  expect(hook.result.current).toBe('wide');
+  expect(hook.result.current).toBe('wide-three');
   act(() => {
-    matches.set('(min-width: 1100px)', false);
+    matches.set('(min-width: 1440px)', false);
+    matches.set('(min-width: 1180px)', true);
+    for (const set of listeners.values()) for (const listener of set) listener();
+  });
+  expect(hook.result.current).toBe('wide-two');
+  act(() => {
+    matches.set('(min-width: 1180px)', false);
     matches.set('(min-width: 720px)', true);
     for (const set of listeners.values()) for (const listener of set) listener();
   });

@@ -49,8 +49,9 @@ export function LearningWorkspaceShell({
     });
   }, [eventOwner, mode, viewport]);
 
+  const wideViewport = viewport === 'wide-three' || viewport === 'wide-two';
   const theoryVisible =
-    viewport === 'wide'
+    wideViewport
       ? mode !== 'expanded'
       : viewport === 'compact'
         ? compactSurface !== 'practice'
