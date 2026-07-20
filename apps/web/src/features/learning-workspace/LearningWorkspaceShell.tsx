@@ -80,10 +80,18 @@ export function LearningWorkspaceShell({
   );
 
   const compose = (workspace: ReactNode): ReactNode => (
-    <div className="syn-learning-workspace-layout">
-      <div className="syn-learning-workspace-layout__main">{workspace}</div>
+    <div className="syn-learning-workspace-layout" data-testid="workspace-layout">
+      <div
+        className="syn-learning-workspace-layout__main"
+        data-testid="workspace-main"
+        data-workspace-main
+      >
+        {workspace}
+      </div>
       {assistant === undefined ? null : (
-        <div className="syn-learning-workspace-layout__assistant">{assistant}</div>
+        <div className="syn-learning-workspace-layout__assistant" data-testid="workspace-assistant">
+          {assistant}
+        </div>
       )}
     </div>
   );

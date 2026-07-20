@@ -128,3 +128,15 @@ it('renders bounded Theory and Practice regions in wide split mode', () => {
   );
   expect(screen.getByTestId('practice-surface')).toBeVisible();
 });
+
+it('exposes bounded main and assistant composition hooks', () => {
+  viewport('wide-three');
+  render(<LearningWorkspaceShell {...common} mode="split" />);
+  expect(screen.getByTestId('workspace-layout')).toContainElement(
+    screen.getByTestId('workspace-main'),
+  );
+  expect(screen.getByTestId('workspace-assistant')).toContainElement(
+    screen.getByTestId('assistant-surface'),
+  );
+  expect(screen.getByTestId('workspace-main')).toHaveAttribute('data-workspace-main');
+});
