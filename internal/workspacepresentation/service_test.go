@@ -97,7 +97,7 @@ func TestGetResolvesRequiredPracticeDefault(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if state.FocusedActivityID == nil || *state.FocusedActivityID != "coding-lab" || state.PaneMode != "split" || state.SplitRatio != 0.52 || state.UserCollapsed || state.Revision != 0 {
+	if state.FocusedActivityID == nil || *state.FocusedActivityID != "coding-lab" || state.PaneMode != "split" || state.SplitRatio != 0.54 || state.UserCollapsed || state.Revision != 0 {
 		t.Fatalf("state=%+v", state)
 	}
 }
@@ -239,5 +239,11 @@ func TestWorkspaceEventsExcludeLearnerContent(t *testing.T) {
 				t.Fatalf("event includes forbidden key %q: %+v", key, event)
 			}
 		}
+	}
+}
+
+func TestDefaultSplitRatioMatchesRevisionThreeDesktopContract(t *testing.T) {
+	if DefaultSplitRatio != 0.54 {
+		t.Fatalf("DefaultSplitRatio = %v, want 0.54", DefaultSplitRatio)
 	}
 }

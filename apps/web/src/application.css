@@ -1660,9 +1660,6 @@ body,
 }
 
 @media (min-width: 1440px) {
-  .syn-workspace-frame__navigator {
-    width: clamp(11rem, 12vw, 14rem) !important;
-  }
 }
 
 @media (max-width: 719px) {
@@ -2259,9 +2256,6 @@ body,
 }
 
 @media (min-width: 1440px) {
-  .syn-workspace-frame__navigator {
-    width: clamp(13.5rem, 14vw, 15rem) !important;
-  }
 }
 
 /* Revision 2.2: compact Theory rhythm and activity-card spacing. */

@@ -34,7 +34,7 @@ export interface WorkspaceShellProps {
  * after a completed layout change, which prevents re-renders from interrupting an active drag.
  */
 export function WorkspaceShell({
-  defaultLessonRatio = 0.48,
+  defaultLessonRatio = 0.54,
   lesson,
   navigator,
   navigatorWidth = 224,

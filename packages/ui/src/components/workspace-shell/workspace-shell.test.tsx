@@ -63,7 +63,6 @@ describe('WorkspaceShell percentage sizing', () => {
 
     render(
       <WorkspaceShell
-        defaultLessonRatio={0.48}
         lesson="Lesson"
         practice="Practice"
         onLessonSizeChange={onLessonSizeChange}
@@ -82,8 +81,8 @@ describe('WorkspaceShell percentage sizing', () => {
     const lessonPanelId = String(panelProps[0]?.id);
     const practicePanelId = String(panelProps[1]?.id);
     expect(groupProps?.defaultLayout).toEqual({
-      [lessonPanelId]: 48,
-      [practicePanelId]: 52,
+      [lessonPanelId]: 54,
+      [practicePanelId]: 46,
     });
 
     groupProps?.onLayoutChanged?.({

@@ -150,12 +150,16 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(theoryBox).not.toBeNull();
   expect(practiceBox).not.toBeNull();
   expect(navigatorBox).not.toBeNull();
+  const practiceNavigatorGap = navigatorBox!.x - (practiceBox!.x + practiceBox!.width);
   expect(theoryBox!.x + theoryBox!.width).toBeLessThanOrEqual(practiceBox!.x + 2);
-  expect(practiceBox!.x + practiceBox!.width).toBeLessThanOrEqual(navigatorBox!.x + 2);
-  expect(theoryBox!.width / canonicalViewport.width).toBeGreaterThanOrEqual(0.44);
-  expect(theoryBox!.width / canonicalViewport.width).toBeLessThanOrEqual(0.49);
+  expect(theoryBox!.width / canonicalViewport.width).toBeGreaterThanOrEqual(0.45);
+  expect(theoryBox!.width / canonicalViewport.width).toBeLessThanOrEqual(0.47);
+  expect(practiceBox!.width / canonicalViewport.width).toBeGreaterThanOrEqual(0.36);
+  expect(practiceBox!.width / canonicalViewport.width).toBeLessThanOrEqual(0.4);
   expect(navigatorBox!.width).toBeGreaterThanOrEqual(216);
-  expect(navigatorBox!.width).toBeLessThanOrEqual(240);
+  expect(navigatorBox!.width).toBeLessThanOrEqual(232);
+  expect(practiceNavigatorGap).toBeGreaterThanOrEqual(12);
+  expect(practiceNavigatorGap).toBeLessThanOrEqual(24);
   const panelBottoms = [theoryBox!, practiceBox!, navigatorBox!].map((box) => box.y + box.height);
   expect(Math.max(...panelBottoms) - Math.min(...panelBottoms)).toBeLessThanOrEqual(2);
 
