@@ -1796,3 +1796,23 @@ body,
     width: 100%;
   }
 }
+
+/* Revision 2: designed no-focus activity picker for the collapsed rail. */
+.syn-workspace-pane-rail--picker {
+  position: relative;
+  overflow: visible;
+}
+
+.syn-workspace-pane-rail__navigator {
+  position: absolute;
+  z-index: 30;
+  inset-block-start: 0;
+  inset-inline-end: calc(100% + 0.5rem);
+  width: min(18rem, calc(100vw - 5rem));
+  max-height: min(34rem, calc(100dvh - 2rem));
+  overflow: auto;
+  border: 1px solid var(--syn-color-border, #d8dde6);
+  border-radius: 0.75rem;
+  background: var(--syn-color-surface, #fff);
+  box-shadow: 0 1rem 2.5rem rgb(15 23 42 / 16%);
+}

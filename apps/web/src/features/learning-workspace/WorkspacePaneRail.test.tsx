@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import { WorkspacePaneRail } from '#src/features/learning-workspace/WorkspacePaneRail';
 import type { LearningWorkspaceController } from '#src/features/learning-workspace/useLearningWorkspaceController';
@@ -34,7 +34,7 @@ const activities: ResolvedWorkspaceActivity[] = ['A', 'B', 'C', 'D'].map((id) =>
   },
 }));
 
-it('opens the no-focus tray locally and delegates selection', () => {
+it('opens the no-focus navigator without native details and delegates selection', async () => {
   const focusActivity = vi.fn(() => Promise.resolve());
   render(
     <WorkspacePaneRail
@@ -44,10 +44,16 @@ it('opens the no-focus tray locally and delegates selection', () => {
       controller={{ focusActivity } as unknown as LearningWorkspaceController}
     />,
   );
-  fireEvent.click(screen.getByText('Chọn hoạt động thực hành, 4 hoạt động'));
-  expect(screen.getByRole('region', { name: 'Hoạt động trong bài' })).toBeVisible();
-  fireEvent.click(screen.getByRole('button', { name: /^B Bắt buộc/ }));
-  expect(focusActivity).toHaveBeenCalledWith('B');
+  expect(document.querySelector('details')).not.toBeInTheDocument();
+  const chooser = screen.getByRole('button', { name: 'Chọn hoạt động thực hành' });
+  expect(chooser).toHaveAttribute('aria-expanded', 'false');
+  fireEvent.click(chooser);
+  expect(chooser).toHaveAttribute('aria-expanded', 'true');
+  const navigator = screen.getByRole('navigation', { name: 'Danh sách hoạt động' });
+  expect(navigator).toBeVisible();
+  fireEvent.click(screen.getByRole('button', { name: '2. B. Chưa bắt đầu' }));
+  await waitFor(() => expect(focusActivity).toHaveBeenCalledWith('B'));
+  await waitFor(() => expect(navigator).not.toBeInTheDocument());
 });
 
 it('restores a collapsed focused activity', () => {

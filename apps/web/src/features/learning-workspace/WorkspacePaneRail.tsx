@@ -1,6 +1,6 @@
 import type { ActivityStatusPayload } from '@synaploom/protocol';
-import type { ReactNode } from 'react';
-import { ActivityTray } from '#src/features/learning-workspace/ActivityTray';
+import { useId, useState, type ReactNode } from 'react';
+import { PracticeActivityNavigator } from '#src/features/learning-workspace/PracticeActivityNavigator';
 import type { LearningWorkspaceController } from '#src/features/learning-workspace/useLearningWorkspaceController';
 import type { ResolvedWorkspaceActivity } from '#src/features/learning-workspace/workspace-model';
 
@@ -15,6 +15,9 @@ export function WorkspacePaneRail({
   readonly focusedActivity: ResolvedWorkspaceActivity | null;
   readonly controller: LearningWorkspaceController;
 }): ReactNode {
+  const [navigatorOpen, setNavigatorOpen] = useState(false);
+  const navigatorId = useId();
+
   if (activities.length === 0) return null;
   if (focusedActivity) {
     return (
@@ -38,16 +41,33 @@ export function WorkspacePaneRail({
     );
   }
   return (
-    <aside className="syn-workspace-pane-rail" data-workspace-practice-rail>
-      <details>
-        <summary>Chọn hoạt động thực hành, {activities.length} hoạt động</summary>
-        <ActivityTray
-          activities={activities}
-          statuses={statuses}
-          controller={controller}
-          focusedActivityId={null}
-        />
-      </details>
+    <aside
+      className="syn-workspace-pane-rail syn-workspace-pane-rail--picker"
+      data-workspace-practice-rail
+      aria-label="Chọn khu vực thực hành"
+    >
+      <button
+        type="button"
+        aria-label="Chọn hoạt động thực hành"
+        aria-expanded={navigatorOpen}
+        aria-controls={navigatorId}
+        onClick={() => setNavigatorOpen((open) => !open)}
+      >
+        <span aria-hidden="true">☰</span>
+        <strong>Chọn</strong>
+        <span>{activities.length}</span>
+      </button>
+      {navigatorOpen ? (
+        <div id={navigatorId} className="syn-workspace-pane-rail__navigator">
+          <PracticeActivityNavigator
+            activities={activities}
+            statuses={statuses}
+            focusedActivityId={null}
+            onSelectActivity={(activityId) => controller.focusActivity(activityId)}
+            onSelectionComplete={() => setNavigatorOpen(false)}
+          />
+        </div>
+      ) : null}
     </aside>
   );
 }
