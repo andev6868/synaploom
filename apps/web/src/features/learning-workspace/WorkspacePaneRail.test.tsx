@@ -51,7 +51,7 @@ it('opens the no-focus navigator without native details and delegates selection'
   expect(chooser).toHaveAttribute('aria-expanded', 'true');
   const navigator = screen.getByRole('navigation', { name: 'Danh sách hoạt động' });
   expect(navigator).toBeVisible();
-  fireEvent.click(screen.getByRole('button', { name: '2. B. Chưa bắt đầu' }));
+  fireEvent.click(screen.getByRole('button', { name: '2. B. Chưa mở' }));
   await waitFor(() => expect(focusActivity).toHaveBeenCalledWith('B'));
   await waitFor(() => expect(navigator).not.toBeInTheDocument());
 });

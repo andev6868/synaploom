@@ -256,7 +256,7 @@
 
 .syn-app-header {
   display: grid;
-  grid-template-columns: auto 1px minmax(0, 1fr) auto;
+  grid-template-columns: 25.5rem 1px minmax(0, 1fr) auto;
   align-items: center;
   min-height: var(--syn-header-height);
   padding: 0 1.75rem;
@@ -480,6 +480,7 @@
   min-height: 0;
   height: 100%;
   gap: 1rem;
+  padding-right: 0.75rem;
   overflow: hidden;
   background: var(--syn-color-workspace-canvas);
 }

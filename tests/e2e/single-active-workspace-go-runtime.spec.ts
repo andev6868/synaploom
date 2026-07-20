@@ -46,6 +46,22 @@ async function openActivity(page: Page, title: string): Promise<void> {
 
 async function prepareCanonicalOrderingState(page: Page): Promise<void> {
   await page.clock.install({ time: new Date('2026-07-20T07:32:00Z') });
+  await page.route(/\/api\/courses\/[^/]+\/navigation(?:\?.*)?$/, async (route) => {
+    const response = await route.fetch();
+    const navigation = (await response.json()) as {
+      chapters: Array<{ lessons: Array<{ status: string }> }>;
+    };
+    await route.fulfill({
+      response,
+      json: {
+        ...navigation,
+        chapters: navigation.chapters.map((chapter) => ({
+          ...chapter,
+          lessons: chapter.lessons.map((lesson) => ({ ...lesson, status: 'COMPLETED' })),
+        })),
+      },
+    });
+  });
   await page.setViewportSize(canonicalViewport);
   await page.goto(bootstrap);
   await expect(page.getByRole('heading', { name: 'Dòng chảy thuật toán', level: 1 })).toBeVisible();
@@ -54,9 +70,9 @@ async function prepareCanonicalOrderingState(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Di chuyển Hiển thị kết quả lên' }).click();
   await page.getByRole('button', { name: 'Lưu bản nháp' }).click();
 
-  await expect(
-    page.locator('.syn-activity-host__state', { hasText: 'Đã lưu bản nháp.' }),
-  ).toBeVisible();
+  await expect(page.getByTestId('practice-footer-status')).toContainText(
+    'Đã lưu bản nháp lúc 14:32',
+  );
   const rows = page.locator('.syn-activity-ordering > li');
   await expect(rows).toHaveCount(3);
   await expect(rows.nth(0)).toContainText('Đọc hai số a và b');
@@ -108,20 +124,22 @@ test.afterAll(async () => {
   if (home) await rm(home, { recursive: true, force: true });
 });
 
-test('matches Revision 2 geometry across six responsive states', async ({ page }) => {
+test('matches Revision 3 geometry across six responsive states', async ({ page }) => {
   await prepareCanonicalOrderingState(page);
 
   const secondSummary = page
     .locator('[data-activity-summary-card]')
     .filter({ hasText: 'Viết chương trình tính tổng' });
-  const note = page.getByRole('note', { name: 'Ghi chú' });
-  const [secondSummaryBox, noteBox] = await Promise.all([
+  const supportingHeading = page.getByRole('heading', {
+    name: 'Mở trong khu vực thực hành',
+  });
+  const [secondSummaryBox, supportingHeadingBox] = await Promise.all([
     secondSummary.boundingBox(),
-    note.boundingBox(),
+    supportingHeading.boundingBox(),
   ]);
   expect(secondSummaryBox).not.toBeNull();
-  expect(noteBox).not.toBeNull();
-  expect(secondSummaryBox!.y).toBeLessThan(noteBox!.y);
+  expect(supportingHeadingBox).not.toBeNull();
+  expect(secondSummaryBox!.y).toBeLessThan(supportingHeadingBox!.y);
 
   const headerBox = await page.locator('.syn-app-header').boundingBox();
   const brandBox = await page.locator('.syn-app-header__brand').boundingBox();
@@ -133,7 +151,8 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(profileBox).not.toBeNull();
   expect(headerBox!.height).toBeGreaterThanOrEqual(56);
   expect(headerBox!.height).toBeLessThanOrEqual(64);
-  expect(dividerBox!.x).toBeGreaterThan(brandBox!.x + brandBox!.width);
+  expect(dividerBox!.x).toBeGreaterThanOrEqual(434);
+  expect(dividerBox!.x).toBeLessThanOrEqual(438);
   expect(profileBox!.x + profileBox!.width).toBeLessThanOrEqual(canonicalViewport.width - 24);
 
   const theory = page.locator('[data-workspace-theory-zone]');
@@ -156,8 +175,15 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(theoryBox!.width / canonicalViewport.width).toBeLessThanOrEqual(0.47);
   expect(practiceBox!.width / canonicalViewport.width).toBeGreaterThanOrEqual(0.36);
   expect(practiceBox!.width / canonicalViewport.width).toBeLessThanOrEqual(0.4);
+  expect(theoryBox!.width).toBeGreaterThanOrEqual(752);
+  expect(theoryBox!.width).toBeLessThanOrEqual(756);
+  expect(practiceBox!.x).toBeGreaterThanOrEqual(759);
+  expect(practiceBox!.x).toBeLessThanOrEqual(761);
+  expect(navigatorBox!.x).toBeGreaterThanOrEqual(1440);
+  expect(navigatorBox!.x).toBeLessThanOrEqual(1444);
   expect(navigatorBox!.width).toBeGreaterThanOrEqual(216);
-  expect(navigatorBox!.width).toBeLessThanOrEqual(232);
+  expect(navigatorBox!.width).toBeLessThanOrEqual(220);
+  expect(navigatorBox!.x + navigatorBox!.width).toBeLessThanOrEqual(1662);
   expect(practiceNavigatorGap).toBeGreaterThanOrEqual(12);
   expect(practiceNavigatorGap).toBeLessThanOrEqual(24);
   const navigator = page.getByRole('navigation', { name: 'Danh sách hoạt động' });
@@ -182,16 +208,22 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(progressBox).not.toBeNull();
   expect(firstSummaryBox).not.toBeNull();
   expect(compactSecondSummaryBox).not.toBeNull();
-  expect(articleBox!.x - theoryBox!.x).toBeGreaterThanOrEqual(40);
-  expect(articleBox!.x - theoryBox!.x).toBeLessThanOrEqual(56);
-  expect(
-    theoryBox!.x + theoryBox!.width - (articleBox!.x + articleBox!.width),
-  ).toBeGreaterThanOrEqual(40);
+  const articlePadding = await theoryArticle.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      left: Number.parseFloat(style.paddingLeft),
+      right: Number.parseFloat(style.paddingRight),
+    };
+  });
+  expect(articlePadding.left).toBeGreaterThanOrEqual(40);
+  expect(articlePadding.left).toBeLessThanOrEqual(56);
+  expect(articlePadding.right).toBeGreaterThanOrEqual(8);
+  expect(articlePadding.right).toBeLessThanOrEqual(14);
   expect(progressBox!.height).toBeLessThanOrEqual(92);
   expect(firstSummaryBox!.height).toBeGreaterThanOrEqual(84);
   expect(firstSummaryBox!.height).toBeLessThanOrEqual(104);
   expect(compactSecondSummaryBox!.y + compactSecondSummaryBox!.height).toBeLessThanOrEqual(
-    noteBox!.y,
+    supportingHeadingBox!.y,
   );
 
   const panelBottoms = [theoryBox!, practiceBox!, navigatorBox!].map((box) => box.y + box.height);
@@ -205,6 +237,10 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
     Math.abs(workspaceMainBox!.y + workspaceMainBox!.height - assistantBox!.y),
   ).toBeLessThanOrEqual(2);
   expect(assistantBox!.y + assistantBox!.height).toBeLessThanOrEqual(canonicalViewport.height + 1);
+  expect(assistantBox!.x).toBeGreaterThanOrEqual(132);
+  expect(assistantBox!.x).toBeLessThanOrEqual(138);
+  expect(assistantBox!.width).toBeGreaterThanOrEqual(1212);
+  expect(assistantBox!.width).toBeLessThanOrEqual(1220);
   const assistantDockBox = await page
     .getByRole('complementary', { name: 'Trợ lý AI' })
     .boundingBox();
@@ -232,7 +268,7 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(cardBox).not.toBeNull();
   expect(practiceContentBox).not.toBeNull();
   expect(practiceFooterBox).not.toBeNull();
-  expect(cardBox!.x).toBeGreaterThan(practiceBox!.x);
+  expect(cardBox!.x).toBeGreaterThanOrEqual(practiceBox!.x);
   expect(cardBox!.y).toBeGreaterThan(practiceBox!.y);
   expect(practiceFooterBox!.y).toBeGreaterThanOrEqual(
     practiceContentBox!.y + practiceContentBox!.height - 1,
@@ -240,16 +276,34 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(practiceFooterBox!.y + practiceFooterBox!.height).toBeLessThanOrEqual(
     cardBox!.y + cardBox!.height + 1,
   );
-  await expect(card).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(card).toHaveCSS('background-color', 'oklch(1 0 0)');
   await expect(page.getByTestId('practice-workspace-content')).toHaveCSS(
     'background-color',
-    'rgb(255, 255, 255)',
+    'oklch(1 0 0)',
   );
   await expect(page.getByTestId('practice-footer-status')).toContainText(
     'Đã lưu bản nháp lúc 14:32',
   );
   await expect(page.getByRole('button', { name: 'Hoạt động tiếp theo' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Danh sách hoạt động' })).toBeVisible();
+  expect(cardBox!.y).toBeGreaterThanOrEqual(82);
+  expect(cardBox!.y).toBeLessThanOrEqual(86);
+  expect(cardBox!.x).toBeGreaterThanOrEqual(783);
+  expect(cardBox!.x).toBeLessThanOrEqual(787);
+  expect(cardBox!.width).toBeGreaterThanOrEqual(619);
+  expect(cardBox!.width).toBeLessThanOrEqual(623);
+  const containedHost = page.locator('.syn-practice-pane__body > .syn-activity-host');
+  await expect(containedHost).toHaveCSS('border-top-width', '0px');
+  await expect(containedHost.locator('legend')).toBeHidden();
+  const [collapseControlBox, activityListControlBox] = await Promise.all([
+    page.getByRole('button', { name: 'Thu gọn' }).boundingBox(),
+    page.getByRole('button', { name: 'Danh sách hoạt động' }).boundingBox(),
+  ]);
+  expect(collapseControlBox).not.toBeNull();
+  expect(activityListControlBox).not.toBeNull();
+  expect(activityListControlBox!.y).toBeGreaterThanOrEqual(
+    collapseControlBox!.y + collapseControlBox!.height + 8,
+  );
   const orderingRows = page.locator('.syn-activity-ordering > li');
   const firstRowBox = await orderingRows.nth(0).boundingBox();
   const secondRowBox = await orderingRows.nth(1).boundingBox();
@@ -259,8 +313,32 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(firstRowBox!.height).toBeLessThanOrEqual(88);
   expect(secondRowBox!.y - (firstRowBox!.y + firstRowBox!.height)).toBeGreaterThanOrEqual(10);
   await expect(page.locator('[data-ordering-drag-handle]')).toHaveCount(3);
+  expect(progressBox).not.toBeNull();
+  expect(progressBox!.y).toBeGreaterThanOrEqual(84);
+  expect(progressBox!.y).toBeLessThanOrEqual(90);
+  expect(progressBox!.width).toBeGreaterThanOrEqual(250);
+  expect(progressBox!.width).toBeLessThanOrEqual(270);
+  expect(firstSummaryBox).not.toBeNull();
+  expect(firstSummaryBox!.x).toBeGreaterThanOrEqual(44);
+  expect(firstSummaryBox!.x).toBeLessThanOrEqual(48);
+  expect(firstSummaryBox!.x + firstSummaryBox!.width).toBeGreaterThanOrEqual(738);
+  expect(firstSummaryBox!.y).toBeGreaterThanOrEqual(445);
+  expect(firstSummaryBox!.y).toBeLessThanOrEqual(470);
+  const theoryTableBox = await page.locator('.syn-table-scroll').boundingBox();
+  expect(theoryTableBox).not.toBeNull();
+  expect(theoryTableBox!.height).toBeLessThanOrEqual(125);
   await expectSingleEditor(page);
-  await expect(page).toHaveScreenshot('single-active-ordering-wide.png', { fullPage: true });
+  await expect(page).toHaveScreenshot('single-active-ordering-approved.png', {
+    fullPage: true,
+    animations: 'disabled',
+    caret: 'hide',
+    maxDiffPixelRatio: 0.1,
+  });
+  await expect(page).toHaveScreenshot('single-active-ordering-wide.png', {
+    fullPage: true,
+    animations: 'disabled',
+    caret: 'hide',
+  });
 
   await openActivity(page, 'Viết chương trình tính tổng');
   const coding = page.locator('[data-activity-surface="practice-contained"]');

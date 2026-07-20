@@ -81,8 +81,8 @@ describe('WorkspaceShell percentage sizing', () => {
     const lessonPanelId = String(panelProps[0]?.id);
     const practicePanelId = String(panelProps[1]?.id);
     expect(groupProps?.defaultLayout).toEqual({
-      [lessonPanelId]: 54,
-      [practicePanelId]: 46,
+      [lessonPanelId]: 53.1,
+      [practicePanelId]: 46.9,
     });
 
     groupProps?.onLayoutChanged?.({
@@ -105,6 +105,6 @@ describe('WorkspaceShell percentage sizing', () => {
     expect(navigator).toContainElement(screen.getByRole('button', { name: 'Activity A' }));
     expect(screen.getByRole('button', { name: 'Activity A' })).not.toBeDisabled();
     expect(navigator.previousElementSibling).toHaveClass('syn-workspace-shell');
-    expect(navigator).toHaveStyle({ width: '224px' });
+    expect(navigator).toHaveStyle({ width: '218px' });
   });
 });

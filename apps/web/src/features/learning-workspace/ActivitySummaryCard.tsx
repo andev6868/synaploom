@@ -29,11 +29,8 @@ export function ActivitySummaryCard({
   onRegisterHeading = () => undefined,
 }: ActivitySummaryCardProps): ReactNode {
   const savedDraft = status?.status === 'DRAFT';
-  const statusText = focused
-    ? savedDraft
-      ? 'Đang làm · Đã lưu bản nháp'
-      : 'Đang làm'
-    : activityStatusLabel(status?.status ?? 'AVAILABLE');
+  const inactiveStatus = status?.status && status.status !== 'AVAILABLE' ? status.status : null;
+  const showStatus = focused || inactiveStatus !== null;
   const message = focused
     ? paneMode === 'collapsed'
       ? 'Activity đang tạm ẩn trong khu vực thực hành.'
@@ -63,23 +60,59 @@ export function ActivitySummaryCard({
         >
           {item.activity.title}
         </h3>
-        <p className="syn-activity-summary__status" data-activity-summary-status>
-          <span
-            className="syn-activity-summary__status-indicator"
-            data-activity-status-indicator
-            data-status={status?.status ?? 'AVAILABLE'}
-            aria-hidden="true"
+        {showStatus ? (
+          <p
+            className="syn-activity-summary__status"
+            data-activity-summary-status
+            data-testid="activity-summary-status"
           >
-            {focused || status?.status === 'DRAFT' ? (
-              <Circle size={9} fill="currentColor" />
-            ) : status?.status === 'PASSED' ? (
-              <Check size={12} />
-            ) : (
-              <Circle size={9} />
-            )}
-          </span>
-          <span data-activity-summary-status>{statusText}</span>
-        </p>
+            {focused ? (
+              <>
+                <span
+                  className="syn-activity-summary__status-item"
+                  data-activity-summary-status-item
+                  data-tone="active"
+                >
+                  <span
+                    className="syn-activity-summary__status-indicator"
+                    data-activity-status-indicator
+                    data-status="DRAFT"
+                    aria-hidden="true"
+                  >
+                    <Circle size={9} fill="currentColor" />
+                  </span>
+                  <span>Đang làm</span>
+                </span>
+                {savedDraft ? (
+                  <span
+                    className="syn-activity-summary__status-item"
+                    data-activity-summary-status-item
+                    data-tone="saved"
+                  >
+                    <Check aria-hidden="true" size={12} />
+                    <span>Đã lưu bản nháp</span>
+                  </span>
+                ) : null}
+              </>
+            ) : inactiveStatus ? (
+              <span
+                className="syn-activity-summary__status-item"
+                data-activity-summary-status-item
+                data-tone={inactiveStatus === 'PASSED' ? 'saved' : 'neutral'}
+              >
+                <span
+                  className="syn-activity-summary__status-indicator"
+                  data-activity-status-indicator
+                  data-status={inactiveStatus}
+                  aria-hidden="true"
+                >
+                  {inactiveStatus === 'PASSED' ? <Check size={12} /> : <Circle size={9} />}
+                </span>
+                <span>{activityStatusLabel(inactiveStatus)}</span>
+              </span>
+            ) : null}
+          </p>
+        ) : null}
         <p className="syn-activity-summary__description">{message}</p>
       </div>
       <Button

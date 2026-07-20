@@ -52,9 +52,10 @@ it('describes the focused activity as open in Practice', () => {
     />,
   );
 
-  expect(screen.getByText('Đang làm · Đã lưu bản nháp')).toHaveAttribute(
-    'data-activity-summary-status',
-  );
+  const status = screen.getByTestId('activity-summary-status');
+  expect(status).toHaveTextContent('Đang làm');
+  expect(status).toHaveTextContent('Đã lưu bản nháp');
+  expect(status.querySelectorAll('[data-activity-summary-status-item]')).toHaveLength(2);
   expect(document.querySelector('[data-activity-summary-card]')).toBeVisible();
   expect(document.querySelector('[data-activity-summary-icon]')).toBeVisible();
   expect(document.querySelector('[data-activity-status-indicator]')).toBeVisible();
@@ -94,6 +95,7 @@ it('renders an unopened inactive activity as a compact summary', () => {
     />,
   );
 
-  expect(screen.getByText('Chưa mở')).toBeVisible();
+  expect(screen.queryByText('Chưa mở')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('activity-summary-status')).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Thực hành bài này' })).toBeVisible();
 });

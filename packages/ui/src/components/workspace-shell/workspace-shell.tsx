@@ -34,10 +34,10 @@ export interface WorkspaceShellProps {
  * after a completed layout change, which prevents re-renders from interrupting an active drag.
  */
 export function WorkspaceShell({
-  defaultLessonRatio = 0.54,
+  defaultLessonRatio = 0.531,
   lesson,
   navigator,
-  navigatorWidth = 224,
+  navigatorWidth = 218,
   onLessonSizeChange,
   practice,
 }: WorkspaceShellProps): ReactNode {
