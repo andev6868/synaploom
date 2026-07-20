@@ -1,4 +1,6 @@
 import type { ActivityStatusPayload } from '@synaploom/protocol';
+import { Button } from '@synaploom/ui';
+import { List, Minimize2, Maximize2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { activityStatusLabel } from '#src/features/learning-workspace/ActivityTray';
 import type { LearningWorkspaceController } from '#src/features/learning-workspace/useLearningWorkspaceController';
@@ -10,17 +12,29 @@ export function PracticePaneHeader({
   total,
   controller,
   status,
+  navigatorOpen,
+  onToggleNavigator,
 }: {
   readonly focusedActivity: ResolvedWorkspaceActivity;
   readonly ordinal: number;
   readonly total: number;
   readonly controller: LearningWorkspaceController;
   readonly status: ActivityStatusPayload | null;
+  readonly navigatorOpen: boolean;
+  readonly onToggleNavigator: () => void;
 }): ReactNode {
+  const saveLabel =
+    controller.saveStatus === 'saving'
+      ? 'Đang lưu…'
+      : controller.saveStatus === 'saved'
+        ? 'Đã lưu bản nháp'
+        : controller.saveStatus === 'error'
+          ? 'Lưu thất bại'
+          : activityStatusLabel(status?.status ?? 'AVAILABLE');
   return (
-    <header className="syn-practice-pane__header">
-      <div>
-        <span>
+    <header className="syn-practice-workspace-card__header">
+      <div className="syn-practice-workspace-card__heading">
+        <span className="syn-practice-workspace-card__ordinal">
           {ordinal}/{total}
         </span>
         <h2
@@ -33,34 +47,39 @@ export function PracticePaneHeader({
           {focusedActivity.activity.title}
         </h2>
         <p className="syn-practice-pane__save-status" aria-live="polite">
-          {controller.saveStatus === 'saving'
-            ? 'Đang lưu…'
-            : controller.saveStatus === 'saved'
-              ? 'Đã lưu bản nháp'
-              : controller.saveStatus === 'error'
-                ? 'Lưu thất bại'
-                : activityStatusLabel(status?.status ?? 'AVAILABLE')}
+          <span aria-hidden="true">{controller.saveStatus === 'saved' ? '✓' : '●'}</span>
+          {saveLabel}
         </p>
       </div>
-      <div>
+      <div className="syn-practice-workspace-card__controls">
+        <Button
+          size="sm"
+          variant="secondary"
+          aria-expanded={navigatorOpen}
+          aria-controls="practice-activity-navigator-drawer"
+          leadingIcon={<List size={16} />}
+          onClick={onToggleNavigator}
+        >
+          Danh sách hoạt động
+        </Button>
         {focusedActivity.activity.presentation.supportsFullscreen ? (
-          <button
-            type="button"
-            onClick={() => {
-              void controller.expandPracticePane().catch(() => undefined);
-            }}
+          <Button
+            size="sm"
+            variant="ghost"
+            leadingIcon={<Maximize2 size={16} />}
+            onClick={() => void controller.expandPracticePane().catch(() => undefined)}
           >
             Mở rộng
-          </button>
+          </Button>
         ) : null}
-        <button
-          type="button"
-          onClick={() => {
-            void controller.collapsePracticePane().catch(() => undefined);
-          }}
+        <Button
+          size="sm"
+          variant="ghost"
+          leadingIcon={<Minimize2 size={16} />}
+          onClick={() => void controller.collapsePracticePane().catch(() => undefined)}
         >
           Thu gọn
-        </button>
+        </Button>
       </div>
     </header>
   );

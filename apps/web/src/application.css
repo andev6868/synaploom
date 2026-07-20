@@ -1393,3 +1393,109 @@ body,
     width: 100%;
   }
 }
+
+/* Single Active Workspace Revision 2: contained Practice card */
+.syn-practice-pane {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  padding: 0.75rem;
+  overflow: hidden;
+  background: var(--syn-color-background);
+}
+.syn-practice-workspace-card {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--syn-color-border);
+  border-radius: 0.75rem;
+  background: var(--syn-color-surface);
+  box-shadow: var(--syn-shadow-sm);
+}
+.syn-practice-workspace-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--syn-color-border);
+}
+.syn-practice-workspace-card__heading h2,
+.syn-practice-workspace-card__heading p {
+  margin: 0;
+}
+.syn-practice-workspace-card__ordinal {
+  color: var(--syn-color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.syn-practice-workspace-card__heading h2 {
+  margin-top: 0.2rem;
+  font-size: 1rem;
+}
+.syn-practice-pane__save-status {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.35rem !important;
+  color: var(--syn-color-text-muted);
+  font-size: 0.78rem;
+}
+.syn-practice-workspace-card__controls {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+.syn-practice-workspace-card__content {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 1rem;
+}
+.syn-practice-pane__body {
+  min-width: 0;
+  min-height: 0;
+}
+.syn-practice-workspace-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.75rem;
+  padding: 0.65rem 1rem;
+  border-top: 1px solid var(--syn-color-border);
+  background: var(--syn-color-surface-raised);
+}
+.syn-practice-workspace-card__footer-status,
+.syn-practice-workspace-card__footer-actions {
+  min-width: 0;
+}
+.syn-practice-pane__feedback {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.syn-practice-pane__feedback p,
+.syn-practice-workspace-card__footer p {
+  margin: 0;
+}
+.syn-practice-navigator-drawer {
+  position: absolute;
+  inset: 0.75rem 0.75rem 0.75rem auto;
+  z-index: 10;
+  width: min(20rem, calc(100% - 1.5rem));
+  overflow: auto;
+  border: 1px solid var(--syn-color-border);
+  border-radius: 0.75rem;
+  background: var(--syn-color-surface);
+  box-shadow: var(--syn-shadow-md);
+}
+@media (min-width: 1440px) {
+  .syn-practice-workspace-card__controls > button:first-child {
+    display: none;
+  }
+}

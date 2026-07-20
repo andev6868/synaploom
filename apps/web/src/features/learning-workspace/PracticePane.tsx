@@ -1,8 +1,9 @@
 import type { ActivityOwner, ActivityStatusPayload } from '@synaploom/protocol';
-import type { ReactNode } from 'react';
+import { Button } from '@synaploom/ui';
+import { useState, type ReactNode } from 'react';
 import { ActivityHost } from '#src/features/activity-engine/ActivityHost';
 import type { ActivityHostProps } from '#src/features/activity-engine/types';
-import { ActivityTray } from '#src/features/learning-workspace/ActivityTray';
+import { PracticeActivityNavigator } from '#src/features/learning-workspace/PracticeActivityNavigator';
 import { PracticePaneHeader } from '#src/features/learning-workspace/PracticePaneHeader';
 import type { LearningWorkspaceController } from '#src/features/learning-workspace/useLearningWorkspaceController';
 import {
@@ -28,6 +29,7 @@ export function PracticePane({
   onProgressChanged,
   renderHost = (props) => <ActivityHost {...props} />,
 }: PracticePaneProps): ReactNode {
+  const [navigatorOpen, setNavigatorOpen] = useState(false);
   const focused = controller.focusedActivity;
   if (!focused) return null;
   const ordinal = activities.findIndex((item) => item.activity.id === focused.activity.id) + 1;
@@ -42,52 +44,74 @@ export function PracticePane({
   };
   return (
     <section className="syn-practice-pane" aria-label="Khu vực thực hành">
-      <PracticePaneHeader
-        focusedActivity={focused}
-        ordinal={ordinal}
-        total={activities.length}
-        controller={controller}
-        status={status}
-      />
-      <details className="syn-practice-pane__tray">
-        <summary>Hoạt động trong bài</summary>
-        <ActivityTray
-          activities={activities}
-          statuses={statuses}
+      <div className="syn-practice-workspace-card" data-testid="practice-workspace-card">
+        <PracticePaneHeader
+          focusedActivity={focused}
+          ordinal={ordinal}
+          total={activities.length}
           controller={controller}
-          focusedActivityId={focused.activity.id}
+          status={status}
+          navigatorOpen={navigatorOpen}
+          onToggleNavigator={() => setNavigatorOpen((open) => !open)}
         />
-      </details>
-      <div className="syn-practice-pane__body" data-active-activity-editor>
-        {renderHost(hostProps)}
-      </div>
-      {controller.saveStatus === 'error' || controller.saveStatus === 'conflict' ? (
-        <div className="syn-practice-pane__feedback" role="alert">
-          <p>{controller.error?.message ?? 'Không thể lưu trạng thái khu vực học.'}</p>
-          <button
-            type="button"
-            onClick={() => {
-              void controller.retryLastSave().catch(() => undefined);
-            }}
-          >
-            Thử lưu lại
-          </button>
+        <div
+          className="syn-practice-workspace-card__content"
+          data-testid="practice-workspace-content"
+        >
+          <div className="syn-practice-pane__body" data-active-activity-editor>
+            {renderHost(hostProps)}
+          </div>
         </div>
-      ) : null}
-      {status?.status === 'PASSED' ? (
-        <div className="syn-practice-pane__actions">
-          {nextId ? (
-            <button
-              type="button"
-              onClick={() => {
-                void controller.selectNextActivity().catch(() => undefined);
-              }}
-            >
-              Hoạt động tiếp theo
-            </button>
-          ) : (
-            <p>Tất cả hoạt động trong bài đã hoàn thành</p>
-          )}
+        <footer
+          className="syn-practice-workspace-card__footer"
+          data-testid="practice-workspace-footer"
+        >
+          <div className="syn-practice-workspace-card__footer-status">
+            {controller.saveStatus === 'error' || controller.saveStatus === 'conflict' ? (
+              <div className="syn-practice-pane__feedback" role="alert">
+                <p>{controller.error?.message ?? 'Không thể lưu trạng thái khu vực học.'}</p>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => void controller.retryLastSave().catch(() => undefined)}
+                >
+                  Thử lưu lại
+                </Button>
+              </div>
+            ) : (
+              <span>{controller.saveStatus === 'saved' ? 'Đã lưu bản nháp' : 'Sẵn sàng'}</span>
+            )}
+          </div>
+          <div className="syn-practice-workspace-card__footer-actions" data-practice-action-outlet>
+            {status?.status === 'PASSED' ? (
+              nextId ? (
+                <Button
+                  size="sm"
+                  onClick={() => void controller.selectNextActivity().catch(() => undefined)}
+                >
+                  Hoạt động tiếp theo
+                </Button>
+              ) : (
+                <p>Tất cả hoạt động trong bài đã hoàn thành</p>
+              )
+            ) : null}
+          </div>
+        </footer>
+      </div>
+      {navigatorOpen ? (
+        <div
+          className="syn-practice-navigator-drawer"
+          id="practice-activity-navigator-drawer"
+          role="dialog"
+          aria-label="Danh sách hoạt động"
+        >
+          <PracticeActivityNavigator
+            activities={activities}
+            statuses={statuses}
+            focusedActivityId={focused.activity.id}
+            onSelectActivity={(activityId) => controller.focusActivity(activityId)}
+            onSelectionComplete={() => setNavigatorOpen(false)}
+          />
         </div>
       ) : null}
     </section>
