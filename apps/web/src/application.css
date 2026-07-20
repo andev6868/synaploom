@@ -1725,3 +1725,74 @@ body,
     display: none;
   }
 }
+
+/* Revision 2: workspace-level composition and bounded responsive surfaces. */
+.syn-learning-workspace-layout {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--syn-color-background);
+}
+
+.syn-learning-workspace-layout__main {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.syn-learning-workspace-layout__assistant {
+  min-width: 0;
+  min-height: 0;
+  padding-inline: 0.75rem;
+  background: var(--syn-color-background);
+}
+
+.syn-learning-workspace--expanded {
+  grid-template-columns: auto minmax(0, 1fr) clamp(11rem, 12vw, 14rem);
+}
+
+.syn-learning-workspace__expanded-navigator {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-left: 1px solid var(--syn-color-border);
+  background: var(--syn-color-surface);
+}
+
+.syn-learning-workspace__mobile-practice {
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  transform: none;
+  overflow: hidden;
+}
+
+.syn-learning-workspace__mobile-practice > .syn-practice-pane {
+  padding: 0;
+}
+
+@media (max-width: 719px) {
+  .syn-learning-workspace__mobile-practice
+    .syn-practice-workspace-card__controls
+    > button:not(:first-child) {
+    display: none;
+  }
+
+  .syn-learning-workspace__mobile-practice .syn-practice-workspace-card__footer {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .syn-learning-workspace__mobile-practice .syn-practice-workspace-card__footer-actions,
+  .syn-learning-workspace__mobile-practice .syn-activity-actions,
+  .syn-learning-workspace__mobile-practice .syn-action-bar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+}

@@ -91,6 +91,7 @@ export function WorkspaceShell({
         />
         <Panel
           className="syn-workspace-shell__pane"
+          data-workspace-practice-zone
           id={practicePanelId}
           minSize={toPanelPercentage(MIN_RATIO)}
         >

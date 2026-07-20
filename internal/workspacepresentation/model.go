@@ -8,7 +8,7 @@ import (
 )
 
 const LocalProfileID = "local"
-const DefaultSplitRatio = 0.45
+const DefaultSplitRatio = 0.52
 const MinSplitRatio = 0.32
 const MaxSplitRatio = 0.68
 

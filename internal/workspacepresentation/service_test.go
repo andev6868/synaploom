@@ -97,7 +97,7 @@ func TestGetResolvesRequiredPracticeDefault(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if state.FocusedActivityID == nil || *state.FocusedActivityID != "coding-lab" || state.PaneMode != "split" || state.SplitRatio != 0.45 || state.UserCollapsed || state.Revision != 0 {
+	if state.FocusedActivityID == nil || *state.FocusedActivityID != "coding-lab" || state.PaneMode != "split" || state.SplitRatio != 0.52 || state.UserCollapsed || state.Revision != 0 {
 		t.Fatalf("state=%+v", state)
 	}
 }

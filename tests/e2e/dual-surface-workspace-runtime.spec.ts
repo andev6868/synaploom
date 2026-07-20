@@ -118,8 +118,16 @@ test('scrolls lesson content and persists workspace state across restart', async
   );
 
   const practice = page.getByRole('region', { name: 'Khu vực thực hành' });
-  await practice.locator('summary').filter({ hasText: 'Hoạt động trong bài' }).click();
-  await practice.getByRole('button', { name: /Viết chương trình tính tổng/ }).click();
+  const navigator = page.getByRole('navigation', { name: 'Danh sách hoạt động' });
+  if (await navigator.isVisible().catch(() => false)) {
+    await navigator.getByRole('button', { name: /Viết chương trình tính tổng/ }).click();
+  } else {
+    await practice.getByRole('button', { name: 'Danh sách hoạt động' }).click();
+    await page
+      .getByRole('dialog', { name: 'Danh sách hoạt động' })
+      .getByRole('button', { name: /Viết chương trình tính tổng/ })
+      .click();
+  }
   await expect(
     practice.locator('h2[data-workspace-activity-heading]', {
       hasText: 'Viết chương trình tính tổng',
