@@ -18,6 +18,9 @@ it('shows activity context when Practice has focus', () => {
     'syn-assistant-dock__context',
   );
   expect(screen.getByRole('region', { name: 'Trợ lý AI' })).toHaveClass('syn-assistant-context');
+  expect(screen.getByRole('region', { name: 'Trợ lý AI' })).toHaveAttribute(
+    'data-assistant-dock-surface',
+  );
   expect(screen.getByRole('textbox', { name: 'Câu hỏi cho Trợ lý AI' })).toHaveAttribute(
     'placeholder',
     'Đặt câu hỏi về hoạt động này…',

@@ -123,6 +123,12 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
     Math.abs(workspaceMainBox!.y + workspaceMainBox!.height - assistantBox!.y),
   ).toBeLessThanOrEqual(2);
   expect(assistantBox!.y + assistantBox!.height).toBeLessThanOrEqual(901);
+  const assistantDockBox = await page.getByRole('region', { name: 'Trợ lý AI' }).boundingBox();
+  expect(assistantDockBox).not.toBeNull();
+  expect(assistantDockBox!.x).toBeGreaterThanOrEqual(16);
+  expect(1600 - assistantDockBox!.x - assistantDockBox!.width).toBeGreaterThanOrEqual(16);
+  expect(assistantDockBox!.height).toBeGreaterThanOrEqual(56);
+  expect(assistantDockBox!.height).toBeLessThanOrEqual(64);
   await expect(page.getByRole('textbox', { name: 'Câu hỏi cho Trợ lý AI' })).toBeVisible();
   await expect(page.getByRole('progressbar', { name: 'Tiến độ bài học' })).toBeVisible();
   await expect(page.getByText(/\[!NOTE\]/)).toHaveCount(0);

@@ -29,7 +29,7 @@ export function AssistantPanel({ lessonTitle, activityTitle }: AssistantPanelPro
     setMessage(response.status === 'ok' ? response.content : response.message);
   };
   return (
-    <section className="syn-assistant-context" aria-label="Trợ lý AI">
+    <section className="syn-assistant-context" aria-label="Trợ lý AI" data-assistant-dock-surface>
       <AssistantDock
         contextLabel={context}
         {...(message === undefined ? {} : { message })}
