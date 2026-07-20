@@ -27,11 +27,11 @@ Một thuật toán biến dữ liệu đầu vào thành kết quả qua chuỗ
 :::activity id="algorithm-order"
 :::
 
-> [!NOTE]
-> Thứ tự bước là một phần của tính đúng đắn.
-
 :::activity id="sum-program"
 :::
+
+> [!NOTE]
+> Thứ tự bước là một phần của tính đúng đắn.
 
 :::summary title="Ghi nhớ"
 Thuật toán tốt phải rõ đầu vào, trình tự và đầu ra.

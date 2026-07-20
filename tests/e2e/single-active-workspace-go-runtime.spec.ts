@@ -7,6 +7,7 @@ import { promisify } from 'node:util';
 import { goCommand } from '../../scripts/go/go-command.mjs';
 
 const exec = promisify(execFile);
+const canonicalViewport = { width: 1672, height: 941 } as const;
 let proc: ChildProcess | undefined;
 let home = '';
 let bootstrap = '';
@@ -41,6 +42,26 @@ async function openActivity(page: Page, title: string): Promise<void> {
       .click();
   }
   await expect(heading).toBeVisible();
+}
+
+async function prepareCanonicalOrderingState(page: Page): Promise<void> {
+  await page.clock.install({ time: new Date('2026-07-20T07:32:00Z') });
+  await page.setViewportSize(canonicalViewport);
+  await page.goto(bootstrap);
+  await expect(page.getByRole('heading', { name: 'Dòng chảy thuật toán', level: 1 })).toBeVisible();
+
+  await openActivity(page, 'Sắp xếp thuật toán');
+  await page.getByRole('button', { name: 'Di chuyển Hiển thị kết quả lên' }).click();
+  await page.getByRole('button', { name: 'Lưu bản nháp' }).click();
+
+  await expect(
+    page.locator('.syn-activity-host__state', { hasText: 'Đã lưu bản nháp.' }),
+  ).toBeVisible();
+  const rows = page.locator('.syn-activity-ordering > li');
+  await expect(rows).toHaveCount(3);
+  await expect(rows.nth(0)).toContainText('Đọc hai số a và b');
+  await expect(rows.nth(1)).toContainText('Hiển thị kết quả');
+  await expect(rows.nth(2)).toContainText('Tính a + b');
 }
 
 async function expectSingleEditor(page: Page): Promise<void> {
@@ -88,9 +109,19 @@ test.afterAll(async () => {
 });
 
 test('matches Revision 2 geometry across six responsive states', async ({ page }) => {
-  await page.setViewportSize({ width: 1600, height: 900 });
-  await page.goto(bootstrap);
-  await expect(page.getByRole('heading', { name: 'Dòng chảy thuật toán', level: 1 })).toBeVisible();
+  await prepareCanonicalOrderingState(page);
+
+  const secondSummary = page
+    .locator('[data-activity-summary-card]')
+    .filter({ hasText: 'Viết chương trình tính tổng' });
+  const note = page.getByRole('note', { name: 'Ghi chú' });
+  const [secondSummaryBox, noteBox] = await Promise.all([
+    secondSummary.boundingBox(),
+    note.boundingBox(),
+  ]);
+  expect(secondSummaryBox).not.toBeNull();
+  expect(noteBox).not.toBeNull();
+  expect(secondSummaryBox!.y).toBeLessThan(noteBox!.y);
 
   const theory = page.locator('[data-workspace-theory-zone]');
   const practiceZone = page.locator('[data-workspace-practice-zone]');
@@ -108,8 +139,8 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(navigatorBox).not.toBeNull();
   expect(theoryBox!.x + theoryBox!.width).toBeLessThanOrEqual(practiceBox!.x + 2);
   expect(practiceBox!.x + practiceBox!.width).toBeLessThanOrEqual(navigatorBox!.x + 2);
-  expect(theoryBox!.width / 1600).toBeGreaterThanOrEqual(0.44);
-  expect(theoryBox!.width / 1600).toBeLessThanOrEqual(0.49);
+  expect(theoryBox!.width / canonicalViewport.width).toBeGreaterThanOrEqual(0.44);
+  expect(theoryBox!.width / canonicalViewport.width).toBeLessThanOrEqual(0.49);
   expect(navigatorBox!.width).toBeGreaterThanOrEqual(216);
   expect(navigatorBox!.width).toBeLessThanOrEqual(240);
   const panelBottoms = [theoryBox!, practiceBox!, navigatorBox!].map((box) => box.y + box.height);
@@ -122,11 +153,13 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(
     Math.abs(workspaceMainBox!.y + workspaceMainBox!.height - assistantBox!.y),
   ).toBeLessThanOrEqual(2);
-  expect(assistantBox!.y + assistantBox!.height).toBeLessThanOrEqual(901);
+  expect(assistantBox!.y + assistantBox!.height).toBeLessThanOrEqual(canonicalViewport.height + 1);
   const assistantDockBox = await page.getByRole('region', { name: 'Trợ lý AI' }).boundingBox();
   expect(assistantDockBox).not.toBeNull();
   expect(assistantDockBox!.x).toBeGreaterThanOrEqual(16);
-  expect(1600 - assistantDockBox!.x - assistantDockBox!.width).toBeGreaterThanOrEqual(16);
+  expect(
+    canonicalViewport.width - assistantDockBox!.x - assistantDockBox!.width,
+  ).toBeGreaterThanOrEqual(16);
   expect(assistantDockBox!.height).toBeGreaterThanOrEqual(56);
   expect(assistantDockBox!.height).toBeLessThanOrEqual(64);
   await expect(page.getByRole('textbox', { name: 'Câu hỏi cho Trợ lý AI' })).toBeVisible();
