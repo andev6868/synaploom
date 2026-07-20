@@ -96,7 +96,7 @@ Canonical proportions after shell padding:
 - a distinct gutter separates Practice from Navigator;
 - all three zones terminate above the contextual AI dock on one shared baseline.
 
-The persisted split ratio remains authoritative after the user changes it. Revision 3 may adjust only the default ratio and the constraints needed to match the approved first-load state.
+The persisted split ratio remains authoritative after the user changes it. The approved first-load state uses a `0.531` Theory ratio and a `218px` permanent Navigator; Revision 3 changes only these defaults and the constraints required to reproduce that geometry.
 
 ### 6.2 Intermediate and mobile layouts
 
@@ -130,7 +130,7 @@ Required visual behavior:
 - the progress card matches the approved relative width, height, and title alignment;
 - the focused summary uses a restrained active surface and compact icon treatment;
 - the inactive summary remains visible directly after the focused summary;
-- the canonical example fixture places the note after the second activity so the two activity summaries remain consecutive, matching the approved mockup; this is an authoring-fixture correction, not a renderer rule that reorders arbitrary lesson content.
+- the canonical example fixture places the supporting heading and summary after the second activity so the two activity summaries remain consecutive, matching the approved mockup; this is an authoring-fixture correction, not a renderer rule that reorders arbitrary lesson content.
 
 ## 8. Practice Workspace
 
@@ -201,10 +201,10 @@ The Activity Tray and drawer variants must reuse the same status mapping and ite
 
 ## 10. AI dock
 
-At the canonical desktop viewport, the contextual assistant is a centered floating dock:
+At the canonical desktop viewport, the contextual assistant is a floating dock aligned to the Theory/Practice canvas rather than centered across the full viewport:
 
-- approximately `73%` of viewport width;
-- inset from both horizontal edges and from the bottom;
+- approximately `73%` of viewport width, capped at `76rem`;
+- left offset approximately `8vw` at the canonical viewport and inset from the bottom;
 - one row only;
 - `Trợ lý AI` label, lesson-level input, send control, and quick actions share one horizontal composition;
 - no second visible context row is rendered;

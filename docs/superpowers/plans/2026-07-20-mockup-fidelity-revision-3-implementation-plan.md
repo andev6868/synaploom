@@ -4,7 +4,7 @@
 
 **Goal:** Make the Single Active Workspace match the approved `1672 × 941` mockup at no less than 90% screenshot similarity while preserving all responsive and behavioral contracts.
 
-**Architecture:** Keep the existing React controller, activity engine, Go persistence service, and responsive shell. Correct fidelity through deterministic fixture/test state, bounded markup changes in Header/Theory/Practice/Navigator/Assistant components, a `0.54` first-load split ratio, and consolidation of the final CSS owners instead of appending another override layer.
+**Architecture:** Keep the existing React controller, activity engine, Go persistence service, and responsive shell. Correct fidelity through deterministic fixture/test state, bounded markup changes in Header/Theory/Practice/Navigator/Assistant components, a `0.531` first-load split ratio, and consolidation of the final CSS owners instead of appending another override layer.
 
 **Tech Stack:** React 19, TypeScript 6, CSS, `@synaploom/ui`, Vitest 4, Testing Library, Playwright 1.61, Go, SQLite-backed native runtime.
 
@@ -17,7 +17,7 @@
 - Primary geometry anchors must remain within `2–4px` tolerance.
 - Preserve one editable activity renderer in the DOM.
 - Preserve save-before-switch, failed-save retry, draft persistence, split-ratio persistence, collapse/restore, Navigator drawer, mobile Practice dialog, coding containment, keyboard operation, and reduced-motion behavior.
-- User-persisted split ratios remain authoritative; only the new-workspace default changes to `0.54`.
+- User-persisted split ratios remain authoritative; only the new-workspace default changes to `0.531`.
 - Do not add runtime dependencies.
 - Do not implement pointer drag-and-drop.
 - Do not change API schemas, database schemas, progression rules, or assessment rules.
@@ -28,24 +28,24 @@
 
 ## File ownership map
 
-| File or area | Responsibility in Revision 3 |
-|---|---|
-| `examples/multi-domain-foundations/lessons/01-algorithm-flow/lesson.md` | Canonical authored order: two activity summaries are consecutive, then note and summary. |
-| `tests/e2e/single-active-workspace-go-runtime.spec.ts` | Deterministic canonical setup, geometry assertions, approved-mockup comparison, and responsive regressions. |
-| `packages/ui/src/components/app-header/app-header.tsx` | Product brand, divider, central navigation slot, and trailing slot. |
-| `apps/web/src/features/learning-progress/LearningTopNavigation.tsx` | Chapter/lesson breadcrumb selectors and previous/next/curriculum controls. |
-| `packages/ui/src/components/workspace-shell/workspace-shell.tsx` | Resizable Theory/Practice split and sibling Navigator geometry. |
-| `internal/workspacepresentation/model.go` | First-load split-ratio default only. |
-| `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx` | Header trailing profile, Theory composition, and assistant context wiring. |
-| `apps/web/src/features/learning-workspace/PracticePane.tsx` | Single Practice card anatomy, footer state, and locally observed draft-save time. |
-| `apps/web/src/features/learning-workspace/PracticePaneHeader.tsx` | Ordinal/title/status controls and wide/intermediate Navigator trigger. |
-| `apps/web/src/features/activity-engine/renderers/OrderingActivity.tsx` | Supporting instruction, six-dot affordance, and keyboard move controls. |
-| `apps/web/src/features/learning-workspace/ActivityTray.tsx` | Shared human-readable workspace status labels. |
-| `apps/web/src/features/learning-workspace/PracticeActivityNavigator.tsx` | Active/unopened status mapping, chevron, and Navigator item anatomy. |
-| `packages/ui/src/components/assistant-dock/assistant-dock.tsx` | One-row dock anatomy and muted square send control. |
-| `apps/web/src/features/ai-assistant/AssistantPanel.tsx` | Hidden activity request context with lesson-level visible copy. |
-| `packages/ui/src/styles.css` | Shared Header, WorkspaceShell, and AssistantDock base geometry. |
-| `apps/web/src/application.css` | Application-specific Theory, Practice, Navigator, header navigation, and assistant placement. |
+| File or area                                                             | Responsibility in Revision 3                                                                                |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `examples/multi-domain-foundations/lessons/01-algorithm-flow/lesson.md`  | Canonical authored order: two activity summaries are consecutive, then note and summary.                    |
+| `tests/e2e/single-active-workspace-go-runtime.spec.ts`                   | Deterministic canonical setup, geometry assertions, approved-mockup comparison, and responsive regressions. |
+| `packages/ui/src/components/app-header/app-header.tsx`                   | Product brand, divider, central navigation slot, and trailing slot.                                         |
+| `apps/web/src/features/learning-progress/LearningTopNavigation.tsx`      | Chapter/lesson breadcrumb selectors and previous/next/curriculum controls.                                  |
+| `packages/ui/src/components/workspace-shell/workspace-shell.tsx`         | Resizable Theory/Practice split and sibling Navigator geometry.                                             |
+| `internal/workspacepresentation/model.go`                                | First-load split-ratio default only.                                                                        |
+| `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx`       | Header trailing profile, Theory composition, and assistant context wiring.                                  |
+| `apps/web/src/features/learning-workspace/PracticePane.tsx`              | Single Practice card anatomy, footer state, and locally observed draft-save time.                           |
+| `apps/web/src/features/learning-workspace/PracticePaneHeader.tsx`        | Ordinal/title/status controls and wide/intermediate Navigator trigger.                                      |
+| `apps/web/src/features/activity-engine/renderers/OrderingActivity.tsx`   | Supporting instruction, six-dot affordance, and keyboard move controls.                                     |
+| `apps/web/src/features/learning-workspace/ActivityTray.tsx`              | Shared human-readable workspace status labels.                                                              |
+| `apps/web/src/features/learning-workspace/PracticeActivityNavigator.tsx` | Active/unopened status mapping, chevron, and Navigator item anatomy.                                        |
+| `packages/ui/src/components/assistant-dock/assistant-dock.tsx`           | One-row dock anatomy and muted square send control.                                                         |
+| `apps/web/src/features/ai-assistant/AssistantPanel.tsx`                  | Hidden activity request context with lesson-level visible copy.                                             |
+| `packages/ui/src/styles.css`                                             | Shared Header, WorkspaceShell, and AssistantDock base geometry.                                             |
+| `apps/web/src/application.css`                                           | Application-specific Theory, Practice, Navigator, header navigation, and assistant placement.               |
 
 ---
 
@@ -78,7 +78,9 @@ async function prepareCanonicalOrderingState(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Di chuyển Hiển thị kết quả lên' }).click();
   await page.getByRole('button', { name: 'Lưu bản nháp' }).click();
 
-  await expect(page.locator('.syn-activity-host__state', { hasText: 'Đã lưu bản nháp.' })).toBeVisible();
+  await expect(
+    page.locator('.syn-activity-host__state', { hasText: 'Đã lưu bản nháp.' }),
+  ).toBeVisible();
   const rows = page.locator('.syn-activity-ordering > li');
   await expect(rows).toHaveCount(3);
   await expect(rows.nth(0)).toContainText('Đọc hai số a và b');
@@ -238,11 +240,7 @@ Update `AppHeader` return anatomy to:
     </span>
     <strong>Synaploom</strong>
   </div>
-  <span
-    className="syn-app-header__divider"
-    data-testid="app-header-divider"
-    aria-hidden="true"
-  />
+  <span className="syn-app-header__divider" data-testid="app-header-divider" aria-hidden="true" />
   <div className="syn-app-header__context">
     {navigation ?? (
       <>
@@ -264,11 +262,7 @@ Update `AppHeader` return anatomy to:
 Reuse the existing `ChevronRight` import and remove the visible `syn-learning-top-nav__steps` block. Place this element between the two labels:
 
 ```tsx
-<ChevronRight
-  className="syn-learning-top-nav__breadcrumb-separator"
-  aria-hidden="true"
-  size={16}
-/>
+<ChevronRight className="syn-learning-top-nav__breadcrumb-separator" aria-hidden="true" size={16} />
 ```
 
 Use this top-level structure:
@@ -437,8 +431,8 @@ git commit -m "style: align learning header with approved mockup"
 
 **Interfaces:**
 
-- Produces: `workspacepresentation.DefaultSplitRatio == 0.54`.
-- Produces: `WorkspaceShell` fallback `defaultLessonRatio == 0.54`.
+- Produces: `workspacepresentation.DefaultSplitRatio == 0.531`.
+- Produces: `WorkspaceShell` fallback `defaultLessonRatio == 0.531`.
 - Preserves: persisted ratios and `clampWorkspaceRatio` range `32–68`.
 - Produces: `12–24px` visible gutter between Practice and permanent Navigator.
 
@@ -448,8 +442,8 @@ Add to `internal/workspacepresentation/service_test.go`:
 
 ```go
 func TestDefaultSplitRatioMatchesRevisionThreeDesktopContract(t *testing.T) {
-	if DefaultSplitRatio != 0.54 {
-		t.Fatalf("DefaultSplitRatio = %v, want 0.54", DefaultSplitRatio)
+	if DefaultSplitRatio != 0.531 {
+		t.Fatalf("DefaultSplitRatio = %v, want 0.531", DefaultSplitRatio)
 	}
 }
 ```
@@ -473,7 +467,7 @@ const practiceNavigatorGap = navigatorBox!.x - (practiceBox!.x + practiceBox!.wi
 expect(theoryBox!.width / viewportWidth).toBeGreaterThanOrEqual(0.45);
 expect(theoryBox!.width / viewportWidth).toBeLessThanOrEqual(0.47);
 expect(practiceBox!.width / viewportWidth).toBeGreaterThanOrEqual(0.36);
-expect(practiceBox!.width / viewportWidth).toBeLessThanOrEqual(0.40);
+expect(practiceBox!.width / viewportWidth).toBeLessThanOrEqual(0.4);
 expect(navigatorBox!.width).toBeGreaterThanOrEqual(216);
 expect(navigatorBox!.width).toBeLessThanOrEqual(232);
 expect(practiceNavigatorGap).toBeGreaterThanOrEqual(12);
@@ -497,17 +491,17 @@ Expected: unit tests fail on `0.52/0.48`; browser test fails because no explicit
 In Go:
 
 ```go
-const DefaultSplitRatio = 0.54
+const DefaultSplitRatio = 0.531
 ```
 
 In `WorkspaceShell`:
 
 ```tsx
 export function WorkspaceShell({
-  defaultLessonRatio = 0.54,
+  defaultLessonRatio = 0.531,
   lesson,
   navigator,
-  navigatorWidth = 224,
+  navigatorWidth = 218,
   onLessonSizeChange,
   practice,
 }: WorkspaceShellProps): ReactNode {
@@ -541,7 +535,7 @@ Update the shared shell rules in place:
 }
 ```
 
-Keep the `@media (min-width: 1440px)` Navigator width rule at `224px` equivalent; remove the later `clamp(13.5rem, 14vw, 15rem) !important` declaration because it conflicts with the component-owned width.
+Keep the `@media (min-width: 1440px)` Navigator width rule at `218px` equivalent; remove the later `clamp(13.5rem, 14vw, 15rem) !important` declaration because it conflicts with the component-owned width.
 
 - [ ] **Step 6: Verify persisted ratios remain authoritative**
 
@@ -644,7 +638,9 @@ expect(firstSummaryBox).not.toBeNull();
 expect(secondSummaryBox).not.toBeNull();
 expect(articleBox!.x - theoryBox!.x).toBeGreaterThanOrEqual(40);
 expect(articleBox!.x - theoryBox!.x).toBeLessThanOrEqual(56);
-expect(theoryBox!.x + theoryBox!.width - (articleBox!.x + articleBox!.width)).toBeGreaterThanOrEqual(40);
+expect(
+  theoryBox!.x + theoryBox!.width - (articleBox!.x + articleBox!.width),
+).toBeGreaterThanOrEqual(40);
 expect(progressBox!.height).toBeLessThanOrEqual(92);
 expect(firstSummaryBox!.height).toBeGreaterThanOrEqual(84);
 expect(firstSummaryBox!.height).toBeLessThanOrEqual(104);
@@ -1011,9 +1007,7 @@ await expect(page.getByTestId('practice-workspace-content')).toHaveCSS(
   'background-color',
   'rgb(255, 255, 255)',
 );
-await expect(page.getByTestId('practice-footer-status')).toContainText(
-  'Đã lưu bản nháp lúc 14:32',
-);
+await expect(page.getByTestId('practice-footer-status')).toContainText('Đã lưu bản nháp lúc 14:32');
 await expect(page.getByRole('button', { name: 'Hoạt động tiếp theo' })).toHaveCount(0);
 await expect(page.getByRole('button', { name: 'Danh sách hoạt động' })).toBeVisible();
 ```
@@ -1089,9 +1083,7 @@ Import `GripVertical` from `lucide-react`, then render:
 
 ```tsx
 <div className="syn-activity-renderer">
-  <p className="syn-activity-ordering__instruction">
-    Kéo và thả để sắp xếp theo trình tự đúng.
-  </p>
+  <p className="syn-activity-ordering__instruction">Kéo và thả để sắp xếp theo trình tự đúng.</p>
   <ol className="syn-activity-ordering">
     {itemIds.map((id, index) => {
       const label = optionById(config.items, id)?.label ?? id;
@@ -1353,11 +1345,12 @@ Delete the earlier active inset bar and duplicate Navigator blocks.
 
 ```ts
 const navigator = page.getByRole('navigation', { name: 'Danh sách hoạt động' });
-await expect(navigator.getByRole('button', { name: /1\. Sắp xếp thuật toán\. Đang làm/ })).toHaveAttribute(
-  'aria-current',
-  'true',
-);
-await expect(navigator.getByRole('button', { name: /2\. Viết chương trình tính tổng\. Chưa mở/ })).toBeVisible();
+await expect(
+  navigator.getByRole('button', { name: /1\. Sắp xếp thuật toán\. Đang làm/ }),
+).toHaveAttribute('aria-current', 'true');
+await expect(
+  navigator.getByRole('button', { name: /2\. Viết chương trình tính tổng\. Chưa mở/ }),
+).toBeVisible();
 await expect(navigator.locator('[data-navigator-header-chevron]')).toBeVisible();
 ```
 
@@ -1378,7 +1371,7 @@ git commit -m "style: align activity navigator states"
 
 ---
 
-### Task 8: Convert the assistant to a centered one-row lesson dock
+### Task 8: Convert the assistant to a workspace-aligned one-row lesson dock
 
 **Files:**
 
@@ -1395,7 +1388,7 @@ git commit -m "style: align activity navigator states"
 - `AssistantDockProps.contextLabel` remains accepted but becomes an accessible description rather than a visible second line.
 - Visible placeholder is always `Đặt câu hỏi về bài học này…`.
 - `AssistantPanel` request payload still starts with `Hoạt động: <title>` when an activity is focused.
-- Produces: centered desktop width `70–76%` of viewport and height `56–64px`.
+- Produces: desktop width `70–76%` of viewport, aligned to the Theory/Practice canvas at the canonical viewport, and height `56–64px`.
 
 - [ ] **Step 1: Write RED UI and integration tests**
 
@@ -1578,7 +1571,7 @@ Keep compact/mobile overrides scoped under their existing breakpoints; do not fo
 ```ts
 const assistantDockBox = await page.getByRole('complementary', { name: 'Trợ lý AI' }).boundingBox();
 expect(assistantDockBox).not.toBeNull();
-expect(assistantDockBox!.width / 1672).toBeGreaterThanOrEqual(0.70);
+expect(assistantDockBox!.width / 1672).toBeGreaterThanOrEqual(0.7);
 expect(assistantDockBox!.width / 1672).toBeLessThanOrEqual(0.76);
 expect(Math.abs(assistantDockBox!.x - (1672 - assistantDockBox!.width) / 2)).toBeLessThanOrEqual(3);
 expect(assistantDockBox!.height).toBeGreaterThanOrEqual(56);
