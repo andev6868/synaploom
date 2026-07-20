@@ -202,15 +202,10 @@ body,
 }
 
 @media (max-width: 900px) {
-  html,
-  body,
-  #root {
-    overflow: auto;
-  }
   .syn-learning-app {
-    height: auto;
-    min-height: 100%;
-    grid-template-rows: auto auto;
+    height: 100%;
+    min-height: 0;
+    grid-template-rows: var(--syn-header-height) minmax(0, 1fr);
   }
   .syn-app-header {
     grid-template-columns: auto 1fr;
@@ -2186,5 +2181,68 @@ body,
 
   .syn-practice-workspace-card__completion {
     justify-self: start;
+  }
+}
+
+/* Revision 2.1: readable compact split and balanced mobile actions. */
+@media (min-width: 720px) and (max-width: 1199px) {
+  .syn-learning-workspace__compact-content--split .syn-lesson-panel__article {
+    padding: 1.35rem 1.25rem 2rem;
+  }
+
+  .syn-learning-workspace__compact-content--split .syn-lesson-panel__heading {
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .syn-learning-workspace__compact-content--split .syn-lesson-panel__heading > div,
+  .syn-learning-workspace__compact-content--split .syn-learning-progress-summary {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .syn-learning-workspace__compact-content--split .syn-lesson-panel__heading h1 {
+    font-size: clamp(1.8rem, 3.8vw, 2.15rem);
+    line-height: 1.18;
+  }
+
+  .syn-learning-workspace__compact-content--split .syn-activity-summary {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+  }
+
+  .syn-learning-workspace__compact-content--split .syn-activity-summary > .syn-button {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 719px) {
+  .syn-learning-workspace__mobile-practice .syn-practice-workspace-card__footer-actions {
+    display: block;
+    width: 100%;
+  }
+
+  .syn-learning-workspace__mobile-practice
+    .syn-practice-workspace-card__footer-actions
+    > .syn-action-bar,
+  .syn-learning-workspace__mobile-practice
+    .syn-practice-workspace-card__footer-actions
+    > .syn-activity-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 0.65rem;
+    padding: 0;
+    border: 0;
+  }
+
+  .syn-learning-workspace__mobile-practice .syn-practice-workspace-card__footer-actions .syn-button,
+  .syn-learning-workspace__mobile-practice .syn-practice-workspace-card__footer-actions button {
+    width: 100%;
+    min-width: 0;
+    min-height: 2.75rem;
+    padding-inline: 0.65rem;
+    line-height: 1.2;
+    white-space: normal;
   }
 }

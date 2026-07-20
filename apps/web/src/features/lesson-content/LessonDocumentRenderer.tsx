@@ -18,11 +18,26 @@ const admonitionKinds = {
 
 function blockquoteAdmonition(blocks: readonly LessonBlock[]): Admonition | null {
   const first = blocks[0];
-  if (first?.type !== 'paragraph' || first.children.length !== 1) return null;
+  if (first?.type !== 'paragraph') return null;
   const marker = first.children[0];
   if (marker?.type !== 'text') return null;
-  const config = admonitionKinds[marker.value.trim() as keyof typeof admonitionKinds];
-  return config ? { ...config, blocks: blocks.slice(1) } : null;
+
+  const [markerLine = '', ...contentLines] = marker.value.split(/\r?\n/);
+  const config = admonitionKinds[markerLine.trim() as keyof typeof admonitionKinds];
+  if (!config) return null;
+
+  const content = contentLines.join('\n').trimStart();
+  const remainingInline: InlineNode[] = [
+    ...(content.length > 0 ? [{ ...marker, value: content }] : []),
+    ...first.children.slice(1),
+  ];
+  const normalizedBlocks: LessonBlock[] = [
+    ...(remainingInline.length > 0
+      ? [{ type: 'paragraph' as const, children: remainingInline }]
+      : []),
+    ...blocks.slice(1),
+  ];
+  return { ...config, blocks: normalizedBlocks };
 }
 
 function renderInline(nodes: readonly InlineNode[]): ReactNode {

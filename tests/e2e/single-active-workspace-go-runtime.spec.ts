@@ -110,13 +110,38 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(practiceBox!.x + practiceBox!.width).toBeLessThanOrEqual(navigatorBox!.x + 2);
   expect(theoryBox!.width / 1600).toBeGreaterThan(0.42);
   expect(theoryBox!.width / 1600).toBeLessThan(0.5);
+  const panelBottoms = [theoryBox!, practiceBox!, navigatorBox!].map((box) => box.y + box.height);
+  expect(Math.max(...panelBottoms) - Math.min(...panelBottoms)).toBeLessThanOrEqual(2);
+
+  const workspaceMainBox = await page.locator('[data-workspace-main]').boundingBox();
+  const assistantBox = await page.getByTestId('workspace-assistant').boundingBox();
+  expect(workspaceMainBox).not.toBeNull();
+  expect(assistantBox).not.toBeNull();
+  expect(
+    Math.abs(workspaceMainBox!.y + workspaceMainBox!.height - assistantBox!.y),
+  ).toBeLessThanOrEqual(2);
+  expect(assistantBox!.y + assistantBox!.height).toBeLessThanOrEqual(901);
+  await expect(page.getByRole('textbox', { name: 'Câu hỏi cho Trợ lý AI' })).toBeVisible();
+  await expect(page.getByRole('progressbar', { name: 'Tiến độ bài học' })).toBeVisible();
+  await expect(page.getByText(/\[!NOTE\]/)).toHaveCount(0);
+  await expect(page.getByRole('note', { name: 'Ghi chú' })).toBeVisible();
 
   await openActivity(page, 'Sắp xếp thuật toán');
   const card = page.getByTestId('practice-workspace-card');
   const cardBox = await card.boundingBox();
+  const practiceContentBox = await page.getByTestId('practice-workspace-content').boundingBox();
+  const practiceFooterBox = await page.getByTestId('practice-workspace-footer').boundingBox();
   expect(cardBox).not.toBeNull();
+  expect(practiceContentBox).not.toBeNull();
+  expect(practiceFooterBox).not.toBeNull();
   expect(cardBox!.x).toBeGreaterThan(practiceBox!.x);
   expect(cardBox!.y).toBeGreaterThan(practiceBox!.y);
+  expect(practiceFooterBox!.y).toBeGreaterThanOrEqual(
+    practiceContentBox!.y + practiceContentBox!.height - 1,
+  );
+  expect(practiceFooterBox!.y + practiceFooterBox!.height).toBeLessThanOrEqual(
+    cardBox!.y + cardBox!.height + 1,
+  );
   await expectSingleEditor(page);
   await expect(page).toHaveScreenshot('single-active-ordering-wide.png', { fullPage: true });
 
@@ -147,6 +172,14 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   await page.setViewportSize({ width: 900, height: 900 });
   await expect(page.getByRole('button', { name: 'Lý thuyết' })).toBeVisible();
   await expect(page.locator('[data-active-activity-editor]')).toHaveCount(1);
+  const compactTitleBox = await page
+    .getByRole('heading', { name: 'Dòng chảy thuật toán', level: 1 })
+    .boundingBox();
+  const compactAssistantBox = await page.getByTestId('workspace-assistant').boundingBox();
+  expect(compactTitleBox).not.toBeNull();
+  expect(compactAssistantBox).not.toBeNull();
+  expect(compactTitleBox!.height).toBeLessThanOrEqual(120);
+  expect(compactAssistantBox!.y + compactAssistantBox!.height).toBeLessThanOrEqual(901);
   await expect(page).toHaveScreenshot('single-active-compact.png', { fullPage: true });
 
   await page.setViewportSize({ width: 390, height: 844 });
@@ -158,6 +191,16 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(Math.abs(mobileBox!.y)).toBeLessThanOrEqual(1);
   expect(mobileBox!.width).toBeLessThanOrEqual(391);
   expect(mobileBox!.height).toBeLessThanOrEqual(845);
+  const [checkActionBox, runActionBox] = await Promise.all([
+    page.getByRole('button', { name: 'Kiểm tra kết quả' }).boundingBox(),
+    page.getByRole('button', { name: 'Chạy chương trình' }).boundingBox(),
+  ]);
+  expect(checkActionBox).not.toBeNull();
+  expect(runActionBox).not.toBeNull();
+  expect(checkActionBox!.width).toBeGreaterThanOrEqual(120);
+  expect(runActionBox!.width).toBeGreaterThanOrEqual(120);
+  expect(checkActionBox!.height).toBeLessThanOrEqual(64);
+  expect(runActionBox!.height).toBeLessThanOrEqual(64);
   await expectSingleEditor(page);
   await expect(page).toHaveScreenshot('single-active-mobile.png', { fullPage: true });
 });

@@ -264,15 +264,15 @@ git commit -m "feat: complete contextual assistant dock"
 
 - Produces: geometry assertions for equal panel height, visible assistant dock, compact Theory rhythm, Practice footer placement, and updated six-state screenshots.
 
-- [ ] **Step 1: Add geometry assertions before snapshot updates**
+- [x] **Step 1: Add geometry assertions before snapshot updates**
 
 Assert panel bottom edges align within 2px, assistant bottom is inside viewport, Practice footer is below activity content, and raw `[!NOTE]` is absent.
 
-- [ ] **Step 2: Run RED browser acceptance**
+- [x] **Step 2: Run RED browser acceptance**
 
 Stage web assets, build one Go runtime binary, and run the visual spec without updating snapshots. Expected: geometry or screenshots fail against the previous implementation.
 
-- [ ] **Step 3: Update and inspect six baselines**
+- [x] **Step 3: Update and inspect six baselines**
 
 Generate ordering-wide, coding-wide, collapsed-wide, navigator-1366, compact, and mobile screenshots. Inspect each image before accepting it.
 
