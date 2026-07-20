@@ -145,6 +145,36 @@ it('separates completion status from the footer action group', () => {
   );
 });
 
+it('does not report a draft from workspace-presentation save status alone', () => {
+  const controller = {
+    focusedActivity: activities[0],
+    state: { paneMode: 'split' },
+    saveStatus: 'saved',
+    error: null,
+    selectNextActivity: vi.fn(() => Promise.resolve()),
+    retryLastSave: vi.fn(() => Promise.resolve()),
+    registerPersistenceHandle: vi.fn(),
+    registerPracticeHeading: vi.fn(),
+    registerInlineHeading: vi.fn(),
+    collapsePracticePane: vi.fn(),
+    expandPracticePane: vi.fn(),
+  } as unknown as LearningWorkspaceController;
+
+  render(
+    <PracticePane
+      owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
+      activities={activities}
+      statuses={[]}
+      controller={controller}
+      onProgressChanged={vi.fn()}
+      renderHost={() => <input aria-label="active editor" />}
+    />,
+  );
+
+  expect(screen.getByTestId('practice-footer-status')).toHaveTextContent('Sẵn sàng');
+  expect(screen.getByTestId('practice-footer-status')).not.toHaveTextContent('Đã lưu bản nháp');
+});
+
 it('shows a deterministic local save time when the focused status transitions into DRAFT', () => {
   vi.useFakeTimers();
   vi.setSystemTime(new Date('2026-07-20T07:32:00Z'));
@@ -198,6 +228,52 @@ it('shows a deterministic local save time when the focused status transitions in
     expect(screen.getByTestId('practice-footer-status')).toHaveTextContent(
       'Đã lưu bản nháp lúc 14:32',
     );
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+it('does not fabricate a save time when a historical draft is loaded', () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-07-20T07:32:00Z'));
+  try {
+    const controller = {
+      focusedActivity: activities[0],
+      state: { paneMode: 'split' },
+      saveStatus: 'idle',
+      error: null,
+      selectNextActivity: vi.fn(() => Promise.resolve()),
+      retryLastSave: vi.fn(() => Promise.resolve()),
+      registerPersistenceHandle: vi.fn(),
+      registerPracticeHeading: vi.fn(),
+      registerInlineHeading: vi.fn(),
+      collapsePracticePane: vi.fn(),
+      expandPracticePane: vi.fn(),
+      focusActivity: vi.fn(),
+    } as unknown as LearningWorkspaceController;
+
+    render(
+      <PracticePane
+        owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
+        activities={activities}
+        statuses={[
+          {
+            activityId: 'Quiz',
+            status: 'DRAFT',
+            attemptNumber: 0,
+            score: null,
+            maxScore: 1,
+            passed: false,
+          },
+        ]}
+        controller={controller}
+        onProgressChanged={vi.fn()}
+        renderHost={() => <input aria-label="active editor" />}
+      />,
+    );
+
+    expect(screen.getByTestId('practice-footer-status')).toHaveTextContent('Đã lưu bản nháp');
+    expect(screen.getByTestId('practice-footer-status')).not.toHaveTextContent('14:32');
   } finally {
     vi.useRealTimers();
   }

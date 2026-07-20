@@ -82,7 +82,7 @@ export function useActivityAttempt({
         randomSeed: seedFromAttempt(localAttempt),
       }),
     onMutate: () => setError(null),
-    onSuccess: (saved) => {
+    onSuccess: async (saved) => {
       const revision = saved.revision ?? 0;
       if (revision < latestRevision.current) return;
       latestRevision.current = revision;
@@ -90,6 +90,8 @@ export function useActivityAttempt({
       setLocalAttempt(saved);
       setAnswerState(saved.answer);
       queryClient.setQueryData(attemptKey(owner, activityId), saved);
+      await invalidateRelated();
+      await onProgressChanged();
     },
     onError: (cause) =>
       setError(cause instanceof Error ? cause : new Error('Không thể lưu bản nháp.')),

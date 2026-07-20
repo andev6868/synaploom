@@ -116,7 +116,7 @@ export function PracticePane({
               <span>
                 {lastSavedAt
                   ? `Đã lưu bản nháp lúc ${formatDraftSavedTime(lastSavedAt)}`
-                  : status?.status === 'DRAFT' || controller.saveStatus === 'saved'
+                  : status?.status === 'DRAFT'
                     ? 'Đã lưu bản nháp'
                     : 'Sẵn sàng'}
               </span>

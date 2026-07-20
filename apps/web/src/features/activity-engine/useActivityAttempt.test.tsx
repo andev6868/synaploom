@@ -128,6 +128,7 @@ describe('useActivityAttempt', () => {
       'quiz',
       expect.objectContaining({ answer, revision: 0 }),
     );
+    await waitFor(() => expect(progress).toHaveBeenCalledTimes(1));
     fireEvent.click(screen.getByRole('button', { name: 'submit' }));
     await waitFor(() => expect(screen.getByTestId('state')).toHaveTextContent('evaluated'));
     expect(submit).toHaveBeenCalledWith(
@@ -135,7 +136,7 @@ describe('useActivityAttempt', () => {
       'quiz',
       expect.objectContaining({ answer, idempotencyKey: expect.any(String) }),
     );
-    expect(progress).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(progress).toHaveBeenCalledTimes(2));
   });
 
   it('shows submitting while a submission is in flight', async () => {
