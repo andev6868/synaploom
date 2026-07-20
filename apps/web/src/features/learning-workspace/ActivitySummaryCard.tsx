@@ -1,4 +1,6 @@
 import type { ActivityStatusPayload, PracticePaneMode } from '@synaploom/protocol';
+import { Button } from '@synaploom/ui';
+import { ClipboardCheck, Code2, ListOrdered } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { activityStatusLabel } from '#src/features/learning-workspace/ActivityTray';
 import type { ResolvedWorkspaceActivity } from '#src/features/learning-workspace/workspace-model';
@@ -10,6 +12,12 @@ export interface ActivitySummaryCardProps {
   readonly status: ActivityStatusPayload | null;
   readonly onOpenPractice: (activityId: string) => Promise<void>;
   readonly onRegisterHeading?: (activityId: string, element: HTMLElement | null) => void;
+}
+
+function summaryIcon(kind: ResolvedWorkspaceActivity['activity']['kind']): ReactNode {
+  if (kind === 'coding') return <Code2 size={18} aria-hidden />;
+  if (kind === 'ordering') return <ListOrdered size={18} aria-hidden />;
+  return <ClipboardCheck size={18} aria-hidden />;
 }
 
 export function ActivitySummaryCard({
@@ -43,6 +51,9 @@ export function ActivitySummaryCard({
       data-activity-id={item.activity.id}
       data-focused={focused || undefined}
     >
+      <span className="syn-activity-summary__icon" data-activity-summary-icon aria-hidden="true">
+        {summaryIcon(item.activity.kind)}
+      </span>
       <div className="syn-activity-summary__content">
         <h3
           ref={(element) => onRegisterHeading(item.activity.id, element)}
@@ -51,15 +62,17 @@ export function ActivitySummaryCard({
         >
           {item.activity.title}
         </h3>
-        <p className="syn-activity-summary__status">{statusText}</p>
-        <p>{message}</p>
+        <p className="syn-activity-summary__status" data-activity-summary-status>
+          {statusText}
+        </p>
+        <p className="syn-activity-summary__description">{message}</p>
       </div>
-      <button
-        type="button"
+      <Button
+        variant={focused ? 'secondary' : 'ghost'}
         onClick={() => void onOpenPractice(item.activity.id).catch(() => undefined)}
       >
         {action}
-      </button>
+      </Button>
     </section>
   );
 }

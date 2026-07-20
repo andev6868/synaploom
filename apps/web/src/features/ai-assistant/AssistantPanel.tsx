@@ -28,7 +28,7 @@ export function AssistantPanel({ lessonTitle, activityTitle }: AssistantPanelPro
   };
   return (
     <section className="syn-assistant-context" aria-label="Trợ lý AI">
-      <p>{context}</p>
+      <p className="syn-assistant-context__label">{context}</p>
       <AssistantDock
         {...(message === undefined ? {} : { message })}
         onRequest={(mode) => void request(mode)}

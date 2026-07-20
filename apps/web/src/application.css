@@ -1534,3 +1534,194 @@ body,
     grid-template-rows: minmax(17rem, 1fr) minmax(9rem, 0.65fr);
   }
 }
+
+/* Revision 2: approved summary, navigator, and contextual assistant hierarchy. */
+.syn-activity-summary {
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  min-height: 5.5rem;
+  padding: 0.875rem 1rem;
+}
+
+.syn-activity-summary__icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.625rem;
+  color: var(--syn-color-primary);
+  background: var(--syn-color-primary-soft);
+}
+
+.syn-activity-summary__content {
+  min-width: 0;
+}
+
+.syn-activity-summary__content h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.syn-activity-summary__description {
+  margin: 0;
+  color: var(--syn-color-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.syn-activity-summary--active .syn-activity-summary__icon {
+  color: white;
+  background: var(--syn-color-primary);
+}
+
+.syn-practice-activity-navigator {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0.875rem 0.75rem;
+  background: var(--syn-color-surface);
+}
+
+.syn-practice-activity-navigator__header {
+  padding: 0.25rem 0.25rem 0.75rem;
+  font-size: 0.82rem;
+}
+
+.syn-practice-activity-navigator__list {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.syn-practice-activity-navigator__item {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  align-items: start;
+  width: 100%;
+  gap: 0.625rem;
+  padding: 0.75rem;
+  border: 1px solid var(--syn-color-border);
+  border-radius: 0.625rem;
+  color: var(--syn-color-text);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.syn-practice-activity-navigator__item:hover,
+.syn-practice-activity-navigator__item:focus-visible {
+  border-color: var(--syn-color-primary);
+  outline: none;
+}
+
+.syn-practice-activity-navigator__item[aria-current='true'] {
+  border-color: color-mix(in srgb, var(--syn-color-primary) 45%, white);
+  background: var(--syn-color-primary-soft);
+  box-shadow: inset 3px 0 0 var(--syn-color-primary);
+}
+
+.syn-practice-activity-navigator__ordinal {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  color: var(--syn-color-text-muted);
+  background: var(--syn-color-surface-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.syn-practice-activity-navigator__item[aria-current='true']
+  .syn-practice-activity-navigator__ordinal {
+  color: white;
+  background: var(--syn-color-primary);
+}
+
+.syn-practice-activity-navigator__copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+}
+
+.syn-practice-activity-navigator__copy strong {
+  overflow-wrap: anywhere;
+}
+
+.syn-practice-activity-navigator__copy span {
+  color: var(--syn-color-text-muted);
+}
+
+.syn-practice-activity-navigator__guidance {
+  margin: 0.75rem 0.25rem 0;
+  color: var(--syn-color-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.syn-assistant-context {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  min-height: 3.5rem;
+  max-height: 4rem;
+  padding-inline: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--syn-color-border);
+  border-radius: 0.75rem 0.75rem 0 0;
+  background: var(--syn-color-surface);
+  box-shadow: 0 -8px 24px rgb(15 23 42 / 0.06);
+}
+
+.syn-assistant-context__label {
+  max-width: 16rem;
+  margin: 0 !important;
+  padding: 0 0.75rem 0 0 !important;
+  overflow: hidden;
+  color: var(--syn-color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.syn-assistant-context .syn-assistant-dock {
+  min-width: 0;
+  padding: 0.45rem 0;
+  border-top: 0;
+  background: transparent;
+}
+
+@media (min-width: 1440px) {
+  .syn-workspace-frame__navigator {
+    width: clamp(11rem, 12vw, 14rem) !important;
+  }
+}
+
+@media (max-width: 719px) {
+  .syn-activity-summary {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+  }
+
+  .syn-activity-summary > button {
+    grid-column: 1 / -1;
+  }
+
+  .syn-assistant-context {
+    grid-template-columns: 1fr;
+    max-height: none;
+  }
+
+  .syn-assistant-context__label {
+    display: none;
+  }
+}

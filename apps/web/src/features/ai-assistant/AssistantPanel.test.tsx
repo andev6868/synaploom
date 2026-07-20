@@ -14,7 +14,10 @@ it('shows activity context when Practice has focus', () => {
       <AssistantPanel lessonTitle="Dòng chảy thuật toán" activityTitle="Sắp xếp thuật toán" />
     </AppProviders>,
   );
-  expect(screen.getByText('Hoạt động: Sắp xếp thuật toán')).toBeVisible();
+  expect(screen.getByText('Hoạt động: Sắp xếp thuật toán')).toHaveClass(
+    'syn-assistant-context__label',
+  );
+  expect(screen.getByRole('region', { name: 'Trợ lý AI' })).toHaveClass('syn-assistant-context');
 });
 
 it('falls back to lesson context without a focused activity', () => {
