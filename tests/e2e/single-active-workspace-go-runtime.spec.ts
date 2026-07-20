@@ -205,15 +205,21 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
     Math.abs(workspaceMainBox!.y + workspaceMainBox!.height - assistantBox!.y),
   ).toBeLessThanOrEqual(2);
   expect(assistantBox!.y + assistantBox!.height).toBeLessThanOrEqual(canonicalViewport.height + 1);
-  const assistantDockBox = await page.getByRole('region', { name: 'Trợ lý AI' }).boundingBox();
+  const assistantDockBox = await page
+    .getByRole('complementary', { name: 'Trợ lý AI' })
+    .boundingBox();
   expect(assistantDockBox).not.toBeNull();
-  expect(assistantDockBox!.x).toBeGreaterThanOrEqual(16);
+  expect(assistantDockBox!.width / canonicalViewport.width).toBeGreaterThanOrEqual(0.7);
+  expect(assistantDockBox!.width / canonicalViewport.width).toBeLessThanOrEqual(0.76);
   expect(
-    canonicalViewport.width - assistantDockBox!.x - assistantDockBox!.width,
-  ).toBeGreaterThanOrEqual(16);
+    Math.abs(assistantDockBox!.x - (canonicalViewport.width - assistantDockBox!.width) / 2),
+  ).toBeLessThanOrEqual(3);
   expect(assistantDockBox!.height).toBeGreaterThanOrEqual(56);
   expect(assistantDockBox!.height).toBeLessThanOrEqual(64);
-  await expect(page.getByRole('textbox', { name: 'Câu hỏi cho Trợ lý AI' })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Câu hỏi cho Trợ lý AI' })).toHaveAttribute(
+    'placeholder',
+    'Đặt câu hỏi về bài học này…',
+  );
   await expect(page.getByRole('progressbar', { name: 'Tiến độ bài học' })).toBeVisible();
   await expect(page.getByText(/\[!NOTE\]/)).toHaveCount(0);
   await expect(page.getByRole('note', { name: 'Ghi chú' })).toBeVisible();

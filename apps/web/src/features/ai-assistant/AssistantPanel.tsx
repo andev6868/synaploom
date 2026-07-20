@@ -35,9 +35,7 @@ export function AssistantPanel({ lessonTitle, activityTitle }: AssistantPanelPro
         {...(message === undefined ? {} : { message })}
         onRequest={(mode) => void request(mode)}
         onSubmit={(prompt) => void request('explain', prompt)}
-        placeholder={
-          activityTitle ? 'Đặt câu hỏi về hoạt động này…' : 'Đặt câu hỏi về bài học này…'
-        }
+        placeholder="Đặt câu hỏi về bài học này…"
       />
     </section>
   );

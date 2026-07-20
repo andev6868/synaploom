@@ -2394,15 +2394,22 @@ body,
   margin-top: 0.1rem;
 }
 
-/* Revision 2.2: inset contextual assistant dock. */
+/* Revision 3: centered one-row lesson assistant dock. */
 .syn-learning-workspace-layout {
-  grid-template-rows: minmax(0, 1fr) 4.75rem;
+  grid-template-rows: minmax(0, 1fr) 5rem;
 }
 
 .syn-learning-workspace-layout__assistant {
-  height: 4.75rem;
-  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 5rem;
+  padding: 0.5rem 1rem 0.65rem;
   background: var(--syn-color-workspace-canvas);
+}
+
+.syn-assistant-context {
+  min-width: 0;
 }
 
 .syn-assistant-context .syn-assistant-dock {
@@ -2410,9 +2417,13 @@ body,
   border: 1px solid var(--syn-color-border);
   border-radius: 0.75rem;
   background: var(--syn-color-workspace-panel);
-  box-shadow:
-    0 1px 2px rgb(15 23 42 / 0.06),
-    0 8px 24px rgb(15 23 42 / 0.05);
+  box-shadow: none;
+}
+
+@media (min-width: 960px) {
+  .syn-assistant-context {
+    width: min(73vw, 76rem);
+  }
 }
 
 @media (max-width: 719px) {

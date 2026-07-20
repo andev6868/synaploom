@@ -39,13 +39,16 @@ export function AssistantDock({
   };
 
   return (
-    <aside className="syn-assistant-dock" aria-label="Trợ lý AI">
+    <aside
+      className="syn-assistant-dock"
+      aria-label="Trợ lý AI"
+      {...(contextLabel ? { 'aria-description': contextLabel } : {})}
+    >
       <div className="syn-assistant-dock__identity">
         <div className="syn-assistant-dock__title">
           <Sparkles aria-hidden="true" size={17} />
           <strong>Trợ lý AI</strong>
         </div>
-        {contextLabel ? <span className="syn-assistant-dock__context">{contextLabel}</span> : null}
       </div>
 
       <form className="syn-assistant-dock__prompt" onSubmit={submit}>
@@ -68,6 +71,7 @@ export function AssistantDock({
           disabled={disabled || trimmedPrompt.length === 0}
           size="sm"
           type="submit"
+          variant="ghost"
         >
           <Send aria-hidden="true" size={16} />
           <span className="syn-visually-hidden">Gửi câu hỏi</span>

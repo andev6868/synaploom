@@ -13,7 +13,11 @@ it('renders the complete compact assistant dock anatomy', () => {
     />,
   );
 
-  expect(screen.getByText('Hoạt động: Sắp xếp thuật toán')).toBeVisible();
+  expect(screen.queryByText('Hoạt động: Sắp xếp thuật toán')).not.toBeInTheDocument();
+  expect(screen.getByRole('complementary', { name: 'Trợ lý AI' })).toHaveAttribute(
+    'aria-description',
+    'Hoạt động: Sắp xếp thuật toán',
+  );
   const input = screen.getByRole('textbox', { name: 'Câu hỏi cho Trợ lý AI' });
   expect(input).toHaveAttribute('placeholder', 'Đặt câu hỏi về hoạt động này…');
   expect(screen.getByRole('button', { name: 'Gợi ý' })).toBeVisible();
