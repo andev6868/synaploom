@@ -1,51 +1,75 @@
-# Single Active Workspace UI Design
+# Single Active Workspace UI Design — Revision 2
 
 **Status:** Approved
 **Date:** 2026-07-20
-**Target:** Dual-Surface Learning Workspace refinement
-**Supersedes:** Inline-editing and return-inline behavior in `2026-07-19-dual-surface-learning-workspace-design.md`
+**Revision:** 2 — corrected after runtime-to-mockup audit
+**Target:** Synaploom learning workspace visual composition
+**Supersedes:** Revision 1 of this document and the visual-composition assumptions in `2026-07-20-single-active-workspace-ui.md`
 
 ## 1. Decision
 
-Synaploom will use the **Single Active Workspace** interaction model.
+Synaploom keeps the **Single Active Workspace** interaction model, but the desktop implementation must use a deliberate **three-zone composition** rather than stretching the Practice renderer across the entire right half of the application.
 
-At any moment, exactly one activity may expose editable controls. The focused activity is rendered only in the Practice Pane. Its authored location inside the lesson remains visible as a read-only activity summary and navigation affordance.
-
-This rule applies consistently to every Activity Engine kind, including quizzes, ordering, matching, writing, coding, and assessment questions.
+At any moment, exactly one activity may expose editable controls. The focused activity is mounted only inside the Practice Workspace Card. Its authored location inside Theory remains a read-only summary card.
 
 ![Approved Single Active Workspace mockup](./assets/2026-07-20-single-active-workspace-approved.png)
 
-The image is a visual direction, not a pixel-perfect implementation contract. The behavioral and layout requirements below are authoritative.
+The approved mockup is now authoritative for composition, hierarchy, containment, and relative visual weight. Minor typography and token-level differences are acceptable; omitting a zone or allowing an activity renderer to redefine the shell is not acceptable.
 
-## 2. Product goals
+## 2. Why Revision 2 is required
 
-The refinement must:
+The first implementation achieved the one-editor behavior but did not reproduce the approved visual architecture. The runtime audit found these structural mismatches:
 
-- establish one predictable place for active work;
+- desktop rendered only `Theory | Practice`, while the approved design requires `Theory | Practice Workspace | Activity Navigator`;
+- the coding renderer inherited a full-height standalone layout and expanded its dark surface across most of the pane;
+- Practice controls, activity navigation, activity content, and actions were not composed as one card;
+- the native `<details>` tray exposed browser-default UI instead of a designed navigator;
+- the AI assistant remained nested under Theory instead of belonging to the workspace shell;
+- visual tests asserted class names and behavior but did not verify geometry or screenshot composition.
+
+Revision 2 corrects the composition contract while preserving the existing controller, persistence, save-before-switch transaction, and one-editor invariant.
+
+## 3. Product goals
+
+The revised workspace must:
+
+- provide one predictable place for active work;
 - prevent duplicate editors and competing calls to action;
-- keep lesson theory visible while an activity is open;
-- preserve a stable reading width across activity changes;
-- make expanded, split, collapsed, compact, and mobile presentations feel like states of one workspace;
-- keep activity status, saving, navigation, and AI context visually connected to the focused activity.
+- keep Theory readable while Practice is active;
+- make Practice feel like a contained workspace card, not a second embedded application;
+- keep activity navigation visible without consuming a blank column;
+- make ordering, coding, writing, quiz, matching, and assessment activities share the same outer shell;
+- preserve independent scrolling, persisted presentation state, and save-before-switch behavior;
+- match the approved visual hierarchy closely enough that ordering and coding screenshots clearly look like the same product.
 
-## 3. Core interaction contract
+## 4. Core interaction contract
 
-### 3.1 One live editor
+### 4.1 One live editor
 
-Only `ActivityFocusHost` inside the Practice Pane may mount editable activity controls.
+Only the focused activity host inside the Practice Workspace Card may mount editable controls.
 
-The Theory Pane must never mount a second editable renderer for the same activity. In this design, it also does not mount editable renderers for non-focused activities. All authored activity positions are represented by summary cards.
+Theory must never mount:
 
-### 3.2 Activity summary cards
+- answer inputs;
+- code editors;
+- drag handles;
+- terminals;
+- evaluation controls;
+- activity-specific editing widgets.
 
-Each authored activity position renders a compact card containing:
+Exactly one element marked `data-active-activity-editor` may exist in the DOM.
 
-- activity icon and title;
-- completion or draft status;
-- one-line description or focused-state message;
-- one primary navigation action.
+### 4.2 Theory activity summaries
 
-A focused activity uses language such as:
+Every authored activity position renders a summary card containing:
+
+- an activity-kind icon;
+- title;
+- textual status with icon or dot;
+- a one-line description or focused-state message;
+- one navigation action.
+
+Focused example:
 
 ```text
 Sắp xếp thuật toán
@@ -55,7 +79,7 @@ Activity đang mở trong khu vực thực hành.
 [Quay lại thực hành]
 ```
 
-A non-focused activity uses language such as:
+Non-focused example:
 
 ```text
 Viết chương trình tính tổng
@@ -65,174 +89,409 @@ Viết chương trình tính tổng.
 [Thực hành bài này]
 ```
 
-Summary cards must not contain answer inputs, code editors, drag handles, evaluation controls, terminals, or activity-specific editing widgets.
+The active summary may use a light blue background and blue border, but it must remain visually subordinate to the Practice Workspace Card.
 
-### 3.3 Opening another activity
+### 4.3 Switching activity
 
-Selecting `Thực hành bài này` performs one transaction:
+Selecting another activity performs one transaction:
 
 ```text
 save focused activity if dirty
-→ stop if save fails
+→ stop and preserve current UI if save fails
 → persist the new focused activity
-→ open the Practice Pane in the appropriate mode
 → mount the selected activity once
-→ scroll the Theory Pane summary into view when appropriate
-→ move keyboard focus to the Practice Pane heading
+→ update navigator active state
+→ scroll Theory summary into view when appropriate
+→ move keyboard focus to the Practice heading
 ```
 
-### 3.4 Collapsing Practice
+### 4.4 Collapsing Practice
 
-Collapsing hides the live editor but preserves the focused activity, draft, and workspace state.
+Collapsing hides the Practice Workspace Card while preserving focused activity, draft, and layout state.
 
-The desktop collapsed state uses a narrow Practice Rail, approximately 52–56 px when represented as an icon rail, or a compact information rail when sufficient width exists. It must not reserve a large empty panel.
+On wide desktop, the Practice area becomes a 52–56 px rail. It must not leave a blank content column. Restoring the rail reopens the same activity.
 
-Selecting the rail restores the same activity and its previous pane mode.
+There is no return-inline editor state.
 
-There is no “return inline editor” action. The authored location remains a summary card in all modes.
+## 5. Wide desktop composition
 
-## 4. Desktop layout
+### 5.1 Three-zone layout
 
-### 4.1 Open split mode
+For viewports at or above 1440 CSS pixels, the main workspace is:
 
-The desktop workspace consists of:
+```text
+Theory Pane | Practice Workspace Card | Activity Navigator
+```
 
-- **Theory Pane:** approximately 55–65% of available workspace width;
-- **Practice Pane:** remaining width, subject to minimum usable dimensions;
-- optional compact Activity Tray or activity-list control associated with Practice.
+Recommended allocation after gutters:
 
-The Theory Pane keeps a stable reading measure. Opening or changing an activity must not cause dramatic typography reflow beyond the intentional pane resize.
+- **Theory Pane:** 44–48%;
+- **Practice Workspace:** 36–40%;
+- **Activity Navigator:** 12–14%;
+- **gutter/divider:** 12–24 px between zones.
 
-Theory and Practice own independent scroll containers. Neither pane may expand to document height and become clipped by the application shell.
+The exact ratio may respond to the persisted split preference, but all three zones must remain usable. The Activity Navigator is not counted as part of the Practice card width.
 
-### 4.2 Theory Pane hierarchy
+Minimum widths:
 
-The Theory Pane contains, in order:
+- Theory content surface: 560 px;
+- Practice Workspace Card: 480 px;
+- Activity Navigator: 176 px.
 
-1. learning-state indicator;
+If the viewport cannot satisfy those minima, the navigator changes presentation rather than squeezing the editor below usable width.
+
+### 5.2 Desktop between 1180 and 1439 px
+
+Use a two-zone `Theory | Practice Workspace` split. The Activity Navigator becomes a designed popover or anchored drawer opened by `Danh sách hoạt động` in the Practice header.
+
+The navigator must not remain as an empty permanent column.
+
+### 5.3 Geometry ownership
+
+The application shell owns viewport height. The learning workspace owns the remaining height below global navigation and above the contextual AI dock.
+
+Each zone must use:
+
+```css
+min-height: 0;
+min-width: 0;
+overflow: hidden;
+```
+
+Only designated internal scroll viewports may scroll. Content must not expand a parent to document height.
+
+## 6. Theory Pane design
+
+### 6.1 Structure
+
+Theory contains:
+
+1. learning-state pill;
 2. lesson title and concise introduction;
-3. progress summary;
-4. lesson content and reference material;
-5. activity summary cards at their authored positions;
-6. lesson completion requirements and progression actions.
+3. progress card aligned with the heading region;
+4. lesson prose and reference material;
+5. activity summary cards at authored positions;
+6. completion requirements and progression actions.
 
-The active summary card receives a restrained highlighted state. It must remain less visually dominant than the live Practice Pane.
+### 6.2 Reading measure
 
-### 4.3 Practice Pane hierarchy
+The scroll viewport may fill the Theory zone, but prose uses a bounded reading column. The content column should normally remain between 680 and 820 px, centered within its zone when space allows.
 
-The Practice Pane contains:
+Opening, changing, or collapsing Practice must not cause large typography reflow beyond the intentional zone-width change.
 
-1. activity position, such as `1/2`;
-2. activity title;
-3. activity status and draft-save state;
-4. collapse and activity-list controls;
-5. activity instructions;
-6. the single editable activity renderer;
-7. feedback or evaluation region;
-8. sticky or reliably reachable action bar.
+### 6.3 Activity summary card anatomy
 
-The header and action bar must remain understandable for all activity kinds. Activity-specific tools belong inside the renderer, not in shell-level navigation.
+```text
+[Icon]  Title                         [CTA]
+        Status icon + status text
+        Description or focused message
+```
 
-### 4.4 Activity Tray
+Required visual behavior:
 
-The activity list shows authored order and status. It may appear as a narrow rail, popover, drawer, or contained side list depending on available width.
+- 12–16 px internal padding;
+- 10–12 px radius;
+- quiet neutral background for inactive cards;
+- restrained blue treatment for the active card;
+- CTA uses the standard button system, not unstyled HTML text;
+- status never relies on color alone.
 
-The list must not create an additional full-width blank column. Selecting an item uses the save-before-switch transaction.
+## 7. Practice Workspace Card
 
-## 5. Compact and mobile behavior
+### 7.1 Outer surface
 
-### 5.1 Compact desktop and tablet
+The Practice zone uses a neutral page background with 12–16 px padding. Inside it sits one bordered card that fills the available zone height.
 
-Theory and Practice become two controlled surfaces selected by tabs or a segmented switch. Only one surface is prominent at a time, but both use the same controller and persisted focused activity.
+The card must have:
 
-### 5.2 Mobile
+- white or near-white shell surface;
+- 10–14 px corner radius;
+- subtle border and optional low-elevation shadow;
+- `overflow: hidden` at the card boundary;
+- a clear header, scrollable content region, and action footer.
 
-Practice opens as a full-screen sheet or route-like surface within the learning shell. Closing it returns to Theory without clearing focus or draft state.
+The activity renderer is content inside this card. It may not redefine the outer workspace dimensions.
 
-The summary card remains the re-entry point. The mobile surface must not mount a second editor underneath the sheet.
+### 7.2 Card anatomy
 
-## 6. Contextual AI assistant
+```text
+Practice Workspace Card
+├── Header
+│   ├── ordinal and title
+│   ├── activity status and save status
+│   ├── collapse/expand control
+│   └── activity-list control
+├── Activity content viewport
+│   ├── instructions
+│   ├── focused renderer
+│   └── feedback/evaluation
+└── Action footer
+    ├── last saved or error state
+    └── primary/secondary activity actions
+```
 
-The AI assistant is a compact contextual dock, drawer, or sheet rather than a large disconnected footer panel.
+CSS ownership should follow:
 
-It always exposes its current context:
+```css
+.syn-practice-workspace-card {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 0;
+  overflow: hidden;
+}
+```
 
-- `Bài học: Dòng chảy thuật toán`, or
-- `Hoạt động: Sắp xếp thuật toán`.
+### 7.3 Header hierarchy
 
-When Practice is active, activity context is the default. The assistant must not obscure the Practice action bar or consume permanent vertical space that prevents either pane from scrolling.
+The header must visually group:
 
-## 7. Visual system
+- `1/2` or `2/2` ordinal;
+- activity title;
+- active status;
+- draft/save state;
+- collapse or restore button;
+- `Danh sách hoạt động` control when the navigator is not permanently visible.
 
-The implementation should preserve Synaploom’s restrained visual language:
+Controls must use the shared button/icon-button components. Raw text buttons such as `Mở rộng Thu gọn` are not acceptable.
 
-- white and neutral surfaces;
-- blue as the primary action and focus accent;
-- green only for success or saved states;
-- subtle borders and shadows;
-- consistent 8 px-derived spacing rhythm;
-- moderate corner radii;
-- clear type hierarchy with accessible contrast;
-- status communicated by text and icon, never color alone.
+### 7.4 Content viewport
 
-The Practice Pane may use a slightly differentiated background or border, but it should remain part of the same application surface rather than look like a separate embedded product.
+Only the card content region scrolls vertically. The header and footer remain visible unless the viewport is below the minimum supported height.
 
-## 8. State and error behavior
+Activity instructions belong above the renderer and use the same horizontal padding as the footer.
 
-- Draft-save state is visible near the activity title and action bar.
-- Save failure keeps the current editor mounted and blocks activity switching.
-- Presentation conflict recovery must not remount or reset the active renderer.
-- Activity-load failure keeps the Practice Pane open with an inline retry action.
-- Collapse, focused activity, split ratio, and expanded state survive refresh and runtime restart.
-- Invalid persisted focus collapses safely while preserving usable lesson content.
+### 7.5 Action footer
 
-## 9. Accessibility
+The footer belongs to the Practice card, not to the bottom of the browser viewport and not to the activity renderer’s internal scroll area.
 
-- Opening Practice moves focus to its heading after persistence succeeds.
-- Switching activities announces the new title and save result.
-- Collapsed controls expose `aria-expanded` and `aria-controls`.
-- Activity status is available as text.
-- Theory and Practice scroll independently with keyboard, wheel, and touch input.
-- Focus must not move behind a mobile sheet or compact surface.
-- The divider remains keyboard operable in desktop split mode.
+It contains:
 
-## 10. Acceptance criteria
+- saved timestamp or save/error status on the left;
+- secondary action first;
+- primary evaluation/run action last;
+- next-activity action only after the current activity reaches the required state.
 
-The refinement is complete only when all of the following are true:
+## 8. Activity Navigator
+
+### 8.1 Separate responsibility
+
+The Activity Navigator is a sibling of the Practice Workspace Card on wide desktop. It is not a `<details>` element nested inside Practice content.
+
+Recommended component boundary:
+
+```tsx
+<PracticeActivityNavigator
+  activities={activities}
+  statuses={statuses}
+  focusedActivityId={focusedActivityId}
+  onSelectActivity={controller.focusActivity}
+/>
+```
+
+### 8.2 Wide state
+
+The navigator shows:
+
+- heading such as `Thực hành · 2 hoạt động`;
+- numbered activity items in authored order;
+- title;
+- status text;
+- active highlight;
+- optional concise single-editor guidance.
+
+Selecting an item uses save-before-switch.
+
+### 8.3 Narrow and compact states
+
+- 1180–1439 px: anchored popover or side drawer;
+- compact/tablet: drawer or controlled activity-list surface;
+- collapsed desktop: 52–56 px Practice Rail;
+- mobile: activity list inside the full-screen Practice surface.
+
+The same activity list model must drive all presentations.
+
+## 9. Contained activity renderer contract
+
+### 9.1 Shell versus renderer responsibility
+
+The shell owns:
+
+- workspace card geometry;
+- header;
+- content scrolling;
+- save/error messaging shared by all activities;
+- footer position;
+- activity navigation.
+
+The renderer owns:
+
+- activity-specific input controls;
+- activity-specific feedback details;
+- internal editor/output splits where necessary.
+
+### 9.2 Surface contract
+
+`ActivityHost` must receive an explicit presentation surface, for example:
+
+```ts
+type ActivityHostSurface = 'practice-contained' | 'standalone';
+
+interface ActivityHostProps {
+  readonly surface: ActivityHostSurface;
+  // existing owner, activity, policy, persistence, and progress fields
+}
+```
+
+The learning workspace always uses `practice-contained`.
+
+### 9.3 Coding activity containment
+
+In `practice-contained` mode, coding must not set `height: 100%` against an unconstrained ancestor or fill unused space with the dark editor surface.
+
+Required behavior:
+
+- editor and terminal/result remain inside a bounded internal grid;
+- editor is the primary region;
+- terminal/result has a reasonable minimum and maximum height;
+- empty result space does not stretch to consume the Practice card;
+- renderer actions that belong to the activity are exposed to the Practice footer or remain visually attached to the renderer’s bottom edge;
+- code editor, terminal, and result subregions may scroll internally when needed.
+
+At a 1600×1000 viewport, the coding renderer should read as a contained tool inside the Practice card, not as a full-height dark pane.
+
+### 9.4 Other activity kinds
+
+Ordering, writing, quiz, matching, numeric, and assessment activities use the same card frame. Their content may be shorter than available space; the shell must not artificially stretch individual controls.
+
+## 10. Contextual AI dock
+
+The AI assistant belongs to the learning workspace shell, not to Theory.
+
+Wide desktop composition:
+
+```text
+Global navigation
+Workspace main frame: Theory | Practice | Navigator
+Contextual AI dock
+```
+
+The dock:
+
+- spans the intended workspace width;
+- uses a compact 52–64 px resting height;
+- names its context: lesson or focused activity;
+- does not reduce either pane’s scrollability;
+- can expand into a drawer or sheet without covering the Practice action footer;
+- becomes a bottom sheet trigger on mobile.
+
+## 11. Responsive behavior
+
+### 11.1 Compact desktop and tablet
+
+Theory and Practice become controlled surfaces selected by tabs or a segmented switch. Only one surface is prominent at a time. The Activity Navigator opens as a drawer or popover.
+
+Exactly one editor remains mounted.
+
+### 11.2 Mobile
+
+Practice opens as a full-screen surface within the learning shell. Closing returns to Theory without clearing focus or draft state.
+
+The summary card remains the re-entry point. The Activity Navigator is available inside Practice. AI opens as a bottom sheet.
+
+## 12. State and error behavior
+
+- Draft-save state appears in the Practice header and/or footer.
+- Save failure keeps the current renderer mounted and blocks switching.
+- Presentation conflict recovery does not reset the renderer.
+- Activity-load failure keeps the Practice card open with retry.
+- Focused activity, collapsed state, navigator state where applicable, and split ratio survive refresh and runtime restart.
+- Invalid persisted focus collapses safely while Theory remains usable.
+
+## 13. Accessibility
+
+- Opening Practice moves focus to the Practice heading after persistence succeeds.
+- Activity selection announces the new title and save result.
+- Collapse controls expose `aria-expanded` and `aria-controls`.
+- The navigator exposes the active item using `aria-current` or an equivalent state.
+- Status is available as text.
+- Theory, Practice content, coding editor, terminal, and navigator are keyboard reachable.
+- Focus does not move behind mobile sheets or compact drawers.
+- Desktop divider remains keyboard operable.
+
+## 14. Visual verification contract
+
+Behavioral tests alone are insufficient for this revision.
+
+The implementation must include structural geometry assertions and screenshot baselines for:
+
+1. wide desktop with ordering activity active;
+2. wide desktop with coding activity active;
+3. wide desktop with Practice collapsed to rail;
+4. 1366 px desktop with navigator popover/drawer behavior;
+5. compact/tablet surface switching;
+6. mobile full-screen Practice.
+
+Required geometry assertions on wide desktop:
+
+- three visible zones when viewport is at least 1440 px;
+- Practice card is inset from its zone edges;
+- Activity Navigator is a sibling, not nested in the Practice scroll content;
+- Practice header and footer remain within the card viewport;
+- coding dark surface occupies only the renderer region;
+- Theory and Practice content scroll independently;
+- exactly one active editor exists.
+
+Screenshot review must compare ordering and coding states to ensure the outer shell remains visually identical while only renderer content changes.
+
+## 15. Acceptance criteria
+
+The revision is complete only when all conditions are true:
 
 1. Exactly one editable activity renderer exists in the DOM.
-2. Every authored activity position in Theory renders a summary card, never an editor.
-3. Focused and non-focused summaries use distinct, understandable actions.
-4. Switching activities saves the current dirty draft before focus changes.
-5. Save failure prevents switching and preserves unsaved content.
-6. Theory width remains stable within the selected pane ratio.
-7. Collapsing Practice does not leave a large empty column.
-8. Restoring the rail reopens the same focused activity.
-9. Theory and Practice scroll independently at wide, compact, and mobile breakpoints.
-10. Coding, ordering, writing, quiz, matching, and assessment activities follow the same shell interaction model.
-11. AI assistance clearly indicates lesson or activity context.
-12. Focus, collapse state, and split ratio survive refresh and runtime restart.
+2. Every authored activity position in Theory is a summary card.
+3. Wide desktop renders Theory, Practice Workspace Card, and Activity Navigator as three distinct sibling zones.
+4. The Practice Workspace Card has an inset outer surface, designed header, bounded content viewport, and attached footer.
+5. Coding cannot stretch its dark surface across unused Practice height.
+6. Activity Navigator no longer uses native `<details>` browser UI.
+7. At narrower desktop widths, navigator presentation changes without creating an empty column.
+8. Collapsing Practice produces a 52–56 px rail and preserves focused activity.
+9. AI assistant is composed at workspace level and names its context.
+10. Theory and Practice scroll independently.
+11. All activity kinds and assessment use the same outer shell.
+12. Save-before-switch, error recovery, refresh persistence, and runtime restart remain intact.
+13. Geometry assertions and screenshot baselines pass for all required viewports and activity states.
+14. Ordering and coding screenshots visibly match the approved shell composition.
 
-## 11. Migration impact
+## 16. Implementation impact
 
-The existing dual-surface controller, persistence model, and save lifecycle remain valid. The principal behavioral change is removal of editable inline presentation and removal of the `return inline` transition.
+The existing presentation state, controller transaction model, status API, and persistence model remain valid.
 
-Migration work must:
+Required implementation changes include:
 
-- convert inline activity renderers to summary cards;
-- route every activity-open action through the Practice Pane controller;
-- remove or deprecate `allowInline` behavior at the UI layer;
-- retain schema compatibility long enough to load existing authored courses;
-- map historical inline defaults to collapsed or focused Practice behavior without losing attempts;
-- update browser acceptance tests to assert one live editor across all activity kinds.
+- expand `LearningWorkspaceShell` to compose three wide-desktop zones;
+- introduce a dedicated `PracticeActivityNavigator` presentation;
+- replace the native `<details>` tray;
+- turn `PracticePane` into a true workspace card with header/content/footer slots;
+- add an explicit contained surface contract to `ActivityHost` and coding renderer;
+- hoist `AssistantPanel` from Theory to workspace-shell composition;
+- refine summary card anatomy and visual tokens;
+- add structural and screenshot visual regression tests;
+- reopen the previous visual-alignment and final-verification tasks.
 
-## 12. Non-goals
+## 17. Plan status
 
-This refinement does not introduce:
+The implementation plan at `docs/superpowers/plans/2026-07-20-single-active-workspace-ui.md` is **superseded** because it assumed a two-pane desktop layout and did not define renderer containment or visual screenshot gates.
+
+The approved replacement plan is `docs/superpowers/plans/2026-07-20-single-active-workspace-ui-revision-2.md`.
+
+## 18. Non-goals
+
+This revision does not introduce:
 
 - multiple simultaneous Practice editors;
 - detachable windows;
 - collaborative editing;
-- a new activity attempt model;
+- a new attempt model;
 - a new persistence backend;
-- a pixel-identical recreation of the approved mockup.
+- a redesign of the global navigation;
+- pixel-perfect dependence on one operating system’s font rasterization.
