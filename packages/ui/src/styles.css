@@ -495,18 +495,18 @@
   min-height: 0;
   overflow: hidden;
   border-left: 1px solid var(--syn-color-border);
-  background: var(--syn-color-surface);
+  background: var(--syn-color-workspace-panel);
 }
 .syn-workspace-shell__pane {
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  background: var(--syn-color-surface);
+  background: var(--syn-color-workspace-panel);
 }
 .syn-workspace-shell__separator {
   position: relative;
   width: 6px;
-  background: var(--syn-color-background);
+  background: var(--syn-color-workspace-canvas);
   cursor: col-resize;
 }
 .syn-workspace-shell__separator::after {

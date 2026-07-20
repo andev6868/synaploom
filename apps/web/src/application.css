@@ -2246,3 +2246,28 @@ body,
     white-space: normal;
   }
 }
+
+/* Revision 2.2: workspace proportions and neutral surface hierarchy. */
+.syn-learning-workspace-layout {
+  background: var(--syn-color-workspace-canvas);
+}
+
+.syn-practice-pane {
+  border: 0;
+  background: var(--syn-color-workspace-canvas);
+}
+
+.syn-practice-workspace-card {
+  border-color: var(--syn-color-border);
+  background: var(--syn-color-workspace-panel);
+}
+
+.syn-practice-workspace-card__content {
+  background: var(--syn-color-workspace-subtle);
+}
+
+@media (min-width: 1440px) {
+  .syn-workspace-frame__navigator {
+    width: clamp(13.5rem, 14vw, 15rem) !important;
+  }
+}

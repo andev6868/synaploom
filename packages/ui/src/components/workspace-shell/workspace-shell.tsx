@@ -37,7 +37,7 @@ export function WorkspaceShell({
   defaultLessonRatio = 0.48,
   lesson,
   navigator,
-  navigatorWidth = 192,
+  navigatorWidth = 224,
   onLessonSizeChange,
   practice,
 }: WorkspaceShellProps): ReactNode {

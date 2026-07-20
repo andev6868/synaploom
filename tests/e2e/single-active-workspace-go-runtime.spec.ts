@@ -108,8 +108,10 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(navigatorBox).not.toBeNull();
   expect(theoryBox!.x + theoryBox!.width).toBeLessThanOrEqual(practiceBox!.x + 2);
   expect(practiceBox!.x + practiceBox!.width).toBeLessThanOrEqual(navigatorBox!.x + 2);
-  expect(theoryBox!.width / 1600).toBeGreaterThan(0.42);
-  expect(theoryBox!.width / 1600).toBeLessThan(0.5);
+  expect(theoryBox!.width / 1600).toBeGreaterThanOrEqual(0.44);
+  expect(theoryBox!.width / 1600).toBeLessThanOrEqual(0.49);
+  expect(navigatorBox!.width).toBeGreaterThanOrEqual(216);
+  expect(navigatorBox!.width).toBeLessThanOrEqual(240);
   const panelBottoms = [theoryBox!, practiceBox!, navigatorBox!].map((box) => box.y + box.height);
   expect(Math.max(...panelBottoms) - Math.min(...panelBottoms)).toBeLessThanOrEqual(2);
 

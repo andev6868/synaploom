@@ -99,7 +99,6 @@ describe('WorkspaceShell percentage sizing', () => {
         lesson="Lesson"
         practice="Practice"
         navigator={<button type="button">Activity A</button>}
-        navigatorWidth={192}
       />,
     );
 
@@ -107,6 +106,6 @@ describe('WorkspaceShell percentage sizing', () => {
     expect(navigator).toContainElement(screen.getByRole('button', { name: 'Activity A' }));
     expect(screen.getByRole('button', { name: 'Activity A' })).not.toBeDisabled();
     expect(navigator.previousElementSibling).toHaveClass('syn-workspace-shell');
-    expect(navigator).toHaveStyle({ width: '192px' });
+    expect(navigator).toHaveStyle({ width: '224px' });
   });
 });
