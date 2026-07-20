@@ -2,7 +2,11 @@ import type { ActivityPublicView, ExerciseManifest } from '@synaploom/contracts'
 import type { ActivityOwner, LessonPayload } from '@synaploom/protocol';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
-import type { ActivityPersistenceHandle } from '#src/features/activity-engine/types';
+import type {
+  ActivityActionOutlet,
+  ActivityHostSurface,
+  ActivityPersistenceHandle,
+} from '#src/features/activity-engine/types';
 import { useApi } from '#src/app/providers/AppProviders';
 import {
   PracticePanel,
@@ -13,6 +17,8 @@ interface Props {
   readonly owner: ActivityOwner;
   readonly activity: ActivityPublicView;
   readonly onProgressChanged: () => Promise<void> | void;
+  readonly surface?: ActivityHostSurface;
+  readonly actionOutlet?: ActivityActionOutlet;
   readonly onPersistenceHandleChange?: (
     activityId: string,
     handle: ActivityPersistenceHandle | null,
@@ -39,6 +45,8 @@ export function CodingActivity({
   activity,
   onProgressChanged,
   onPersistenceHandleChange,
+  surface = 'standalone',
+  actionOutlet,
 }: Props): ReactNode {
   const api = useApi();
   const panelRef = useRef<PracticePanelHandle>(null);
@@ -95,6 +103,8 @@ export function CodingActivity({
         activityId: activity.id,
       }}
       onActionComplete={() => void refresh()}
+      surface={surface}
+      {...(actionOutlet === undefined ? {} : { actionOutlet })}
     />
   );
 }

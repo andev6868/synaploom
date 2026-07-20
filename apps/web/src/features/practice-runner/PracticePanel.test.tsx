@@ -1,7 +1,7 @@
 import type { ProcessEvent } from '@synaploom/contracts';
 import type { LessonPayload } from '@synaploom/protocol';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { createRef } from 'react';
+import { createRef, useMemo, useState, type ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppProviders } from '#src/app/providers/AppProviders';
 import {
@@ -156,6 +156,37 @@ describe('PracticePanel', () => {
     );
 
     await waitFor(() => expect(onActionComplete).toHaveBeenCalledTimes(1));
+  });
+
+  it('projects coding actions and marks the contained surface', async () => {
+    function Harness(): ReactNode {
+      const [actions, setActions] = useState<ReactNode>(null);
+      const outlet = useMemo(() => ({ setActions }), []);
+      return (
+        <>
+          <PracticePanel
+            lesson={lesson}
+            onActionComplete={vi.fn()}
+            surface="practice-contained"
+            actionOutlet={outlet}
+          />
+          <footer data-testid="coding-actions">{actions}</footer>
+        </>
+      );
+    }
+    render(
+      <AppProviders api={fakeApi()}>
+        <Harness />
+      </AppProviders>,
+    );
+    expect(await screen.findByDisplayValue('console.log("ok");')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Chạy chương trình' })).toBeVisible();
+    expect(screen.getByTestId('coding-actions')).toContainElement(
+      screen.getByRole('button', { name: 'Chạy chương trình' }),
+    );
+    expect(document.querySelector('[data-activity-surface="practice-contained"]')).toHaveClass(
+      'syn-practice-panel--contained',
+    );
   });
   it('does not access workspace APIs when the lesson has no exercise', async () => {
     const api = fakeApi();

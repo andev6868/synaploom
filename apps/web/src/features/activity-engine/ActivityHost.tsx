@@ -1,6 +1,7 @@
 import { useEffect, useMemo, type ReactNode } from 'react';
 import { ActivityFeedback } from '#src/features/activity-engine/ActivityFeedback';
 import { ChoiceActivity } from '#src/features/activity-engine/renderers/ChoiceActivity';
+import { ActivityActionProjectionProvider } from '#src/features/activity-engine/renderers/ActivityActions';
 import { CodingActivity } from '#src/features/activity-engine/renderers/CodingActivity';
 import { FillBlanksActivity } from '#src/features/activity-engine/renderers/FillBlanksActivity';
 import { MatchingActivity } from '#src/features/activity-engine/renderers/MatchingActivity';
@@ -49,6 +50,8 @@ function AttemptActivityHost({
   policy,
   onProgressChanged,
   onPersistenceHandleChange,
+  surface = 'standalone',
+  actionOutlet,
 }: ActivityHostProps): ReactNode {
   const controller = useActivityAttempt({
     owner,
@@ -76,6 +79,8 @@ function AttemptActivityHost({
     onChange: controller.setAnswer,
     onSaveDraft: controller.saveDraft,
     onSubmit: controller.submit,
+    surface,
+    ...(actionOutlet === undefined ? {} : { actionOutlet }),
   };
 
   return (
@@ -91,7 +96,12 @@ function AttemptActivityHost({
             <LessonContent blocks={activity.prompt.blocks} />
           </div>
         ) : null}
-        {renderKnownActivity(rendererProps)}
+        <ActivityActionProjectionProvider
+          surface={surface}
+          {...(actionOutlet === undefined ? {} : { outlet: actionOutlet })}
+        >
+          {renderKnownActivity(rendererProps)}
+        </ActivityActionProjectionProvider>
       </fieldset>
       {controller.state === 'loading' ? (
         <p className="syn-activity-host__state">Đang tải hoạt động…</p>
@@ -143,6 +153,8 @@ export function ActivityHost(props: ActivityHostProps): ReactNode {
         owner={props.owner}
         activity={props.activity}
         onProgressChanged={props.onProgressChanged}
+        surface={props.surface ?? 'standalone'}
+        {...(props.actionOutlet ? { actionOutlet: props.actionOutlet } : {})}
         {...(props.onPersistenceHandleChange
           ? { onPersistenceHandleChange: props.onPersistenceHandleChange }
           : {})}

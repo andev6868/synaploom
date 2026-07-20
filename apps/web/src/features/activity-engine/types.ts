@@ -1,5 +1,12 @@
 import type { ActivityAnswer, ActivitySetPolicy } from '@synaploom/contracts';
 import type { ActivityAttempt, ActivityOwner, ActivityPublicView } from '@synaploom/protocol';
+import type { ReactNode } from 'react';
+
+export type ActivityHostSurface = 'practice-contained' | 'standalone';
+
+export interface ActivityActionOutlet {
+  readonly setActions: (actions: ReactNode | null) => void;
+}
 
 export type ActivityInteractionState =
   | 'loading'
@@ -22,6 +29,8 @@ export interface ActivityHostProps {
   readonly activity: ActivityPublicView;
   readonly policy: ActivitySetPolicy;
   readonly onProgressChanged: () => Promise<void> | void;
+  readonly surface?: ActivityHostSurface;
+  readonly actionOutlet?: ActivityActionOutlet;
   readonly onPersistenceHandleChange?: (
     activityId: string,
     handle: ActivityPersistenceHandle | null,
@@ -36,6 +45,8 @@ export interface ActivityRendererProps {
   readonly onChange: (answer: ActivityAnswer) => void;
   readonly onSubmit: () => Promise<void>;
   readonly onSaveDraft: () => Promise<void>;
+  readonly surface?: ActivityHostSurface;
+  readonly actionOutlet?: ActivityActionOutlet;
 }
 
 export interface ActivityAttemptController {

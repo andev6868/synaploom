@@ -2,6 +2,7 @@ import type { ActivityPublicView, ActivitySetPolicy } from '@synaploom/contracts
 import type { ActivityOwner } from '@synaploom/protocol';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { useMemo, useState, type ReactNode } from 'react';
 import { AppProviders } from '#src/app/providers/AppProviders';
 import { ActivityFeedback } from '#src/features/activity-engine/ActivityFeedback';
 import { ActivityHost } from '#src/features/activity-engine/ActivityHost';
@@ -52,6 +53,35 @@ describe('ActivityHost', () => {
       </AppProviders>,
     );
     expect(await screen.findByRole('group', { name: 'Question' })).toBeVisible();
+  });
+
+  it('projects generic actions into the contained Practice footer', async () => {
+    function Harness(): ReactNode {
+      const [actions, setActions] = useState<ReactNode>(null);
+      const actionOutlet = useMemo(() => ({ setActions }), []);
+      return (
+        <>
+          <ActivityHost
+            owner={owner}
+            activity={base}
+            policy={policy}
+            onProgressChanged={vi.fn()}
+            surface="practice-contained"
+            actionOutlet={actionOutlet}
+          />
+          <footer data-testid="footer-actions">{actions}</footer>
+        </>
+      );
+    }
+    render(
+      <AppProviders api={api()}>
+        <Harness />
+      </AppProviders>,
+    );
+    expect(await screen.findByRole('button', { name: 'Lưu bản nháp' })).toBeVisible();
+    expect(screen.getByTestId('footer-actions')).toContainElement(
+      screen.getByRole('button', { name: 'Kiểm tra đáp án' }),
+    );
   });
 
   it('fails closed for an unknown activity kind', async () => {

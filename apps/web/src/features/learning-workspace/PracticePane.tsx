@@ -1,6 +1,6 @@
 import type { ActivityOwner, ActivityStatusPayload } from '@synaploom/protocol';
 import { Button } from '@synaploom/ui';
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { ActivityHost } from '#src/features/activity-engine/ActivityHost';
 import type { ActivityHostProps } from '#src/features/activity-engine/types';
 import { PracticeActivityNavigator } from '#src/features/learning-workspace/PracticeActivityNavigator';
@@ -30,6 +30,8 @@ export function PracticePane({
   renderHost = (props) => <ActivityHost {...props} />,
 }: PracticePaneProps): ReactNode {
   const [navigatorOpen, setNavigatorOpen] = useState(false);
+  const [activityActions, setActivityActions] = useState<ReactNode>(null);
+  const actionOutlet = useMemo(() => ({ setActions: setActivityActions }), []);
   const focused = controller.focusedActivity;
   if (!focused) return null;
   const ordinal = activities.findIndex((item) => item.activity.id === focused.activity.id) + 1;
@@ -40,6 +42,8 @@ export function PracticePane({
     activity: focused.activity,
     policy: focused.policy,
     onProgressChanged,
+    surface: 'practice-contained',
+    actionOutlet,
     onPersistenceHandleChange: controller.registerPersistenceHandle,
   };
   return (
@@ -83,6 +87,7 @@ export function PracticePane({
             )}
           </div>
           <div className="syn-practice-workspace-card__footer-actions" data-practice-action-outlet>
+            {activityActions}
             {status?.status === 'PASSED' ? (
               nextId ? (
                 <Button

@@ -13,6 +13,10 @@ import {
 } from 'react';
 import { useApi } from '#src/app/providers/AppProviders';
 import { useProcessEvents } from '#src/features/practice-runner/useProcessEvents';
+import type {
+  ActivityActionOutlet,
+  ActivityHostSurface,
+} from '#src/features/activity-engine/types';
 
 export interface PracticePanelHandle {
   isDirty(): boolean;
@@ -23,11 +27,16 @@ interface PracticePanelProps {
   readonly lesson: LessonPayload;
   readonly workspaceTarget?: CodingWorkspaceTarget;
   readonly onActionComplete: () => void;
+  readonly surface?: ActivityHostSurface;
+  readonly actionOutlet?: ActivityActionOutlet;
 }
 
 /** Practice pane for declared actions and editable course workspace files. */
 export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>(
-  function PracticePanel({ lesson, workspaceTarget, onActionComplete }, ref): ReactNode {
+  function PracticePanel(
+    { lesson, workspaceTarget, onActionComplete, surface = 'standalone', actionOutlet },
+    ref,
+  ): ReactNode {
     const api = useApi();
     const workspaceCourseId = workspaceTarget?.courseId;
     const workspaceOwnerKind = workspaceTarget?.ownerKind;
@@ -134,19 +143,22 @@ export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>
       [dirty, saveCurrentFile],
     );
 
-    const run = async (actionId: string): Promise<void> => {
-      setBusy(true);
-      try {
-        await saveCurrentFile();
-        const session =
-          stableWorkspaceTarget && api.runActivityAction
-            ? await api.runActivityAction(stableWorkspaceTarget, actionId)
-            : await api.runAction(lesson.id, actionId);
-        setEventsUrl(session.eventsUrl);
-      } finally {
-        setBusy(false);
-      }
-    };
+    const run = useCallback(
+      async (actionId: string): Promise<void> => {
+        setBusy(true);
+        try {
+          await saveCurrentFile();
+          const session =
+            stableWorkspaceTarget && api.runActivityAction
+              ? await api.runActivityAction(stableWorkspaceTarget, actionId)
+              : await api.runAction(lesson.id, actionId);
+          setEventsUrl(session.eventsUrl);
+        } finally {
+          setBusy(false);
+        }
+      },
+      [api, lesson.id, saveCurrentFile, stableWorkspaceTarget],
+    );
 
     const reset = async (): Promise<void> => {
       setBusy(true);
@@ -169,6 +181,32 @@ export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>
       }
     };
 
+    const actionBar = useMemo(
+      () =>
+        lesson.exercise ? (
+          <ActionBar>
+            {lesson.exercise.actions.map((action) => (
+              <Button
+                key={action.id}
+                variant={action.id === 'check' ? 'primary' : 'secondary'}
+                disabled={busy}
+                onClick={() => void run(action.id)}
+              >
+                {action.label}
+              </Button>
+            ))}
+          </ActionBar>
+        ) : null,
+      [busy, lesson.exercise, run],
+    );
+
+    useEffect(() => {
+      if (surface !== 'practice-contained' || actionOutlet === undefined || actionBar === null)
+        return undefined;
+      actionOutlet.setActions(actionBar);
+      return () => actionOutlet.setActions(null);
+    }, [actionBar, actionOutlet, surface]);
+
     if (!lesson.exercise) {
       return (
         <section className="syn-empty-practice">
@@ -179,7 +217,10 @@ export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>
     }
 
     return (
-      <section className="syn-practice-panel">
+      <section
+        className={`syn-practice-panel${surface === 'practice-contained' ? ' syn-practice-panel--contained' : ''}`}
+        data-activity-surface={surface}
+      >
         <header className="syn-practice-panel__header">
           <div>
             <small>Workspace</small>
@@ -262,18 +303,7 @@ export const PracticePanel = forwardRef<PracticePanelHandle, PracticePanelProps>
             </section>
           </div>
         </div>
-        <ActionBar>
-          {lesson.exercise.actions.map((action) => (
-            <Button
-              key={action.id}
-              variant={action.id === 'check' ? 'primary' : 'secondary'}
-              disabled={busy}
-              onClick={() => void run(action.id)}
-            >
-              {action.label}
-            </Button>
-          ))}
-        </ActionBar>
+        {surface === 'standalone' ? actionBar : null}
       </section>
     );
   },
