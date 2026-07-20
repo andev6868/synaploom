@@ -286,6 +286,6 @@ Run format, lint, typecheck, exact `pnpm test`, production build, Go verify, cou
 git commit -m "test: verify revision two one visual fidelity"
 ```
 
-- [ ] **Step 6: Package source and Git history**
+- [x] **Step 6: Package source and Git history**
 
 Create source ZIP with Git bundle, clone the bundle, compare commit/tree/archive hashes, verify ZIP CRC, and generate SHA-256 files.
