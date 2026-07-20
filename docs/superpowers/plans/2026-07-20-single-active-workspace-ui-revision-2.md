@@ -39,11 +39,11 @@
 - Produces: `type WorkspaceViewport = 'wide-three' | 'wide-two' | 'compact' | 'mobile'`.
 - Breakpoints: `wide-three >= 1440`, `wide-two >= 1180`, `compact >= 720`, otherwise mobile.
 
-- [ ] Write tests that map 1600→`wide-three`, 1366→`wide-two`, 900→`compact`, and 390→`mobile`.
-- [ ] Run `pnpm exec vitest run --project dom apps/web/src/features/learning-workspace/useWorkspaceViewport.test.tsx apps/web/src/features/learning-workspace/workspace-events.test.ts` and confirm RED because the old union only exposes `wide`.
-- [ ] Replace media queries with `'(min-width: 1440px)'`, `'(min-width: 1180px)'`, and `'(min-width: 720px)'`; subscribe to all three queries and update event types.
-- [ ] Re-run the focused tests and `pnpm --filter @synaploom/web typecheck`; expect PASS.
-- [ ] Commit `feat: add revision two viewport bands`.
+- [x] Write tests that map 1600→`wide-three`, 1366→`wide-two`, 900→`compact`, and 390→`mobile`.
+- [x] Run `pnpm exec vitest run --project dom apps/web/src/features/learning-workspace/useWorkspaceViewport.test.tsx apps/web/src/features/learning-workspace/workspace-events.test.ts` and confirm RED because the old union only exposes `wide`.
+- [x] Replace media queries with `'(min-width: 1440px)'`, `'(min-width: 1180px)'`, and `'(min-width: 720px)'`; subscribe to all three queries and update event types.
+- [x] Re-run the focused tests and `pnpm --filter @synaploom/web typecheck`; expect PASS.
+- [x] Commit `feat: add revision two viewport bands`.
 
 ### Task 2: Create the dedicated Practice Activity Navigator
 
@@ -65,11 +65,11 @@ export interface PracticeActivityNavigatorProps {
 }
 ```
 
-- [ ] Write tests for authored order, ordinal, textual status, `aria-current="true"`, and close-after-success but not close-after-save-failure.
-- [ ] Confirm RED because the component does not exist.
-- [ ] Implement a semantic `<nav aria-label="Danh sách hoạt động">` using shared buttons; selection awaits `onSelectActivity` before invoking `onSelectionComplete`.
-- [ ] Keep `ActivityTray` as a compatibility wrapper delegating to the navigator model; remove native `<details>` usage from consumers in later tasks.
-- [ ] Run focused tests and typecheck; commit `feat: add practice activity navigator`.
+- [x] Write tests for authored order, ordinal, textual status, `aria-current="true"`, and close-after-success but not close-after-save-failure.
+- [x] Confirm RED because the component does not exist.
+- [x] Implement a semantic `<nav aria-label="Danh sách hoạt động">` using shared buttons; selection awaits `onSelectActivity` before invoking `onSelectionComplete`.
+- [x] Keep `ActivityTray` as a compatibility wrapper delegating to the navigator model; remove native `<details>` usage from consumers in later tasks.
+- [x] Run focused tests and typecheck; commit `feat: add practice activity navigator`.
 
 ### Task 3: Extend the design-system WorkspaceShell to three zones
 
@@ -92,11 +92,11 @@ export interface WorkspaceShellProps {
 }
 ```
 
-- [ ] Write tests that the navigator is a sibling after the resizable group, has `data-workspace-navigator-zone`, and buttons inside remain enabled.
-- [ ] Confirm RED.
-- [ ] Wrap the resizable Theory/Practice group and optional fixed `<aside>` in `.syn-workspace-frame`; never pass `disabled` to the navigator subtree.
-- [ ] Ensure persisted ratio still describes only Theory versus Practice and the navigator width is excluded.
-- [ ] Run UI tests/typecheck and commit `feat: support three-zone workspace shell`.
+- [x] Write tests that the navigator is a sibling after the resizable group, has `data-workspace-navigator-zone`, and buttons inside remain enabled.
+- [x] Confirm RED.
+- [x] Wrap the resizable Theory/Practice group and optional fixed `<aside>` in `.syn-workspace-frame`; never pass `disabled` to the navigator subtree.
+- [x] Ensure persisted ratio still describes only Theory versus Practice and the navigator width is excluded.
+- [x] Run UI tests/typecheck and commit `feat: support three-zone workspace shell`.
 
 ### Task 4: Compose wide-three, wide-two, compact, and mobile surfaces
 
@@ -116,11 +116,11 @@ export interface WorkspaceShellProps {
 - `compact`: segmented Theory/Practice surfaces with navigator drawer.
 - `mobile`: full-screen Practice dialog with navigator inside.
 
-- [ ] Write tests for three sibling zones at wide-three, no permanent empty navigator at wide-two, exactly one Practice mount at compact/mobile, and assistant outside Theory.
-- [ ] Confirm RED.
-- [ ] Hoist `AssistantPanel` out of `.syn-lesson-panel` in lesson and assessment compositions and pass it to the shell.
-- [ ] Implement controlled navigator surface state in the shell without persisting transient drawer visibility.
-- [ ] Run focused tests/typecheck and commit `feat: compose revision two workspace surfaces`.
+- [x] Write tests for three sibling zones at wide-three, no permanent empty navigator at wide-two, exactly one Practice mount at compact/mobile, and assistant outside Theory.
+- [x] Confirm RED.
+- [x] Hoist `AssistantPanel` out of `.syn-lesson-panel` in lesson and assessment compositions and pass it to the shell.
+- [x] Implement controlled navigator surface state in the shell without persisting transient drawer visibility.
+- [x] Run focused tests/typecheck and commit `feat: compose revision two workspace surfaces`.
 
 ### Task 5: Turn PracticePane into a contained workspace card
 
@@ -141,11 +141,11 @@ export interface PracticePaneProps {
 }
 ```
 
-- [ ] Write tests for card anatomy `header → content viewport → footer`, designed navigator control, save state in header/footer, and a single `data-active-activity-editor` wrapper.
-- [ ] Confirm RED against the existing flex pane/native details structure.
-- [ ] Implement `.syn-practice-workspace-card` as `grid-template-rows: auto minmax(0,1fr) auto`; put instructions/renderer/feedback in the scrollable content region.
-- [ ] Expose an action outlet so renderer actions render in the shared footer.
-- [ ] Run Practice tests/typecheck and commit `feat: add contained practice workspace card`.
+- [x] Write tests for card anatomy `header → content viewport → footer`, designed navigator control, save state in header/footer, and a single `data-active-activity-editor` wrapper.
+- [x] Confirm RED against the existing flex pane/native details structure.
+- [x] Implement `.syn-practice-workspace-card` as `grid-template-rows: auto minmax(0,1fr) auto`; put instructions/renderer/feedback in the scrollable content region.
+- [x] Expose an action outlet so renderer actions render in the shared footer.
+- [x] Run Practice tests/typecheck and commit `feat: add contained practice workspace card`.
 
 ### Task 6: Add the ActivityHost presentation-surface contract
 
@@ -165,10 +165,10 @@ export interface ActivityActionOutlet {
 }
 ```
 
-- [ ] Write tests that Practice passes `practice-contained`, standalone remains the default for legacy callers, and contained actions can be projected to the shell footer.
-- [ ] Confirm RED.
-- [ ] Thread `surface` and optional `actionOutlet` through `ActivityHost` and renderers without altering attempt persistence.
-- [ ] Run all ActivityHost/renderer tests and typecheck; commit `feat: add contained activity host surface`.
+- [x] Write tests that Practice passes `practice-contained`, standalone remains the default for legacy callers, and contained actions can be projected to the shell footer.
+- [x] Confirm RED.
+- [x] Thread `surface` and optional `actionOutlet` through `ActivityHost` and renderers without altering attempt persistence.
+- [x] Run all ActivityHost/renderer tests and typecheck; commit `feat: add contained activity host surface`.
 
 ### Task 7: Contain the coding renderer
 
@@ -184,11 +184,11 @@ export interface ActivityActionOutlet {
 
 - `PracticePanel` accepts `surface: 'practice-contained' | 'standalone'` and optional action outlet.
 
-- [ ] Write tests that contained coding uses a bounded class, projects save/run/check actions into the Practice footer, and standalone preserves its current internal action bar.
-- [ ] Confirm RED.
-- [ ] Implement a bounded internal grid with editor primary and terminal/result capped; remove `height:100%` from contained mode.
-- [ ] Keep editor, terminal, and result internal scroll regions keyboard reachable.
-- [ ] Run coding/practice tests, typecheck, and build; commit `feat: contain coding workspace renderer`.
+- [x] Write tests that contained coding uses a bounded class, projects save/run/check actions into the Practice footer, and standalone preserves its current internal action bar.
+- [x] Confirm RED.
+- [x] Implement a bounded internal grid with editor primary and terminal/result capped; remove `height:100%` from contained mode.
+- [x] Keep editor, terminal, and result internal scroll regions keyboard reachable.
+- [x] Run coding/practice tests, typecheck, and build; commit `feat: contain coding workspace renderer`.
 
 ### Task 8: Apply the approved visual hierarchy
 
@@ -201,11 +201,11 @@ export interface ActivityActionOutlet {
 - Modify: `apps/web/src/application.css`
 - Modify: `packages/ui/src/styles.css`
 
-- [ ] Write anatomy tests for summary icon/title/status/description/CTA, compact AI context dock, and active/inactive navigator items.
-- [ ] Confirm RED where required elements/classes are missing.
-- [ ] Implement the 8px-derived spacing, restrained active summary, inset Practice zone, card radius/border, 176–224px navigator, and 52–64px AI dock.
-- [ ] Preserve shared button components and textual status semantics.
-- [ ] Run focused tests, lint, typecheck, and production web build; commit `style: align revision two visual hierarchy`.
+- [x] Write anatomy tests for summary icon/title/status/description/CTA, compact AI context dock, and active/inactive navigator items.
+- [x] Confirm RED where required elements/classes are missing.
+- [x] Implement the 8px-derived spacing, restrained active summary, inset Practice zone, card radius/border, 176–224px navigator, and 52–64px AI dock.
+- [x] Preserve shared button components and textual status semantics.
+- [x] Run focused tests, lint, typecheck, and production web build; commit `style: align revision two visual hierarchy`.
 
 ### Task 9: Add geometry and visual-regression acceptance
 
@@ -219,12 +219,12 @@ export interface ActivityActionOutlet {
 - Modify: `internal/workspacepresentation/service_test.go`
 - Modify: `apps/web/src/application.css`
 
-- [ ] Add geometry assertions for wide-three sibling zones, inset card, bounded coding surface, fixed header/footer, independent Theory/Practice scroll, one active editor, 56px collapsed rail, 1366 drawer, compact switching, and mobile fullscreen bounds.
-- [ ] Run against staged Go assets and confirm RED on the current two-zone composition.
-- [ ] Set system default split ratio to `0.52` so Theory occupies 44–48% after the navigator is added; retain persisted user ratios.
-- [ ] Fix any measured height-chain regressions at the source; do not add document-level scrolling.
-- [ ] Generate and visually review six baselines: ordering wide, coding wide, collapsed wide, 1366 navigator, compact, mobile.
-- [ ] Run visual compare-only plus persistence/restart and multi-domain suites; commit `test: verify revision two workspace composition`.
+- [x] Add geometry assertions for wide-three sibling zones, inset card, bounded coding surface, fixed header/footer, independent Theory/Practice scroll, one active editor, 56px collapsed rail, 1366 drawer, compact switching, and mobile fullscreen bounds.
+- [x] Run against staged Go assets and confirm RED on the current two-zone composition.
+- [x] Set system default split ratio to `0.52` so Theory occupies 44–48% after the navigator is added; retain persisted user ratios.
+- [x] Fix any measured height-chain regressions at the source; do not add document-level scrolling.
+- [x] Generate and visually review six baselines: ordering wide, coding wide, collapsed wide, 1366 navigator, compact, mobile.
+- [x] Run visual compare-only plus persistence/restart and multi-domain suites; commit `test: verify revision two workspace composition`.
 
 ### Task 10: Final verification, evidence, and packaging
 
@@ -235,10 +235,10 @@ export interface ActivityActionOutlet {
 - Modify: `docs/releases/workspace-presentation-v1-verification.md`
 - Modify: `docs/superpowers/plans/2026-07-20-single-active-workspace-ui-revision-2.md`
 
-- [ ] Run `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm check:type-strip`, and `pnpm contracts:check`; all must exit 0.
-- [ ] Run exact `pnpm test`, both documentation suites, and `pnpm build`; record file/test counts and warnings.
-- [ ] Run `pnpm go:verify`, both course validators, `pnpm go:stage-web`, and `pnpm go:verify-web-inventory`.
-- [ ] Run each Go-runtime Playwright suite with an independent browser lifecycle when Chromium single-process cannot reuse contexts; all assertions and screenshot comparisons must pass.
-- [ ] Run `pnpm go:build-preview`; record native multi-target release as blocked only if the environment cannot finish cross-compilation, never as a false PASS.
-- [ ] Update evidence with exact commands/results, mark all completed plan checkboxes, run `git diff --check`, and commit `docs: record revision two workspace verification`.
+- [x] Run `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm check:type-strip`, and `pnpm contracts:check`; all must exit 0.
+- [x] Run exact `pnpm test`, both documentation suites, and `pnpm build`; record file/test counts and warnings.
+- [x] Run `pnpm go:verify`, both course validators, `pnpm go:stage-web`, and `pnpm go:verify-web-inventory`.
+- [x] Run each Go-runtime Playwright suite with an independent browser lifecycle when Chromium single-process cannot reuse contexts; all assertions and screenshot comparisons must pass.
+- [x] Run `pnpm go:build-preview`; record native multi-target release as blocked only if the environment cannot finish cross-compilation, never as a false PASS.
+- [x] Update evidence with exact commands/results, mark all completed plan checkboxes, run `git diff --check`, and commit `docs: record revision two workspace verification`.
 - [ ] Export source from `git archive HEAD`, create a full Git bundle, clone-verify the bundle tree, check ZIP CRC, and emit SHA-256 files.
