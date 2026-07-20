@@ -78,6 +78,10 @@ it('mounts exactly one focused host and exposes explicit next and retry actions'
   expect(screen.getByTestId('practice-workspace-content')).toContainElement(
     screen.getByRole('textbox', { name: 'active editor' }),
   );
+  expect(screen.getByTestId('practice-workspace-content').children).toHaveLength(1);
+  expect(screen.getByTestId('practice-workspace-content').firstElementChild).toHaveClass(
+    'syn-practice-pane__body',
+  );
   expect(screen.getByTestId('practice-workspace-footer')).toBeVisible();
   expect(screen.getByRole('button', { name: 'Danh sách hoạt động' })).toBeVisible();
   expect(screen.getByTestId('practice-header-controls')).toContainElement(
@@ -139,4 +143,62 @@ it('separates completion status from the footer action group', () => {
   expect(screen.getByTestId('practice-footer-actions')).not.toContainElement(
     screen.getByTestId('practice-completion-status'),
   );
+});
+
+it('shows a deterministic local save time when the focused status transitions into DRAFT', () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-07-20T07:32:00Z'));
+  try {
+    const controller = {
+      focusedActivity: activities[0],
+      state: { paneMode: 'split' },
+      saveStatus: 'idle',
+      error: null,
+      selectNextActivity: vi.fn(() => Promise.resolve()),
+      retryLastSave: vi.fn(() => Promise.resolve()),
+      registerPersistenceHandle: vi.fn(),
+      registerPracticeHeading: vi.fn(),
+      registerInlineHeading: vi.fn(),
+      collapsePracticePane: vi.fn(),
+      expandPracticePane: vi.fn(),
+      focusActivity: vi.fn(),
+    } as unknown as LearningWorkspaceController;
+    const view = render(
+      <PracticePane
+        owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
+        activities={activities}
+        statuses={[]}
+        controller={controller}
+        onProgressChanged={vi.fn()}
+        renderHost={() => <input aria-label="active editor" />}
+      />,
+    );
+    expect(screen.getByTestId('practice-footer-status')).toHaveTextContent('Sẵn sàng');
+
+    view.rerender(
+      <PracticePane
+        owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
+        activities={activities}
+        statuses={[
+          {
+            activityId: 'Quiz',
+            status: 'DRAFT',
+            attemptNumber: 0,
+            score: null,
+            maxScore: 1,
+            passed: false,
+          },
+        ]}
+        controller={controller}
+        onProgressChanged={vi.fn()}
+        renderHost={() => <input aria-label="active editor" />}
+      />,
+    );
+
+    expect(screen.getByTestId('practice-footer-status')).toHaveTextContent(
+      'Đã lưu bản nháp lúc 14:32',
+    );
+  } finally {
+    vi.useRealTimers();
+  }
 });

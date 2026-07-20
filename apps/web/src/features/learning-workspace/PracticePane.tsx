@@ -1,6 +1,6 @@
 import type { ActivityOwner, ActivityStatusPayload } from '@synaploom/protocol';
 import { Button } from '@synaploom/ui';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { ActivityHost } from '#src/features/activity-engine/ActivityHost';
 import type { ActivityHostProps } from '#src/features/activity-engine/types';
 import { PracticeActivityNavigator } from '#src/features/learning-workspace/PracticeActivityNavigator';
@@ -11,6 +11,15 @@ import {
   findNextActivityId,
   type ResolvedWorkspaceActivity,
 } from '#src/features/learning-workspace/workspace-model';
+
+export function formatDraftSavedTime(value: Date): string {
+  return new Intl.DateTimeFormat('vi-VN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Ho_Chi_Minh',
+  }).format(value);
+}
 
 export interface PracticePaneProps {
   readonly owner: ActivityOwner;
@@ -33,9 +42,27 @@ export function PracticePane({
   const [activityActions, setActivityActions] = useState<ReactNode>(null);
   const actionOutlet = useMemo(() => ({ setActions: setActivityActions }), []);
   const focused = controller.focusedActivity;
+  const focusedId = focused?.activity.id ?? null;
+  const status = focusedId ? findActivityStatus(statuses, focusedId) : null;
+  const previousStatusRef = useRef(status?.status);
+  const previousFocusedIdRef = useRef(focusedId);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+
+  useEffect(() => {
+    if (previousFocusedIdRef.current !== focusedId) {
+      previousFocusedIdRef.current = focusedId;
+      previousStatusRef.current = status?.status;
+      setLastSavedAt(null);
+      return;
+    }
+    if (status?.status === 'DRAFT' && previousStatusRef.current !== 'DRAFT') {
+      setLastSavedAt(new Date());
+    }
+    previousStatusRef.current = status?.status;
+  }, [focusedId, status?.status]);
+
   if (!focused) return null;
   const ordinal = activities.findIndex((item) => item.activity.id === focused.activity.id) + 1;
-  const status = findActivityStatus(statuses, focused.activity.id);
   const nextId = findNextActivityId(activities, focused.activity.id);
   const hostProps: ActivityHostProps = {
     owner,
@@ -86,7 +113,13 @@ export function PracticePane({
                 </Button>
               </div>
             ) : (
-              <span>{controller.saveStatus === 'saved' ? 'Đã lưu bản nháp' : 'Sẵn sàng'}</span>
+              <span>
+                {lastSavedAt
+                  ? `Đã lưu bản nháp lúc ${formatDraftSavedTime(lastSavedAt)}`
+                  : status?.status === 'DRAFT' || controller.saveStatus === 'saved'
+                    ? 'Đã lưu bản nháp'
+                    : 'Sẵn sàng'}
+              </span>
             )}
           </div>
           <div

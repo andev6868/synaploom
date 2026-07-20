@@ -226,6 +226,16 @@ test('matches Revision 2 geometry across six responsive states', async ({ page }
   expect(practiceFooterBox!.y + practiceFooterBox!.height).toBeLessThanOrEqual(
     cardBox!.y + cardBox!.height + 1,
   );
+  await expect(card).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(page.getByTestId('practice-workspace-content')).toHaveCSS(
+    'background-color',
+    'rgb(255, 255, 255)',
+  );
+  await expect(page.getByTestId('practice-footer-status')).toContainText(
+    'Đã lưu bản nháp lúc 14:32',
+  );
+  await expect(page.getByRole('button', { name: 'Hoạt động tiếp theo' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Danh sách hoạt động' })).toBeVisible();
   await expectSingleEditor(page);
   await expect(page).toHaveScreenshot('single-active-ordering-wide.png', { fullPage: true });
 

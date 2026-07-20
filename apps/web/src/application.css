@@ -1467,12 +1467,6 @@ body,
   background: var(--syn-color-surface);
   box-shadow: var(--syn-shadow-md);
 }
-@media (min-width: 1440px) {
-  .syn-practice-workspace-card__controls > button:first-child {
-    display: none;
-  }
-}
-
 /* Revision 2: coding is contained by the Practice workspace card. */
 .syn-practice-panel--contained {
   height: clamp(32rem, 58vh, 44rem);
@@ -2337,21 +2331,36 @@ body,
   padding-inline: 0.8rem;
 }
 
-/* Revision 2.2: Practice and Navigator chrome hierarchy. */
+/* Revision 3: approved Practice surface hierarchy. */
 .syn-practice-pane {
-  padding: 0.875rem;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  padding: 0.75rem 0;
+  overflow: hidden;
+  border: 0;
+  background: var(--syn-color-workspace-canvas);
 }
 
 .syn-practice-workspace-card {
-  border: 1px solid var(--syn-color-border);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--syn-color-primary) 45%, var(--syn-color-border));
   border-radius: 0.75rem;
-  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+  background: var(--syn-color-workspace-panel);
+  box-shadow: none;
 }
 
 .syn-practice-workspace-card__header {
-  min-height: 6rem;
+  min-height: 8.5rem;
   gap: 1.25rem;
-  padding: 1rem 1.25rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--syn-color-border);
 }
 
 .syn-practice-workspace-card__controls {
@@ -2364,13 +2373,24 @@ body,
 }
 
 .syn-practice-workspace-card__content {
-  padding: 1rem 1.25rem;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 1.75rem 1.5rem;
+  background: var(--syn-color-workspace-panel);
+}
+
+.syn-practice-pane__body {
+  min-width: 0;
+  min-height: 0;
+  height: auto;
 }
 
 .syn-practice-workspace-card__footer {
-  min-height: 4.5rem;
+  min-height: 5rem;
   gap: 1rem;
-  padding: 0.875rem 1.25rem;
+  padding: 0.9rem 1.5rem;
+  border-top: 1px solid var(--syn-color-border);
   background: var(--syn-color-workspace-panel);
 }
 
