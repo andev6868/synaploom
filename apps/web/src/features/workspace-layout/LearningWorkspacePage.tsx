@@ -19,6 +19,7 @@ import { AssistantPanel } from '#src/features/ai-assistant/AssistantPanel';
 import { AssessmentWorkspaceContent } from '#src/features/chapter-assessment/AssessmentWorkspaceContent';
 import { LessonActivities } from '#src/features/lesson-content/LessonActivities';
 import { LearningWorkspaceShell } from '#src/features/learning-workspace/LearningWorkspaceShell';
+import { PracticeActivityNavigator } from '#src/features/learning-workspace/PracticeActivityNavigator';
 import { PracticePane } from '#src/features/learning-workspace/PracticePane';
 import {
   activityStatusesKey,
@@ -99,12 +100,6 @@ function LessonWorkspaceComposition({
           {renderFooter(onAction)}
         </article>
       </ScrollArea>
-      <AssistantPanel
-        lessonTitle={lesson.title}
-        {...(controller.focusedActivity
-          ? { activityTitle: controller.focusedActivity.activity.title }
-          : {})}
-      />
     </section>
   );
   const practice = (
@@ -122,6 +117,22 @@ function LessonWorkspaceComposition({
       statuses={statuses}
       focusedActivity={controller.focusedActivity}
       controller={controller}
+    />
+  );
+  const navigator = (
+    <PracticeActivityNavigator
+      activities={activities}
+      statuses={statuses}
+      focusedActivityId={controller.state.focusedActivityId}
+      onSelectActivity={(activityId) => controller.focusActivity(activityId)}
+    />
+  );
+  const assistant = (
+    <AssistantPanel
+      lessonTitle={lesson.title}
+      {...(controller.focusedActivity
+        ? { activityTitle: controller.focusedActivity.activity.title }
+        : {})}
     />
   );
   const theoryRail = (
@@ -144,6 +155,8 @@ function LessonWorkspaceComposition({
       practice={practice}
       practiceRail={practiceRail}
       theoryRail={theoryRail}
+      navigator={navigator}
+      assistant={assistant}
       practiceTitle={controller.focusedActivity?.activity.title ?? 'Khu vực thực hành'}
       onSplitRatioCommit={(ratio) => controller.setSplitRatio(ratio)}
       onCloseMobilePractice={() => controller.collapsePracticePane()}
@@ -193,12 +206,6 @@ function AssessmentWorkspaceComposition({
           onAction={onAction}
         />
       </ScrollArea>
-      <AssistantPanel
-        lessonTitle={assessment.title}
-        {...(controller.focusedActivity
-          ? { activityTitle: controller.focusedActivity.activity.title }
-          : {})}
-      />
     </section>
   );
   const practice = (
@@ -216,6 +223,22 @@ function AssessmentWorkspaceComposition({
       statuses={statuses}
       focusedActivity={controller.focusedActivity}
       controller={controller}
+    />
+  );
+  const navigator = (
+    <PracticeActivityNavigator
+      activities={activities}
+      statuses={statuses}
+      focusedActivityId={controller.state.focusedActivityId}
+      onSelectActivity={(activityId) => controller.focusActivity(activityId)}
+    />
+  );
+  const assistant = (
+    <AssistantPanel
+      lessonTitle={assessment.title}
+      {...(controller.focusedActivity
+        ? { activityTitle: controller.focusedActivity.activity.title }
+        : {})}
     />
   );
   const theoryRail = (
@@ -238,6 +261,8 @@ function AssessmentWorkspaceComposition({
       practice={practice}
       practiceRail={practiceRail}
       theoryRail={theoryRail}
+      navigator={navigator}
+      assistant={assistant}
       practiceTitle={controller.focusedActivity?.activity.title ?? 'Khu vực thực hành'}
       onSplitRatioCommit={(ratio) => controller.setSplitRatio(ratio)}
       onCloseMobilePractice={() => controller.collapsePracticePane()}

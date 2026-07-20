@@ -12,6 +12,8 @@ export interface LearningWorkspaceShellProps {
   readonly practiceRail: ReactNode;
   readonly theoryRail: ReactNode;
   readonly practiceTitle: string;
+  readonly navigator?: ReactNode;
+  readonly assistant?: ReactNode;
   readonly onSplitRatioCommit: (ratio: number) => Promise<void> | void;
   readonly onCloseMobilePractice: () => Promise<void> | void;
   readonly eventOwner?: ActivityOwner;
@@ -27,6 +29,8 @@ export function LearningWorkspaceShell({
   practiceRail,
   theoryRail,
   practiceTitle,
+  navigator,
+  assistant,
   onSplitRatioCommit,
   onCloseMobilePractice,
   eventOwner,
@@ -67,13 +71,26 @@ export function LearningWorkspaceShell({
   }, [theoryVisible, viewport, mode, compactSurface]);
 
   const theoryPane = (
-    <div className="syn-learning-workspace__theory" ref={theoryScrollRef}>
+    <div
+      className="syn-learning-workspace__theory"
+      data-workspace-theory-zone
+      ref={theoryScrollRef}
+    >
       {theory}
     </div>
   );
 
+  const compose = (workspace: ReactNode): ReactNode => (
+    <div className="syn-learning-workspace-layout">
+      <div className="syn-learning-workspace-layout__main">{workspace}</div>
+      {assistant === undefined ? null : (
+        <div className="syn-learning-workspace-layout__assistant">{assistant}</div>
+      )}
+    </div>
+  );
+
   if (viewport === 'mobile') {
-    return (
+    return compose(
       <main className="syn-learning-workspace syn-learning-workspace--mobile">
         {theoryPane}
         {mode === 'collapsed' ? practiceRail : null}
@@ -92,7 +109,7 @@ export function LearningWorkspaceShell({
   }
 
   if (viewport === 'compact') {
-    return (
+    return compose(
       <main className="syn-learning-workspace syn-learning-workspace--compact">
         <div className="syn-learning-workspace__segments" aria-label="Chọn vùng học">
           {(['theory', 'split', 'practice'] as const).map((surface) => (
@@ -118,11 +135,12 @@ export function LearningWorkspaceShell({
   }
 
   if (mode === 'split') {
-    return (
+    return compose(
       <WorkspaceShell
         defaultLessonRatio={splitRatio}
         lesson={theoryPane}
         practice={practice}
+        {...(viewport === 'wide-three' && navigator !== undefined ? { navigator } : {})}
         onLessonSizeChange={(ratio) => {
           void Promise.resolve(onSplitRatioCommit(ratio)).catch(() => undefined);
         }}
@@ -130,14 +148,17 @@ export function LearningWorkspaceShell({
     );
   }
   if (mode === 'expanded') {
-    return (
+    return compose(
       <main className="syn-learning-workspace syn-learning-workspace--expanded">
         {theoryRail}
         {practice}
+        {viewport === 'wide-three' && navigator !== undefined ? (
+          <aside className="syn-learning-workspace__expanded-navigator">{navigator}</aside>
+        ) : null}
       </main>
     );
   }
-  return (
+  return compose(
     <main className="syn-learning-workspace syn-learning-workspace--collapsed">
       {theoryPane}
       {practiceRail}

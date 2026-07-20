@@ -2,11 +2,17 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import { LearningWorkspaceShell } from '#src/features/learning-workspace/LearningWorkspaceShell';
 
-function viewport(kind: 'wide' | 'compact' | 'mobile'): void {
+function viewport(kind: 'wide-three' | 'wide-two' | 'compact' | 'mobile'): void {
   vi.stubGlobal('matchMedia', (query: string) => ({
     media: query,
     matches:
-      kind === 'wide' ? query.includes('1100') : kind === 'compact' ? query.includes('720') : false,
+      kind === 'wide-three'
+        ? query.includes('1440')
+        : kind === 'wide-two'
+          ? query.includes('1180') || query.includes('720')
+          : kind === 'compact'
+            ? query.includes('720')
+            : false,
     onchange: null,
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
@@ -21,12 +27,14 @@ const common = {
   practiceRail: <div data-testid="practice-rail">Practice rail</div>,
   theoryRail: <div>Theory rail</div>,
   practiceTitle: 'Practice',
+  navigator: <div data-testid="navigator-surface">Navigator</div>,
+  assistant: <div data-testid="assistant-surface">Assistant</div>,
   onSplitRatioCommit: vi.fn(),
   onCloseMobilePractice: vi.fn(),
 };
 
 it('maps wide collapsed, split and expanded surfaces', () => {
-  viewport('wide');
+  viewport('wide-three');
   const view = render(<LearningWorkspaceShell {...common} mode="collapsed" />);
   expect(screen.getByText('Theory content')).toBeVisible();
   expect(screen.getByRole('main')).toHaveClass('syn-learning-workspace--collapsed');
@@ -34,10 +42,27 @@ it('maps wide collapsed, split and expanded surfaces', () => {
   expect(screen.queryByText('Practice editor')).not.toBeInTheDocument();
   view.rerender(<LearningWorkspaceShell {...common} mode="split" />);
   expect(screen.getByText('Practice editor')).toBeVisible();
+  expect(screen.getByTestId('navigator-surface')).toBeVisible();
+  expect(screen.getByTestId('assistant-surface')).toBeVisible();
   expect(screen.getByRole('separator', { name: 'Thay đổi kích thước hai vùng học' })).toBeVisible();
   view.rerender(<LearningWorkspaceShell {...common} mode="expanded" />);
   expect(screen.getByText('Practice editor')).toBeVisible();
   expect(screen.getByText('Theory rail')).toBeVisible();
+});
+
+it('does not reserve a permanent navigator column at wide-two', () => {
+  viewport('wide-two');
+  render(<LearningWorkspaceShell {...common} mode="split" />);
+  expect(screen.queryByTestId('workspace-navigator-zone')).not.toBeInTheDocument();
+  expect(screen.getByText('Practice editor')).toBeVisible();
+});
+
+it('composes the assistant outside the Theory surface', () => {
+  viewport('wide-three');
+  render(<LearningWorkspaceShell {...common} mode="split" />);
+  expect(
+    screen.getByTestId('theory-surface').contains(screen.getByTestId('assistant-surface')),
+  ).toBe(false);
 });
 
 it('uses local segmented controls on compact screens', () => {
@@ -58,7 +83,7 @@ it('maps active mobile practice to a controlled dialog', () => {
 });
 
 it('emits a sanitized viewport mapping event for the active owner', () => {
-  viewport('wide');
+  viewport('wide-three');
   const listener = vi.fn();
   window.addEventListener('synaploom:workspace-event', listener);
   render(
@@ -71,7 +96,7 @@ it('emits a sanitized viewport mapping event for the active owner', () => {
   expect(listener).toHaveBeenCalled();
   expect((listener.mock.calls[0]?.[0] as CustomEvent).detail).toMatchObject({
     name: 'workspace.viewport.mapped',
-    viewport: 'wide',
+    viewport: 'wide-three',
     ownerId: 'lesson',
   });
   window.removeEventListener('synaploom:workspace-event', listener);
@@ -96,7 +121,7 @@ it('keeps compact switching local without persisting split ratio', () => {
 });
 
 it('renders bounded Theory and Practice regions in wide split mode', () => {
-  viewport('wide');
+  viewport('wide-three');
   render(<LearningWorkspaceShell {...common} mode="split" />);
   expect(screen.getByTestId('theory-surface').parentElement).toHaveClass(
     'syn-learning-workspace__theory',

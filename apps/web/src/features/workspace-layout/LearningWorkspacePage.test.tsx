@@ -134,7 +134,7 @@ function fakeApi(): SynaploomApiClient {
 beforeEach(() => {
   vi.stubGlobal('matchMedia', (query: string) => ({
     media: query,
-    matches: query.includes('1100'),
+    matches: query.includes('1440'),
     onchange: null,
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
