@@ -276,11 +276,11 @@ Stage web assets, build one Go runtime binary, and run the visual spec without u
 
 Generate ordering-wide, coding-wide, collapsed-wide, navigator-1366, compact, and mobile screenshots. Inspect each image before accepting it.
 
-- [ ] **Step 4: Run full verification**
+- [x] **Step 4: Run full verification**
 
 Run format, lint, typecheck, exact `pnpm test`, production build, Go verify, course validators, embedded inventory, visual/persistence/multi-domain/browser suites, and native preview build.
 
-- [ ] **Step 5: Record evidence and commit**
+- [x] **Step 5: Record evidence and commit**
 
 ```bash
 git commit -m "test: verify revision two one visual fidelity"
