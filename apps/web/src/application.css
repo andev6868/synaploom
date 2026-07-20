@@ -1827,3 +1827,149 @@ body,
   background: var(--syn-color-surface, #fff);
   box-shadow: 0 1rem 2.5rem rgb(15 23 42 / 16%);
 }
+
+/* Revision 2.1: compact Theory rhythm and complete progress chrome. */
+.syn-lesson-panel__article {
+  width: min(46rem, 100%);
+  padding: 1.75rem clamp(1.5rem, 3vw, 2.75rem) 2.5rem;
+}
+
+.syn-lesson-panel__heading {
+  margin-bottom: 1.25rem;
+}
+
+.syn-lesson-panel__heading h1 {
+  margin-top: 0.45rem;
+  font-size: clamp(1.9rem, 2.45vw, 2.45rem);
+}
+
+.syn-lesson-panel__article > .syn-prose {
+  font-size: 0.94rem;
+  line-height: 1.65;
+}
+
+.syn-lesson-panel__article > .syn-prose > :first-child {
+  margin-top: 0;
+}
+
+.syn-lesson-panel__article > .syn-prose h2,
+.syn-lesson-panel__article > .syn-prose h3,
+.syn-lesson-panel__article > .syn-prose h4 {
+  margin-top: 1.4rem;
+  margin-bottom: 0.55rem;
+}
+
+.syn-lesson-panel__article > .syn-prose p,
+.syn-lesson-panel__article > .syn-prose ul,
+.syn-lesson-panel__article > .syn-prose ol {
+  margin-bottom: 0.8rem;
+}
+
+.syn-lesson-panel__article .syn-activity-embed,
+.syn-lesson-panel__article .syn-lesson-activities {
+  margin-block: 0.85rem;
+}
+
+.syn-learning-progress-summary {
+  min-width: 12.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.55rem;
+  padding: 0.8rem 0.9rem;
+  background: var(--syn-color-surface);
+}
+
+.syn-learning-progress-summary__copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.syn-learning-progress-summary__meter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--syn-color-success);
+}
+
+.syn-learning-progress-summary progress {
+  width: 100%;
+  height: 0.38rem;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: var(--syn-color-surface-muted);
+  accent-color: var(--syn-color-primary);
+}
+
+.syn-learning-progress-summary progress::-webkit-progress-bar {
+  border-radius: 999px;
+  background: var(--syn-color-surface-muted);
+}
+
+.syn-learning-progress-summary progress::-webkit-progress-value {
+  border-radius: 999px;
+  background: var(--syn-color-primary);
+}
+
+.syn-learning-progress-summary progress::-moz-progress-bar {
+  border-radius: 999px;
+  background: var(--syn-color-primary);
+}
+
+.syn-table-scroll {
+  margin-block: 0.65rem 1rem;
+}
+
+.syn-table-scroll th,
+.syn-table-scroll td {
+  padding: 0.55rem 0.5rem;
+  border: 0;
+  border-bottom: 1px solid var(--syn-color-border);
+}
+
+.syn-table-scroll th {
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.syn-table-scroll tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.syn-lesson-callout {
+  position: relative;
+  margin: 0.9rem 0;
+  padding: 0.8rem 1rem 0.8rem 2.65rem;
+  border: 1px solid color-mix(in srgb, var(--syn-color-primary) 22%, white);
+  border-left-width: 3px;
+  border-radius: var(--syn-radius-md);
+}
+
+.syn-lesson-callout::before {
+  position: absolute;
+  top: 0.82rem;
+  left: 0.9rem;
+  content: 'ⓘ';
+  color: var(--syn-color-primary);
+  font-weight: 700;
+}
+
+.syn-lesson-callout h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.88rem;
+}
+
+.syn-lesson-callout > :last-child {
+  margin-bottom: 0;
+}
+
+.syn-lesson-callout--tip {
+  border-color: color-mix(in srgb, var(--syn-color-success) 28%, white);
+  background: color-mix(in srgb, var(--syn-color-success) 7%, white);
+}
+
+.syn-lesson-callout--warning,
+.syn-lesson-callout--important {
+  border-color: color-mix(in srgb, var(--syn-color-warning) 35%, white);
+  background: var(--syn-color-warning-soft);
+}

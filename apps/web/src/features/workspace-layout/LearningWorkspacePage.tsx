@@ -12,6 +12,7 @@ import type {
 } from '@synaploom/protocol';
 import { AppHeader, ScrollArea, StatusBadge } from '@synaploom/ui';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { CheckCircle2 } from 'lucide-react';
 import { useCallback, useState, type ReactNode } from 'react';
 import { useApi } from '#src/app/providers/AppProviders';
 import { navigateToAssessment, navigateToLesson } from '#src/app/router/lesson-route';
@@ -551,8 +552,24 @@ export function LearningWorkspacePage({
         <h1>{lesson.title}</h1>
       </div>
       <div className="syn-learning-progress-summary" aria-label="Tiến độ bài học">
-        <strong>{progressSummary.positionLabel}</strong>
-        <span>{progressSummary.completionLabel}</span>
+        <div className="syn-learning-progress-summary__copy">
+          <strong>{progressSummary.positionLabel}</strong>
+          <span>{progressSummary.completionLabel}</span>
+        </div>
+        <div className="syn-learning-progress-summary__meter">
+          <progress
+            aria-label="Tiến độ bài học"
+            max={Math.max(1, progressSummary.requiredTotal)}
+            value={progressSummary.completedRequired}
+          />
+          {progressSummary.complete ? (
+            <CheckCircle2
+              aria-label="Đã hoàn thành toàn bộ bài bắt buộc"
+              data-testid="lesson-progress-complete-icon"
+              size={20}
+            />
+          ) : null}
+        </div>
       </div>
     </div>
   );

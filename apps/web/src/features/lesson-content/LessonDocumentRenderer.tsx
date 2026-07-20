@@ -3,6 +3,28 @@ import { externalLinkProps } from '@synaploom/lesson-renderer';
 import { Fragment, useId, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { MathContent } from '#src/features/lesson-content/MathContent';
 
+type Admonition = {
+  readonly kind: 'note' | 'tip' | 'warning' | 'important';
+  readonly title: string;
+  readonly blocks: readonly LessonBlock[];
+};
+
+const admonitionKinds = {
+  '[!NOTE]': { kind: 'note', title: 'Ghi chú' },
+  '[!TIP]': { kind: 'tip', title: 'Mẹo' },
+  '[!WARNING]': { kind: 'warning', title: 'Cảnh báo' },
+  '[!IMPORTANT]': { kind: 'important', title: 'Quan trọng' },
+} as const;
+
+function blockquoteAdmonition(blocks: readonly LessonBlock[]): Admonition | null {
+  const first = blocks[0];
+  if (first?.type !== 'paragraph' || first.children.length !== 1) return null;
+  const marker = first.children[0];
+  if (marker?.type !== 'text') return null;
+  const config = admonitionKinds[marker.value.trim() as keyof typeof admonitionKinds];
+  return config ? { ...config, blocks: blocks.slice(1) } : null;
+}
+
 function renderInline(nodes: readonly InlineNode[]): ReactNode {
   return nodes.map((node, index) => {
     const key = `${node.type}-${index}`;
@@ -133,12 +155,23 @@ function Block({
     }
     case 'paragraph':
       return <p>{renderInline(block.children)}</p>;
-    case 'blockquote':
-      return (
+    case 'blockquote': {
+      const admonition = blockquoteAdmonition(block.blocks);
+      return admonition ? (
+        <aside
+          aria-label={admonition.title}
+          className={`syn-lesson-callout syn-lesson-callout--${admonition.kind}`}
+          role="note"
+        >
+          <h3>{admonition.title}</h3>
+          <Blocks blocks={admonition.blocks} renderActivity={renderActivity} />
+        </aside>
+      ) : (
         <blockquote>
           <Blocks blocks={block.blocks} renderActivity={renderActivity} />
         </blockquote>
       );
+    }
     case 'list': {
       const List = block.ordered ? 'ol' : 'ul';
       return (
@@ -222,7 +255,11 @@ function Block({
       return <MathContent display source={block.source} />;
     case 'callout':
       return (
-        <aside className={`syn-lesson-callout syn-lesson-callout--${block.kind}`}>
+        <aside
+          aria-label={block.title ?? 'Ghi chú'}
+          className={`syn-lesson-callout syn-lesson-callout--${block.kind}`}
+          role="note"
+        >
           {block.title ? <h3>{block.title}</h3> : null}
           <Blocks blocks={block.blocks} renderActivity={renderActivity} />
         </aside>

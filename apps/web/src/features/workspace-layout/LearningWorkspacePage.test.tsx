@@ -152,6 +152,7 @@ describe('LearningWorkspacePage', () => {
       </AppProviders>,
     );
     expect(await screen.findByRole('heading', { name: 'Main Thread', level: 1 })).toBeVisible();
+    expect(screen.getByRole('progressbar', { name: 'Tiến độ bài học' })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Mục tiêu học tập' })).toBeVisible();
     expect(screen.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Nội dung' })).toBeEnabled();
@@ -503,5 +504,30 @@ describe('LearningWorkspacePage', () => {
       screen.getByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
     ).toBeVisible();
     expect(screen.getByText('Activity đang mở trong khu vực thực hành.')).toBeVisible();
+  });
+
+  it('shows a completion icon when every required lesson is complete', async () => {
+    const completedCourse = {
+      ...course,
+      lessons: [{ ...course.lessons[0]!, status: 'COMPLETED' as const }],
+    };
+    const completedNavigation = {
+      ...navigation,
+      chapters: navigation.chapters.map((chapter) => ({
+        ...chapter,
+        lessons: chapter.lessons.map((item) => ({ ...item, status: 'COMPLETED' as const })),
+      })),
+    };
+    const api: SynaploomApiClient = {
+      ...fakeApi(),
+      getCourse: () => Promise.resolve(completedCourse),
+      getNavigation: () => Promise.resolve(completedNavigation),
+    };
+    render(
+      <AppProviders api={api}>
+        <LearningWorkspacePage route={{ kind: 'lesson', lessonId: null }} />
+      </AppProviders>,
+    );
+    expect(await screen.findByTestId('lesson-progress-complete-icon')).toBeVisible();
   });
 });

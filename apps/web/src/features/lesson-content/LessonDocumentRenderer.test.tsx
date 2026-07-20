@@ -96,4 +96,27 @@ describe('LessonDocumentRenderer', () => {
     expect(screen.getByRole('tab', { name: 'Second' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Second panel')).toBeVisible();
   });
+
+  it('converts GitHub-style note blockquotes into callout chrome', () => {
+    const noteDocument: LessonDocument = {
+      ...document,
+      blocks: [
+        {
+          type: 'blockquote',
+          blocks: [
+            { type: 'paragraph', children: [{ type: 'text', value: '[!NOTE]' }] },
+            {
+              type: 'paragraph',
+              children: [{ type: 'text', value: 'Thứ tự bước là một phần của tính đúng đắn.' }],
+            },
+          ],
+        },
+      ],
+    };
+    render(<LessonDocumentRenderer document={noteDocument} renderActivity={() => null} />);
+    expect(screen.getByRole('note', { name: 'Ghi chú' })).toHaveTextContent(
+      'Thứ tự bước là một phần của tính đúng đắn.',
+    );
+    expect(screen.queryByText('[!NOTE]')).not.toBeInTheDocument();
+  });
 });
