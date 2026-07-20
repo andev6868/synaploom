@@ -100,6 +100,19 @@ Snapshots live in `tests/e2e/single-active-workspace-go-runtime.spec.ts-snapshot
 
 `pnpm go:build-preview` exited successfully for the host preview binary.
 
+## Packaging Verification
+
+A provisional packaging gate was executed before closing the plan:
+
+- `git archive` source export: PASS;
+- full Git bundle creation: PASS;
+- clone from bundle: PASS;
+- cloned HEAD and tree match the implementation commit: PASS;
+- source and clone archive SHA-256 values match: PASS;
+- ZIP CRC: PASS.
+
+The final package is regenerated after the plan-closing commit and repeats the same checks.
+
 ## Result
 
 Revision 2.2 surface, border, spacing, proportion, and assistant-dock fidelity are verified. Product behavior and persistence regressions remain green.

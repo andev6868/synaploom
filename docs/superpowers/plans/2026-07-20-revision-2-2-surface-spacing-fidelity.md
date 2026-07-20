@@ -170,6 +170,6 @@ Inset the assistant wrapper, use a complete `12px` radius, neutral border, and s
 
 Run format, lint, typecheck, exact frontend tests, production build, Go verify, course validation, embedded asset inventory, browser suites, and native preview build.
 
-- [ ] **Step 5: Update evidence, commit, and package**
+- [x] **Step 5: Update evidence, commit, and package**
 
 Record commands and counts, commit Revision 2.2, create source ZIP plus full Git bundle, clone-verify the bundle, compare tree/archive hashes, check ZIP CRC, and generate SHA-256 files.
