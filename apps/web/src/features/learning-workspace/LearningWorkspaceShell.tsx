@@ -54,12 +54,11 @@ export function LearningWorkspaceShell({
   }, [eventOwner, mode, viewport]);
 
   const wideViewport = viewport === 'wide-three' || viewport === 'wide-two';
-  const theoryVisible =
-    wideViewport
-      ? mode !== 'expanded'
-      : viewport === 'compact'
-        ? compactSurface !== 'practice'
-        : true;
+  const theoryVisible = wideViewport
+    ? mode !== 'expanded'
+    : viewport === 'compact'
+      ? compactSurface !== 'practice'
+      : true;
 
   useLayoutEffect(() => {
     const element = theoryScrollRef.current;
@@ -104,7 +103,7 @@ export function LearningWorkspaceShell({
         >
           {practice}
         </Dialog>
-      </main>
+      </main>,
     );
   }
 
@@ -130,7 +129,7 @@ export function LearningWorkspaceShell({
           {compactSurface !== 'theory' && mode !== 'collapsed' ? practice : null}
           {mode === 'collapsed' ? practiceRail : null}
         </div>
-      </main>
+      </main>,
     );
   }
 
@@ -144,7 +143,7 @@ export function LearningWorkspaceShell({
         onLessonSizeChange={(ratio) => {
           void Promise.resolve(onSplitRatioCommit(ratio)).catch(() => undefined);
         }}
-      />
+      />,
     );
   }
   if (mode === 'expanded') {
@@ -155,13 +154,13 @@ export function LearningWorkspaceShell({
         {viewport === 'wide-three' && navigator !== undefined ? (
           <aside className="syn-learning-workspace__expanded-navigator">{navigator}</aside>
         ) : null}
-      </main>
+      </main>,
     );
   }
   return compose(
     <main className="syn-learning-workspace syn-learning-workspace--collapsed">
       {theoryPane}
       {practiceRail}
-    </main>
+    </main>,
   );
 }

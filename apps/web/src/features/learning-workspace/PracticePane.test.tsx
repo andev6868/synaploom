@@ -73,9 +73,7 @@ it('mounts exactly one focused host and exposes explicit next and retry actions'
     />,
   );
   expect(screen.getByLabelText('Khu vực thực hành')).toHaveClass('syn-practice-pane');
-  expect(screen.getByTestId('practice-workspace-card')).toHaveClass(
-    'syn-practice-workspace-card',
-  );
+  expect(screen.getByTestId('practice-workspace-card')).toHaveClass('syn-practice-workspace-card');
   expect(screen.getByTestId('practice-workspace-content')).toContainElement(
     screen.getByRole('textbox', { name: 'active editor' }),
   );

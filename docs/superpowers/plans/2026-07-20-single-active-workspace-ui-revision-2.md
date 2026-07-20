@@ -28,12 +28,14 @@
 ### Task 1: Introduce four viewport presentation bands
 
 **Files:**
+
 - Modify: `apps/web/src/features/learning-workspace/useWorkspaceViewport.ts`
 - Modify: `apps/web/src/features/learning-workspace/useWorkspaceViewport.test.tsx`
 - Modify: `apps/web/src/features/learning-workspace/workspace-events.ts`
 - Modify: `apps/web/src/features/learning-workspace/workspace-events.test.ts`
 
 **Interfaces:**
+
 - Produces: `type WorkspaceViewport = 'wide-three' | 'wide-two' | 'compact' | 'mobile'`.
 - Breakpoints: `wide-three >= 1440`, `wide-two >= 1180`, `compact >= 720`, otherwise mobile.
 
@@ -46,11 +48,13 @@
 ### Task 2: Create the dedicated Practice Activity Navigator
 
 **Files:**
+
 - Create: `apps/web/src/features/learning-workspace/PracticeActivityNavigator.tsx`
 - Create: `apps/web/src/features/learning-workspace/PracticeActivityNavigator.test.tsx`
 - Modify: `apps/web/src/features/learning-workspace/ActivityTray.tsx`
 
 **Interfaces:**
+
 ```ts
 export interface PracticeActivityNavigatorProps {
   readonly activities: readonly ResolvedWorkspaceActivity[];
@@ -70,11 +74,13 @@ export interface PracticeActivityNavigatorProps {
 ### Task 3: Extend the design-system WorkspaceShell to three zones
 
 **Files:**
+
 - Modify: `packages/ui/src/components/workspace-shell/workspace-shell.tsx`
 - Modify: `packages/ui/src/components/workspace-shell/workspace-shell.test.tsx`
 - Modify: `packages/ui/src/styles.css`
 
 **Interfaces:**
+
 ```ts
 export interface WorkspaceShellProps {
   readonly lesson: ReactNode;
@@ -95,6 +101,7 @@ export interface WorkspaceShellProps {
 ### Task 4: Compose wide-three, wide-two, compact, and mobile surfaces
 
 **Files:**
+
 - Modify: `apps/web/src/features/learning-workspace/LearningWorkspaceShell.tsx`
 - Modify: `apps/web/src/features/learning-workspace/LearningWorkspaceShell.test.tsx`
 - Modify: `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx`
@@ -102,6 +109,7 @@ export interface WorkspaceShellProps {
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
+
 - Add props `navigator: ReactNode` and `assistant: ReactNode` to `LearningWorkspaceShellProps`.
 - `wide-three`: pass navigator to `WorkspaceShell`.
 - `wide-two`: omit permanent navigator and expose controlled drawer opened from Practice.
@@ -117,12 +125,14 @@ export interface WorkspaceShellProps {
 ### Task 5: Turn PracticePane into a contained workspace card
 
 **Files:**
+
 - Modify: `apps/web/src/features/learning-workspace/PracticePane.tsx`
 - Modify: `apps/web/src/features/learning-workspace/PracticePane.test.tsx`
 - Modify: `apps/web/src/features/learning-workspace/PracticePaneHeader.tsx`
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
+
 ```ts
 export interface PracticePaneProps {
   // existing fields
@@ -140,12 +150,14 @@ export interface PracticePaneProps {
 ### Task 6: Add the ActivityHost presentation-surface contract
 
 **Files:**
+
 - Modify: `apps/web/src/features/activity-engine/types.ts`
 - Modify: `apps/web/src/features/activity-engine/ActivityHost.tsx`
 - Modify: `apps/web/src/features/activity-engine/ActivityHost.test.tsx`
 - Modify: activity renderer props under `apps/web/src/features/activity-engine/renderers/`
 
 **Interfaces:**
+
 ```ts
 export type ActivityHostSurface = 'practice-contained' | 'standalone';
 export interface ActivityActionOutlet {
@@ -161,6 +173,7 @@ export interface ActivityActionOutlet {
 ### Task 7: Contain the coding renderer
 
 **Files:**
+
 - Modify: `apps/web/src/features/activity-engine/renderers/CodingActivity.tsx`
 - Modify: `apps/web/src/features/activity-engine/renderers/CodingActivity.test.tsx`
 - Modify: `apps/web/src/features/coding-practice/PracticePanel.tsx`
@@ -168,6 +181,7 @@ export interface ActivityActionOutlet {
 - Modify: `apps/web/src/application.css`
 
 **Interfaces:**
+
 - `PracticePanel` accepts `surface: 'practice-contained' | 'standalone'` and optional action outlet.
 
 - [ ] Write tests that contained coding uses a bounded class, projects save/run/check actions into the Practice footer, and standalone preserves its current internal action bar.
@@ -179,6 +193,7 @@ export interface ActivityActionOutlet {
 ### Task 8: Apply the approved visual hierarchy
 
 **Files:**
+
 - Modify: `apps/web/src/features/learning-workspace/ActivitySummaryCard.tsx`
 - Modify: `apps/web/src/features/learning-workspace/ActivitySummaryCard.test.tsx`
 - Modify: `apps/web/src/features/ai-assistant/AssistantPanel.tsx`
@@ -195,6 +210,7 @@ export interface ActivityActionOutlet {
 ### Task 9: Add geometry and visual-regression acceptance
 
 **Files:**
+
 - Create: `tests/e2e/single-active-workspace-go-runtime.spec.ts`
 - Create: `tests/e2e/single-active-workspace-go-runtime.spec.ts-snapshots/*.png`
 - Modify: `tests/e2e/dual-surface-workspace-runtime.spec.ts`
@@ -213,6 +229,7 @@ export interface ActivityActionOutlet {
 ### Task 10: Final verification, evidence, and packaging
 
 **Files:**
+
 - Modify: `tooling/test-config/setup-dom.ts` only if React scheduler teardown requires a verified cleanup tick.
 - Modify: `scripts/test/run-vitest-batches.mjs` only if exact `pnpm test` cannot exit cleanly.
 - Modify: `docs/releases/workspace-presentation-v1-verification.md`
