@@ -89,7 +89,7 @@ function LessonWorkspaceComposition({
   const theory = (
     <section className="syn-lesson-panel">
       <ScrollArea className="syn-lesson-panel__scroll">
-        <article className="syn-lesson-panel__article">
+        <article className="syn-lesson-panel__article" data-theory-reading-column>
           {heading}
           <LessonActivities
             blocks={lesson.blocks}
@@ -551,7 +551,11 @@ export function LearningWorkspacePage({
         </StatusBadge>
         <h1>{lesson.title}</h1>
       </div>
-      <div className="syn-learning-progress-summary" aria-label="Tiến độ bài học">
+      <div
+        className="syn-learning-progress-summary"
+        aria-label="Tiến độ bài học"
+        data-lesson-progress-card
+      >
         <div className="syn-learning-progress-summary__copy">
           <strong>{progressSummary.positionLabel}</strong>
           <span>{progressSummary.completionLabel}</span>

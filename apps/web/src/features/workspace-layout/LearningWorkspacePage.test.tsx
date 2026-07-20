@@ -153,6 +153,8 @@ describe('LearningWorkspacePage', () => {
     );
     expect(await screen.findByRole('heading', { name: 'Main Thread', level: 1 })).toBeVisible();
     expect(screen.getByRole('progressbar', { name: 'Tiến độ bài học' })).toBeVisible();
+    expect(document.querySelector('[data-theory-reading-column]')).toBeVisible();
+    expect(document.querySelector('[data-lesson-progress-card]')).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Mục tiêu học tập' })).toBeVisible();
     expect(screen.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Nội dung' })).toBeEnabled();

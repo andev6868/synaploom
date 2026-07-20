@@ -55,6 +55,7 @@ it('describes the focused activity as open in Practice', () => {
   expect(screen.getByText('Đang làm · Đã lưu bản nháp')).toHaveAttribute(
     'data-activity-summary-status',
   );
+  expect(document.querySelector('[data-activity-summary-card]')).toBeVisible();
   expect(document.querySelector('[data-activity-summary-icon]')).toBeVisible();
   expect(document.querySelector('[data-activity-status-indicator]')).toBeVisible();
   expect(document.querySelector('[data-activity-cta-icon]')).toBeVisible();

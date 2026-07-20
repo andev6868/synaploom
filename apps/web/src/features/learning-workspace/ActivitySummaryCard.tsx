@@ -49,6 +49,7 @@ export function ActivitySummaryCard({
     <section
       className={`syn-activity-summary${focused ? ' syn-activity-summary--active' : ''}`}
       data-activity-id={item.activity.id}
+      data-activity-summary-card
       data-focused={focused || undefined}
     >
       <span className="syn-activity-summary__icon" data-activity-summary-icon aria-hidden="true">
