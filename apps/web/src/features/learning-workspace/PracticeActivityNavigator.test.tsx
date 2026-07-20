@@ -59,6 +59,8 @@ it('renders authored order, ordinal, status and active state', () => {
     expect.stringContaining('2B'),
   ]);
   expect(screen.getByText('Đã đạt')).toBeVisible();
+  expect(screen.getByText('Đã đạt')).toHaveAttribute('data-navigator-status');
+  expect(document.querySelector('[data-navigator-guidance-icon]')).toBeVisible();
   expect(screen.getByRole('button', { name: /2\. B/ })).toHaveAttribute('aria-current', 'true');
 });
 

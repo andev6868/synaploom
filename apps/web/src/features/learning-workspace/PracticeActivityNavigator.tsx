@@ -1,4 +1,5 @@
 import type { ActivityStatusPayload } from '@synaploom/protocol';
+import { Check, Circle, Info } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { activityStatusLabel } from '#src/features/learning-workspace/ActivityTray';
 import {
@@ -49,7 +50,19 @@ export function PracticeActivityNavigator({
                 </span>
                 <span className="syn-practice-activity-navigator__copy">
                   <strong>{item.activity.title}</strong>
-                  <span>{label}</span>
+                  <span data-navigator-status data-status={status?.status ?? 'AVAILABLE'}>
+                    <span
+                      className="syn-practice-activity-navigator__status-icon"
+                      aria-hidden="true"
+                    >
+                      {status?.status === 'PASSED' ? (
+                        <Check size={12} />
+                      ) : (
+                        <Circle size={8} fill={active ? 'currentColor' : 'none'} />
+                      )}
+                    </span>
+                    {label}
+                  </span>
                 </span>
               </button>
             </li>
@@ -57,7 +70,8 @@ export function PracticeActivityNavigator({
         })}
       </ol>
       <p className="syn-practice-activity-navigator__guidance">
-        Chỉ một hoạt động mở tại một thời điểm.
+        <Info data-navigator-guidance-icon aria-hidden="true" size={14} />
+        <span>Chỉ một hoạt động mở tại một thời điểm.</span>
       </p>
     </nav>
   );

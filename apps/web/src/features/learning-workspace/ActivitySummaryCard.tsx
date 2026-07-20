@@ -1,6 +1,6 @@
 import type { ActivityStatusPayload, PracticePaneMode } from '@synaploom/protocol';
 import { Button } from '@synaploom/ui';
-import { ClipboardCheck, Code2, ListOrdered } from 'lucide-react';
+import { ArrowRight, Check, Circle, ClipboardCheck, Code2, ListOrdered } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { activityStatusLabel } from '#src/features/learning-workspace/ActivityTray';
 import type { ResolvedWorkspaceActivity } from '#src/features/learning-workspace/workspace-model';
@@ -63,15 +63,31 @@ export function ActivitySummaryCard({
           {item.activity.title}
         </h3>
         <p className="syn-activity-summary__status" data-activity-summary-status>
-          {statusText}
+          <span
+            className="syn-activity-summary__status-indicator"
+            data-activity-status-indicator
+            data-status={status?.status ?? 'AVAILABLE'}
+            aria-hidden="true"
+          >
+            {focused || status?.status === 'DRAFT' ? (
+              <Circle size={9} fill="currentColor" />
+            ) : status?.status === 'PASSED' ? (
+              <Check size={12} />
+            ) : (
+              <Circle size={9} />
+            )}
+          </span>
+          <span data-activity-summary-status>{statusText}</span>
         </p>
         <p className="syn-activity-summary__description">{message}</p>
       </div>
       <Button
-        variant={focused ? 'secondary' : 'ghost'}
+        size="sm"
+        variant="secondary"
         onClick={() => void onOpenPractice(item.activity.id).catch(() => undefined)}
       >
         {action}
+        <ArrowRight data-activity-cta-icon aria-hidden="true" size={15} />
       </Button>
     </section>
   );

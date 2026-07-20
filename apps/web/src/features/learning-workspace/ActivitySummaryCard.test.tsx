@@ -56,6 +56,8 @@ it('describes the focused activity as open in Practice', () => {
     'data-activity-summary-status',
   );
   expect(document.querySelector('[data-activity-summary-icon]')).toBeVisible();
+  expect(document.querySelector('[data-activity-status-indicator]')).toBeVisible();
+  expect(document.querySelector('[data-activity-cta-icon]')).toBeVisible();
   const activeSummary = screen
     .getByText('Activity đang mở trong khu vực thực hành.')
     .closest('section');
