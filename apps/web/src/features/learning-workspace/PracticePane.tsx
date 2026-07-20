@@ -5,12 +5,25 @@ import { ActivityHost } from '#src/features/activity-engine/ActivityHost';
 import type { ActivityHostProps } from '#src/features/activity-engine/types';
 import { PracticeActivityNavigator } from '#src/features/learning-workspace/PracticeActivityNavigator';
 import { PracticePaneHeader } from '#src/features/learning-workspace/PracticePaneHeader';
-import type { LearningWorkspaceController } from '#src/features/learning-workspace/useLearningWorkspaceController';
+import type {
+  LearningWorkspaceController,
+  WorkspaceSaveStatus,
+} from '#src/features/learning-workspace/useLearningWorkspaceController';
+import {
+  useWorkspaceViewport,
+  type WorkspaceViewport,
+} from '#src/features/learning-workspace/useWorkspaceViewport';
 import {
   findActivityStatus,
   findNextActivityId,
   type ResolvedWorkspaceActivity,
 } from '#src/features/learning-workspace/workspace-model';
+
+export function workspaceSaveFailureMessage(saveStatus: WorkspaceSaveStatus): string {
+  return saveStatus === 'conflict'
+    ? 'Không thể đồng bộ thay đổi vì không gian học vừa được cập nhật. Vui lòng thử lại.'
+    : 'Không thể lưu thay đổi khu vực học. Vui lòng thử lại.';
+}
 
 export function formatDraftSavedTime(value: Date): string {
   return new Intl.DateTimeFormat('vi-VN', {
@@ -38,7 +51,15 @@ export function PracticePane({
   onProgressChanged,
   renderHost = (props) => <ActivityHost {...props} />,
 }: PracticePaneProps): ReactNode {
-  const [navigatorOpen, setNavigatorOpen] = useState(false);
+  const viewport = useWorkspaceViewport();
+  const navigatorUsesDrawer = viewport !== 'wide-three';
+  const navigatorTargetId = navigatorUsesDrawer
+    ? 'practice-activity-navigator-drawer'
+    : 'workspace-activity-navigator';
+  const [navigatorOpenViewport, setNavigatorOpenViewport] = useState<WorkspaceViewport | null>(
+    null,
+  );
+  const navigatorOpen = navigatorUsesDrawer && navigatorOpenViewport === viewport;
   const [activityActions, setActivityActions] = useState<ReactNode>(null);
   const actionOutlet = useMemo(() => ({ setActions: setActivityActions }), []);
   const focused = controller.focusedActivity;
@@ -60,6 +81,14 @@ export function PracticePane({
     }
     previousStatusRef.current = status?.status;
   }, [focusedId, status?.status]);
+
+  const toggleNavigator = (): void => {
+    if (navigatorUsesDrawer) {
+      setNavigatorOpenViewport((openViewport) => (openViewport === viewport ? null : viewport));
+      return;
+    }
+    document.getElementById('workspace-activity-navigator')?.focus();
+  };
 
   if (!focused) return null;
   const ordinal = activities.findIndex((item) => item.activity.id === focused.activity.id) + 1;
@@ -83,7 +112,9 @@ export function PracticePane({
           controller={controller}
           status={status}
           navigatorOpen={navigatorOpen}
-          onToggleNavigator={() => setNavigatorOpen((open) => !open)}
+          navigatorTargetId={navigatorTargetId}
+          navigatorUsesDrawer={navigatorUsesDrawer}
+          onToggleNavigator={toggleNavigator}
         />
         <div
           className="syn-practice-workspace-card__content"
@@ -103,7 +134,7 @@ export function PracticePane({
           >
             {controller.saveStatus === 'error' || controller.saveStatus === 'conflict' ? (
               <div className="syn-practice-pane__feedback" role="alert">
-                <p>{controller.error?.message ?? 'Không thể lưu trạng thái khu vực học.'}</p>
+                <p>{workspaceSaveFailureMessage(controller.saveStatus)}</p>
                 <Button
                   size="sm"
                   variant="secondary"
@@ -148,7 +179,7 @@ export function PracticePane({
           ) : null}
         </footer>
       </div>
-      {navigatorOpen ? (
+      {navigatorUsesDrawer && navigatorOpen ? (
         <div
           className="syn-practice-navigator-drawer"
           id="practice-activity-navigator-drawer"
@@ -160,7 +191,7 @@ export function PracticePane({
             statuses={statuses}
             focusedActivityId={focused.activity.id}
             onSelectActivity={(activityId) => controller.focusActivity(activityId)}
-            onSelectionComplete={() => setNavigatorOpen(false)}
+            onSelectionComplete={() => setNavigatorOpenViewport(null)}
           />
         </div>
       ) : null}

@@ -43,11 +43,20 @@ it('maps wide collapsed, split and expanded surfaces', () => {
   view.rerender(<LearningWorkspaceShell {...common} mode="split" />);
   expect(screen.getByText('Practice editor')).toBeVisible();
   expect(screen.getByTestId('navigator-surface')).toBeVisible();
+  expect(screen.getByTestId('workspace-navigator-zone')).toHaveAttribute(
+    'id',
+    'workspace-activity-navigator',
+  );
+  expect(screen.getByTestId('workspace-navigator-zone')).toHaveAttribute('tabindex', '-1');
   expect(screen.getByTestId('assistant-surface')).toBeVisible();
   expect(screen.getByRole('separator', { name: 'Thay đổi kích thước hai vùng học' })).toBeVisible();
   view.rerender(<LearningWorkspaceShell {...common} mode="expanded" />);
   expect(screen.getByText('Practice editor')).toBeVisible();
   expect(screen.getByText('Theory rail')).toBeVisible();
+  expect(screen.getByTestId('navigator-surface').parentElement).toHaveAttribute(
+    'id',
+    'workspace-activity-navigator',
+  );
 });
 
 it('does not reserve a permanent navigator column at wide-two', () => {

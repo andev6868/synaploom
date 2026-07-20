@@ -12,6 +12,8 @@ export function PracticePaneHeader({
   controller,
   status,
   navigatorOpen,
+  navigatorTargetId,
+  navigatorUsesDrawer,
   onToggleNavigator,
 }: {
   readonly focusedActivity: ResolvedWorkspaceActivity;
@@ -20,17 +22,20 @@ export function PracticePaneHeader({
   readonly controller: LearningWorkspaceController;
   readonly status: ActivityStatusPayload | null;
   readonly navigatorOpen: boolean;
+  readonly navigatorTargetId: string;
+  readonly navigatorUsesDrawer: boolean;
   readonly onToggleNavigator: () => void;
 }): ReactNode {
-  const activeLabel = status?.status === 'PASSED' ? 'Đã đạt' : 'Đang làm';
+  const activeLabel = 'Đang làm';
+  const hasSavedDraft = status?.status === 'DRAFT';
   const saveLabel =
     controller.saveStatus === 'saving'
       ? 'Đang lưu…'
-      : controller.saveStatus === 'saved'
-        ? 'Đã lưu bản nháp'
-        : controller.saveStatus === 'error' || controller.saveStatus === 'conflict'
-          ? 'Lưu thất bại'
-          : 'Sẵn sàng';
+      : controller.saveStatus === 'error' || controller.saveStatus === 'conflict'
+        ? 'Lưu thất bại'
+        : hasSavedDraft
+          ? 'Đã lưu bản nháp'
+          : null;
   return (
     <header className="syn-practice-workspace-card__header">
       <div className="syn-practice-workspace-card__heading">
@@ -54,26 +59,31 @@ export function PracticePaneHeader({
             <Circle aria-hidden="true" fill="currentColor" size={8} />
             <span>{activeLabel}</span>
           </p>
-          <p
-            className="syn-practice-pane__save-status"
-            data-testid="practice-save-status"
-            aria-live="polite"
-          >
-            {controller.saveStatus === 'saved' ? (
-              <Check aria-hidden="true" size={13} />
-            ) : (
-              <Circle aria-hidden="true" size={8} />
-            )}
-            <span>{saveLabel}</span>
-          </p>
+          {saveLabel ? (
+            <p
+              className="syn-practice-pane__save-status"
+              data-testid="practice-save-status"
+              aria-live="polite"
+            >
+              {hasSavedDraft &&
+              controller.saveStatus !== 'saving' &&
+              controller.saveStatus !== 'error' &&
+              controller.saveStatus !== 'conflict' ? (
+                <Check aria-hidden="true" size={13} />
+              ) : (
+                <Circle aria-hidden="true" size={8} />
+              )}
+              <span>{saveLabel}</span>
+            </p>
+          ) : null}
         </div>
       </div>
       <div className="syn-practice-workspace-card__controls" data-testid="practice-header-controls">
         <Button
           size="sm"
           variant="secondary"
-          aria-expanded={navigatorOpen}
-          aria-controls="practice-activity-navigator-drawer"
+          aria-expanded={navigatorUsesDrawer ? navigatorOpen : undefined}
+          aria-controls={navigatorTargetId}
           leadingIcon={<List size={16} />}
           onClick={onToggleNavigator}
         >

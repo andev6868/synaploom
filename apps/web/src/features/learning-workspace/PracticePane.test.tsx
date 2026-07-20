@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { expect, it, vi } from 'vitest';
+import { afterEach, expect, it, vi } from 'vitest';
 import { PracticePane } from '#src/features/learning-workspace/PracticePane';
 import type { LearningWorkspaceController } from '#src/features/learning-workspace/useLearningWorkspaceController';
 import type { ResolvedWorkspaceActivity } from '#src/features/learning-workspace/workspace-model';
@@ -36,6 +36,22 @@ function item(id: string, fullscreen = false): ResolvedWorkspaceActivity {
   };
 }
 const activities = [item('Quiz'), item('Coding', true)];
+
+function viewport(kind: 'wide-three' | 'wide-two'): void {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    media: query,
+    matches:
+      kind === 'wide-three'
+        ? query.includes('1440')
+        : query.includes('1180') || query.includes('720'),
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: () => true,
+  }));
+}
+
+afterEach(() => vi.unstubAllGlobals());
 
 it('mounts exactly one focused host and exposes explicit next and retry actions', () => {
   const selectNextActivity = vi.fn(() => Promise.resolve());
@@ -87,7 +103,7 @@ it('mounts exactly one focused host and exposes explicit next and retry actions'
   expect(screen.getByTestId('practice-header-controls')).toContainElement(
     screen.getByRole('button', { name: 'Danh sách hoạt động' }),
   );
-  expect(screen.getByTestId('practice-active-status')).toHaveTextContent('Đã đạt');
+  expect(screen.getByTestId('practice-active-status')).toHaveTextContent('Đang làm');
   expect(screen.getByTestId('practice-save-status')).toHaveTextContent('Lưu thất bại');
   expect(screen.getByTestId('practice-footer-status')).toBeVisible();
   expect(screen.getByTestId('practice-footer-actions')).toBeVisible();
@@ -97,7 +113,10 @@ it('mounts exactly one focused host and exposes explicit next and retry actions'
   expect(screen.getByText('Lưu thất bại')).toBeVisible();
   expect(screen.getByText('1/2')).toBeVisible();
   expect(screen.getByText('1/2')).toBeVisible();
-  expect(screen.getByRole('alert')).toHaveTextContent('save failed');
+  expect(screen.getByRole('alert')).toHaveTextContent(
+    'Không thể lưu thay đổi khu vực học. Vui lòng thử lại.',
+  );
+  expect(screen.getByRole('alert')).not.toHaveTextContent('save failed');
   fireEvent.click(screen.getByRole('button', { name: 'Thử lưu lại' }));
   fireEvent.click(screen.getByRole('button', { name: 'Hoạt động tiếp theo' }));
   expect(retryLastSave).toHaveBeenCalled();
@@ -277,4 +296,119 @@ it('does not fabricate a save time when a historical draft is loaded', () => {
   } finally {
     vi.useRealTimers();
   }
+});
+
+it('uses the permanent navigator at wide-three without opening a duplicate drawer', () => {
+  viewport('wide-three');
+  const permanentNavigator = document.createElement('aside');
+  permanentNavigator.id = 'workspace-activity-navigator';
+  permanentNavigator.tabIndex = -1;
+  document.body.append(permanentNavigator);
+  try {
+    const controller = {
+      focusedActivity: activities[0],
+      state: { paneMode: 'split' },
+      saveStatus: 'idle',
+      error: null,
+      selectNextActivity: vi.fn(() => Promise.resolve()),
+      retryLastSave: vi.fn(() => Promise.resolve()),
+      registerPersistenceHandle: vi.fn(),
+      registerPracticeHeading: vi.fn(),
+      registerInlineHeading: vi.fn(),
+      collapsePracticePane: vi.fn(),
+      expandPracticePane: vi.fn(),
+      focusActivity: vi.fn(() => Promise.resolve()),
+    } as unknown as LearningWorkspaceController;
+
+    render(
+      <PracticePane
+        owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
+        activities={activities}
+        statuses={[]}
+        controller={controller}
+        onProgressChanged={vi.fn()}
+        renderHost={() => <input aria-label="active editor" />}
+      />,
+    );
+
+    const button = screen.getByRole('button', { name: 'Danh sách hoạt động' });
+    expect(button).toHaveAttribute('aria-controls', 'workspace-activity-navigator');
+    fireEvent.click(button);
+    expect(screen.queryByRole('dialog', { name: 'Danh sách hoạt động' })).not.toBeInTheDocument();
+    expect(document.activeElement).toBe(permanentNavigator);
+  } finally {
+    permanentNavigator.remove();
+  }
+});
+
+it('opens the activity drawer at wide-two where no permanent navigator exists', () => {
+  viewport('wide-two');
+  const controller = {
+    focusedActivity: activities[0],
+    state: { paneMode: 'split' },
+    saveStatus: 'idle',
+    error: null,
+    selectNextActivity: vi.fn(() => Promise.resolve()),
+    retryLastSave: vi.fn(() => Promise.resolve()),
+    registerPersistenceHandle: vi.fn(),
+    registerPracticeHeading: vi.fn(),
+    registerInlineHeading: vi.fn(),
+    collapsePracticePane: vi.fn(),
+    expandPracticePane: vi.fn(),
+    focusActivity: vi.fn(() => Promise.resolve()),
+  } as unknown as LearningWorkspaceController;
+
+  render(
+    <PracticePane
+      owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
+      activities={activities}
+      statuses={[]}
+      controller={controller}
+      onProgressChanged={vi.fn()}
+      renderHost={() => <input aria-label="active editor" />}
+    />,
+  );
+
+  fireEvent.click(screen.getByRole('button', { name: 'Danh sách hoạt động' }));
+  expect(screen.getByRole('dialog', { name: 'Danh sách hoạt động' })).toBeVisible();
+});
+
+it('derives the saved-draft label from activity status instead of workspace save status', () => {
+  const controller = {
+    focusedActivity: activities[0],
+    state: { paneMode: 'split' },
+    saveStatus: 'idle',
+    error: null,
+    selectNextActivity: vi.fn(() => Promise.resolve()),
+    retryLastSave: vi.fn(() => Promise.resolve()),
+    registerPersistenceHandle: vi.fn(),
+    registerPracticeHeading: vi.fn(),
+    registerInlineHeading: vi.fn(),
+    collapsePracticePane: vi.fn(),
+    expandPracticePane: vi.fn(),
+    focusActivity: vi.fn(() => Promise.resolve()),
+  } as unknown as LearningWorkspaceController;
+
+  render(
+    <PracticePane
+      owner={{ courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' }}
+      activities={activities}
+      statuses={[
+        {
+          activityId: 'Quiz',
+          status: 'DRAFT',
+          attemptNumber: 0,
+          score: null,
+          maxScore: 1,
+          passed: false,
+        },
+      ]}
+      controller={controller}
+      onProgressChanged={vi.fn()}
+      renderHost={() => <input aria-label="active editor" />}
+    />,
+  );
+
+  expect(screen.getByTestId('practice-active-status')).toHaveTextContent('Đang làm');
+  expect(screen.getByTestId('practice-save-status')).toHaveTextContent('Đã lưu bản nháp');
 });

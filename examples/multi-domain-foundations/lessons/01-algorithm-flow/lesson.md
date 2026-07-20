@@ -32,6 +32,8 @@ Một thuật toán biến dữ liệu đầu vào thành kết quả qua chuỗ
 
 ## Mở trong khu vực thực hành
 
+Chỉ 1 hoạt động mở tại một thời điểm.
+
 :::summary title="Ghi nhớ"
 Thuật toán tốt phải rõ đầu vào, trình tự và đầu ra.
 :::

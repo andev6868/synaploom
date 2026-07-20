@@ -60,3 +60,25 @@ void test('registers the workspace documentation release gate', async () => {
     'node --experimental-strip-types --test tests/workspace-presentation-docs.spec.ts',
   );
 });
+
+void test('keeps practice error feedback bounded without pushing actions out of the footer', async () => {
+  const css = await text('apps/web/src/application.css');
+  assert.match(css, /\.syn-practice-workspace-card__footer-status\s*\{[^}]*min-width:\s*0;/s);
+  assert.match(css, /\.syn-practice-pane__feedback\s*\{[^}]*min-width:\s*0;/s);
+  assert.match(css, /\.syn-practice-pane__feedback p\s*\{[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(css, /\.syn-practice-pane__feedback \.syn-button\s*\{[^}]*flex:\s*none;/s);
+});
+
+void test('keeps the lower theory content compact and includes single-activity guidance', async () => {
+  const css = await text('apps/web/src/application.css');
+  const lesson = await text(
+    'examples/multi-domain-foundations/lessons/01-algorithm-flow/lesson.md',
+  );
+
+  assert.match(
+    css,
+    /\.syn-lesson-panel__article > \.syn-prose > \.syn-lesson-callout\s*\{[^}]*margin:\s*0\.35rem 0 0\.65rem;/s,
+  );
+  assert.match(css, /\.syn-requirement-footer\s*\{[^}]*margin-top:\s*0\.75rem;/s);
+  assert.match(lesson, /Chỉ 1 hoạt động mở tại một thời điểm\./);
+});

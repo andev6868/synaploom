@@ -11,7 +11,7 @@ export function activityNavigatorStatusLabel(
   status: ActivityWorkspaceStatus,
   active: boolean,
 ): string {
-  if (active && status !== 'PASSED' && status !== 'FAILED') return 'Đang làm';
+  if (active) return 'Đang làm';
   return activityStatusLabel(status);
 }
 
@@ -41,6 +41,7 @@ export function PracticeActivityNavigator({
           const status = findActivityStatus(statuses, item.activity.id);
           const active = item.activity.id === focusedActivityId;
           const workspaceStatus = status?.status ?? 'AVAILABLE';
+          const displayStatus = active ? 'IN_PROGRESS' : workspaceStatus;
           const label = activityNavigatorStatusLabel(workspaceStatus, active);
           return (
             <li key={item.activity.id}>
@@ -61,12 +62,12 @@ export function PracticeActivityNavigator({
                 </span>
                 <span className="syn-practice-activity-navigator__copy">
                   <strong>{item.activity.title}</strong>
-                  <span data-navigator-status data-status={workspaceStatus}>
+                  <span data-navigator-status data-status={displayStatus}>
                     <span
                       className="syn-practice-activity-navigator__status-icon"
                       aria-hidden="true"
                     >
-                      {status?.status === 'PASSED' ? (
+                      {!active && status?.status === 'PASSED' ? (
                         <Check size={12} />
                       ) : (
                         <Circle size={8} fill={active ? 'currentColor' : 'none'} />

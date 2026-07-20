@@ -114,3 +114,31 @@ it('presents the canonical focused and unopened labels', () => {
   expect(screen.getByRole('button', { name: /2\. B\. Chưa mở/ })).toBeVisible();
   expect(document.querySelector('[data-navigator-header-chevron]')).toBeVisible();
 });
+
+it('keeps a focused passed activity in the active presentation state', () => {
+  render(
+    <PracticeActivityNavigator
+      activities={activities}
+      statuses={[
+        {
+          activityId: 'A',
+          status: 'PASSED',
+          attemptNumber: 1,
+          score: 1,
+          maxScore: 1,
+          passed: true,
+        },
+      ]}
+      focusedActivityId="A"
+      onSelectActivity={vi.fn(() => Promise.resolve())}
+    />,
+  );
+
+  const active = screen.getByRole('button', { name: /1\. A\. Đang làm/ });
+  expect(active).toHaveAttribute('aria-current', 'true');
+  expect(active.querySelector('[data-navigator-status]')).toHaveAttribute(
+    'data-status',
+    'IN_PROGRESS',
+  );
+  expect(screen.queryByRole('button', { name: /1\. A\. Đã đạt/ })).not.toBeInTheDocument();
+});

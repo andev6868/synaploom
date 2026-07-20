@@ -160,8 +160,13 @@ describe('useLearningWorkspaceController', () => {
     expect(update).not.toHaveBeenCalled();
   });
 
-  it('keeps mounted state on conflict and retries the exact intent with current revision', async () => {
-    const current = state({ focusedActivityId: 'coding-lab', paneMode: 'split', revision: 7 });
+  it('automatically rebases a conflicting intent onto the current server revision', async () => {
+    const current = state({
+      focusedActivityId: 'quiz-a',
+      paneMode: 'split',
+      splitRatio: 0.61,
+      revision: 7,
+    });
     const update = vi
       .fn()
       .mockRejectedValueOnce(
@@ -187,17 +192,74 @@ describe('useLearningWorkspaceController', () => {
         }),
       { wrapper: wrapper(api(update)) },
     );
-    await act(async () => {
-      await expect(result.current.focusActivity('coding-lab')).rejects.toThrow('conflict');
-    });
-    expect(result.current.state.focusedActivityId).toBe('quiz-a');
-    expect(result.current.conflictState?.revision).toBe(7);
-    await act(async () => result.current.retryLastSave());
+
+    await act(() => result.current.focusActivity('coding-lab'));
+
+    expect(update).toHaveBeenCalledTimes(2);
     expect(update).toHaveBeenLastCalledWith(
       owner,
-      expect.objectContaining({ focusedActivityId: 'coding-lab', revision: 7 }),
+      expect.objectContaining({
+        focusedActivityId: 'coding-lab',
+        paneMode: 'split',
+        splitRatio: 0.61,
+        revision: 7,
+      }),
     );
+    expect(result.current.state.focusedActivityId).toBe('coding-lab');
+    expect(result.current.state.revision).toBe(8);
     expect(result.current.conflictState).toBeNull();
+    expect(result.current.saveStatus).toBe('saved');
+  });
+
+  it('serializes concurrent transitions and rebases the later intent on the saved revision', async () => {
+    let releaseFirst: ((value: WorkspacePresentationState) => void) | undefined;
+    const first = new Promise<WorkspacePresentationState>((resolve) => {
+      releaseFirst = resolve;
+    });
+    const update = vi
+      .fn()
+      .mockImplementationOnce(() => first)
+      .mockImplementation(
+        async (_owner: ActivityOwner, payload: UpdateWorkspacePresentationPayload) =>
+          state({ ...payload, revision: payload.revision + 1 }),
+      );
+    const { result } = renderHook(
+      () => useLearningWorkspaceController({ owner, initialState: state(), activities }),
+      { wrapper: wrapper(api(update)) },
+    );
+
+    let focusPromise: Promise<void> | undefined;
+    let collapsePromise: Promise<void> | undefined;
+    act(() => {
+      focusPromise = result.current.focusActivity('quiz-a');
+      collapsePromise = result.current.collapsePracticePane();
+    });
+
+    await Promise.resolve();
+    expect(update).toHaveBeenCalledTimes(1);
+    releaseFirst?.(
+      state({
+        focusedActivityId: 'quiz-a',
+        paneMode: 'split',
+        userCollapsed: false,
+        revision: 2,
+      }),
+    );
+    await act(async () => Promise.all([focusPromise, collapsePromise]));
+
+    expect(update).toHaveBeenCalledTimes(2);
+    expect(update).toHaveBeenNthCalledWith(
+      2,
+      owner,
+      expect.objectContaining({
+        focusedActivityId: 'quiz-a',
+        paneMode: 'collapsed',
+        userCollapsed: true,
+        revision: 2,
+      }),
+    );
+    expect(result.current.state.paneMode).toBe('collapsed');
+    expect(result.current.state.revision).toBe(3);
   });
 
   it('moves only after explicit next selection', async () => {

@@ -101,6 +101,8 @@ export function WorkspaceShell({
       {navigator === undefined ? null : (
         <aside
           className="syn-workspace-frame__navigator"
+          id="workspace-activity-navigator"
+          tabIndex={-1}
           data-testid="workspace-navigator-zone"
           data-workspace-navigator-zone
           style={navigatorStyle}

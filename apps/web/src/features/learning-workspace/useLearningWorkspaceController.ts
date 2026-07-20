@@ -24,6 +24,43 @@ export interface WorkspaceTransitionIntent {
   readonly payload: UpdateWorkspacePresentationPayload;
 }
 
+export function rebaseWorkspaceTransitionIntent(
+  intent: WorkspaceTransitionIntent,
+  current: WorkspacePresentationState,
+): UpdateWorkspacePresentationPayload {
+  const base: UpdateWorkspacePresentationPayload = {
+    focusedActivityId: current.focusedActivityId,
+    paneMode: current.paneMode,
+    splitRatio: current.splitRatio,
+    userCollapsed: current.userCollapsed,
+    revision: current.revision,
+  };
+  switch (intent.kind) {
+    case 'focus':
+    case 'next':
+      return {
+        ...base,
+        focusedActivityId: intent.payload.focusedActivityId,
+        paneMode: intent.payload.paneMode,
+        userCollapsed: intent.payload.userCollapsed,
+      };
+    case 'collapse':
+    case 'expand':
+    case 'restore-split':
+      return {
+        ...base,
+        paneMode: intent.payload.paneMode,
+        userCollapsed: intent.payload.userCollapsed,
+      };
+    case 'resize':
+      return { ...base, splitRatio: intent.payload.splitRatio };
+    default: {
+      const exhaustive: never = intent.kind;
+      return exhaustive;
+    }
+  }
+}
+
 export interface LearningWorkspaceController {
   readonly state: WorkspacePresentationState;
   readonly saveStatus: WorkspaceSaveStatus;
@@ -77,6 +114,7 @@ export function useLearningWorkspaceController({
   const practiceHeadingsRef = useRef(new Map<string, HTMLElement>());
   const inlineHeadingsRef = useRef(new Map<string, HTMLElement>());
   const lastIntentRef = useRef<WorkspaceTransitionIntent | null>(null);
+  const transitionQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   const publishState = useCallback(
     (next: WorkspacePresentationState): void => {
@@ -146,17 +184,37 @@ export function useLearningWorkspaceController({
     });
   }, [initialState.focusedActivityId, initialState.paneMode, initialState.revision, owner]);
 
-  const transition = useCallback(
+  const runTransition = useCallback(
     async (intent: WorkspaceTransitionIntent): Promise<void> => {
       const currentId = stateRef.current.focusedActivityId;
-      const saveId = currentId ?? intent.payload.focusedActivityId;
+      const baseState = conflictStateRef.current ?? stateRef.current;
+      const initialPayload = rebaseWorkspaceTransitionIntent(intent, baseState);
+      const saveId = currentId ?? initialPayload.focusedActivityId;
       const handle = saveId ? handlesRef.current.get(saveId) : undefined;
       lastIntentRef.current = intent;
       setError(null);
       setSaveStatus('saving');
       try {
         if (handle?.isDirty()) await handle.saveIfDirty();
-        const saved = await api.updateWorkspacePresentation(owner, intent.payload);
+        let saved: WorkspacePresentationState;
+        try {
+          saved = await api.updateWorkspacePresentation(owner, initialPayload);
+        } catch (cause) {
+          if (
+            cause instanceof SynaploomApiError &&
+            cause.code === 'WORKSPACE_PRESENTATION_CONFLICT' &&
+            cause.currentWorkspacePresentation
+          ) {
+            publishConflict(cause.currentWorkspacePresentation);
+            const retryPayload = rebaseWorkspaceTransitionIntent(
+              intent,
+              cause.currentWorkspacePresentation,
+            );
+            saved = await api.updateWorkspacePresentation(owner, retryPayload);
+          } else {
+            throw cause;
+          }
+        }
         publishState(saved);
         publishConflict(null);
         setSaveStatus('saved');
@@ -212,6 +270,18 @@ export function useLearningWorkspaceController({
       }
     },
     [api, owner, publishConflict, publishState, scheduleFocus],
+  );
+
+  const transition = useCallback(
+    (intent: WorkspaceTransitionIntent): Promise<void> => {
+      const scheduled = transitionQueueRef.current.then(
+        () => runTransition(intent),
+        () => runTransition(intent),
+      );
+      transitionQueueRef.current = scheduled.catch(() => undefined);
+      return scheduled;
+    },
+    [runTransition],
   );
 
   const payload = useCallback(
@@ -291,8 +361,7 @@ export function useLearningWorkspaceController({
   const retryLastSave = useCallback(async (): Promise<void> => {
     const intent = lastIntentRef.current;
     if (!intent) return;
-    const revision = conflictStateRef.current?.revision ?? stateRef.current.revision;
-    await transition({ ...intent, payload: { ...intent.payload, revision } });
+    await transition(intent);
   }, [transition]);
 
   const focusedActivity = useMemo(

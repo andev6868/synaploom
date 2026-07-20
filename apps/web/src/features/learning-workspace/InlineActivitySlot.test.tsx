@@ -67,5 +67,7 @@ it('renders a read-only summary rather than a duplicate editor while focused', (
   );
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   expect(screen.getByText('Activity đang mở trong khu vực thực hành.')).toBeVisible();
-  expect(screen.getByText('Đang làm · Đã lưu bản nháp')).toBeVisible();
+  expect(screen.getByTestId('activity-summary-status')).toHaveTextContent('Đang làm');
+  expect(screen.getByTestId('activity-summary-status')).toHaveTextContent('Đã lưu bản nháp');
+  expect(document.querySelectorAll('[data-activity-summary-status-item]')).toHaveLength(2);
 });

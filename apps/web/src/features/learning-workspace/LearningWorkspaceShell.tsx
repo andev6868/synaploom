@@ -160,7 +160,13 @@ export function LearningWorkspaceShell({
         {theoryRail}
         {practice}
         {viewport === 'wide-three' && navigator !== undefined ? (
-          <aside className="syn-learning-workspace__expanded-navigator">{navigator}</aside>
+          <aside
+            className="syn-learning-workspace__expanded-navigator"
+            id="workspace-activity-navigator"
+            tabIndex={-1}
+          >
+            {navigator}
+          </aside>
         ) : null}
       </main>,
     );
