@@ -241,4 +241,4 @@ export interface ActivityActionOutlet {
 - [x] Run each Go-runtime Playwright suite with an independent browser lifecycle when Chromium single-process cannot reuse contexts; all assertions and screenshot comparisons must pass.
 - [x] Run `pnpm go:build-preview`; record native multi-target release as blocked only if the environment cannot finish cross-compilation, never as a false PASS.
 - [x] Update evidence with exact commands/results, mark all completed plan checkboxes, run `git diff --check`, and commit `docs: record revision two workspace verification`.
-- [ ] Export source from `git archive HEAD`, create a full Git bundle, clone-verify the bundle tree, check ZIP CRC, and emit SHA-256 files.
+- [x] Export source from `git archive HEAD`, create a full Git bundle, clone-verify the bundle tree, check ZIP CRC, and emit SHA-256 files.
