@@ -1,4 +1,4 @@
-import { useCallback, useId, useMemo, type ReactNode } from 'react';
+import { useCallback, useId, useMemo, type CSSProperties, type ReactNode } from 'react';
 import { Group, Panel, Separator, type Layout } from 'react-resizable-panels';
 
 const MIN_RATIO = 32;
@@ -21,6 +21,8 @@ export function clampWorkspaceRatio(value: number): number {
 export interface WorkspaceShellProps {
   readonly lesson: ReactNode;
   readonly practice: ReactNode;
+  readonly navigator?: ReactNode;
+  readonly navigatorWidth?: number;
   readonly defaultLessonRatio?: number;
   readonly onLessonSizeChange?: (ratio: number) => void;
 }
@@ -34,6 +36,8 @@ export interface WorkspaceShellProps {
 export function WorkspaceShell({
   defaultLessonRatio = 0.48,
   lesson,
+  navigator,
+  navigatorWidth = 192,
   onLessonSizeChange,
   practice,
 }: WorkspaceShellProps): ReactNode {
@@ -62,34 +66,47 @@ export function WorkspaceShell({
     [lessonPanelId, onLessonSizeChange],
   );
 
+  const navigatorStyle = { width: `${navigatorWidth}px` } satisfies CSSProperties;
   return (
-    <Group
-      className="syn-workspace-shell"
-      defaultLayout={defaultLayout}
-      id={`workspace-${instanceId}`}
-      onLayoutChanged={persistLayout}
-      orientation="horizontal"
-    >
-      <Panel
-        className="syn-workspace-shell__pane"
-        id={lessonPanelId}
-        minSize={toPanelPercentage(MIN_RATIO)}
-        maxSize={toPanelPercentage(MAX_RATIO)}
+    <div className="syn-workspace-frame">
+      <Group
+        className="syn-workspace-shell"
+        defaultLayout={defaultLayout}
+        id={`workspace-${instanceId}`}
+        onLayoutChanged={persistLayout}
+        orientation="horizontal"
       >
-        {lesson}
-      </Panel>
-      <Separator
-        aria-label="Thay đổi kích thước hai vùng học"
-        className="syn-workspace-shell__separator"
-        id={`separator-${instanceId}`}
-      />
-      <Panel
-        className="syn-workspace-shell__pane"
-        id={practicePanelId}
-        minSize={toPanelPercentage(MIN_RATIO)}
-      >
-        {practice}
-      </Panel>
-    </Group>
+        <Panel
+          className="syn-workspace-shell__pane"
+          id={lessonPanelId}
+          minSize={toPanelPercentage(MIN_RATIO)}
+          maxSize={toPanelPercentage(MAX_RATIO)}
+        >
+          {lesson}
+        </Panel>
+        <Separator
+          aria-label="Thay đổi kích thước hai vùng học"
+          className="syn-workspace-shell__separator"
+          id={`separator-${instanceId}`}
+        />
+        <Panel
+          className="syn-workspace-shell__pane"
+          id={practicePanelId}
+          minSize={toPanelPercentage(MIN_RATIO)}
+        >
+          {practice}
+        </Panel>
+      </Group>
+      {navigator === undefined ? null : (
+        <aside
+          className="syn-workspace-frame__navigator"
+          data-testid="workspace-navigator-zone"
+          data-workspace-navigator-zone
+          style={navigatorStyle}
+        >
+          {navigator}
+        </aside>
+      )}
+    </div>
   );
 }

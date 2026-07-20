@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import type { ComponentProps, ReactNode, Ref } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import type { GroupImperativeHandle, Layout } from 'react-resizable-panels';
@@ -91,5 +91,22 @@ describe('WorkspaceShell percentage sizing', () => {
       [practicePanelId]: 40,
     });
     expect(onLessonSizeChange).toHaveBeenCalledWith(0.6);
+  });
+
+  it('renders an enabled navigator as a sibling of the resizable group', () => {
+    render(
+      <WorkspaceShell
+        lesson="Lesson"
+        practice="Practice"
+        navigator={<button type="button">Activity A</button>}
+        navigatorWidth={192}
+      />,
+    );
+
+    const navigator = screen.getByTestId('workspace-navigator-zone');
+    expect(navigator).toContainElement(screen.getByRole('button', { name: 'Activity A' }));
+    expect(screen.getByRole('button', { name: 'Activity A' })).not.toBeDisabled();
+    expect(navigator.previousElementSibling).toHaveClass('syn-workspace-shell');
+    expect(navigator).toHaveStyle({ width: '192px' });
   });
 });
