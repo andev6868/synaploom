@@ -61,10 +61,16 @@ func parseCourseRuntime(name string, args []string) (Command, error) {
 }
 
 func parseDev(args []string) (Command, error) {
-	if len(args) != 1 {
+	if len(args) == 0 {
 		return Command{}, fmt.Errorf("%w: dev requires a course path", ErrUsage)
 	}
-	return Command{Name: "dev", Path: args[0]}, nil
+	path := args[0]
+	set := flag.NewFlagSet("dev", flag.ContinueOnError)
+	port := set.Int("port", 0, "local HTTP port")
+	if err := set.Parse(args[1:]); err != nil || set.NArg() != 0 {
+		return Command{}, fmt.Errorf("%w: dev requires a course path", ErrUsage)
+	}
+	return Command{Name: "dev", Path: path, Port: *port}, nil
 }
 
 func parseCourse(args []string) (Command, error) {

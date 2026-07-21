@@ -12,6 +12,26 @@ func TestDispatcherParsesStartCommand(t *testing.T) {
 	}
 }
 
+func TestDispatcherParsesDevCommandWithPort(t *testing.T) {
+	command, err := Parse([]string{"dev", "examples/course", "--port", "4174"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if command.Name != "dev" || command.Path != "examples/course" || command.Port != 4174 {
+		t.Fatalf("unexpected command: %#v", command)
+	}
+}
+
+func TestDispatcherParsesDevCommandWithEphemeralPortByDefault(t *testing.T) {
+	command, err := Parse([]string{"dev", "examples/course"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if command.Port != 0 {
+		t.Fatalf("port=%d, want 0", command.Port)
+	}
+}
+
 func TestDispatcherParsesCourseCommands(t *testing.T) {
 	for _, args := range [][]string{{"course", "validate", "./course"}, {"course", "import", "./course"}, {"course", "list"}} {
 		if _, err := Parse(args); err != nil {
