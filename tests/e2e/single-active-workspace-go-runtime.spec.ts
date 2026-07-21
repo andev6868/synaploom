@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 import { execFile, spawn, type ChildProcess } from 'node:child_process';
 import { copyFile, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -67,7 +67,11 @@ async function prepareCanonicalOrderingState(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Dòng chảy thuật toán', level: 1 })).toBeVisible();
 
   await openActivity(page, 'Sắp xếp thuật toán');
-  await page.getByRole('button', { name: 'Di chuyển Hiển thị kết quả lên' }).click();
+  const labels = page.locator('.syn-activity-ordering__label');
+  const currentLabels = await labels.allTextContents();
+  if (currentLabels[1] !== 'Hiển thị kết quả') {
+    await page.getByRole('button', { name: 'Di chuyển Hiển thị kết quả lên' }).click();
+  }
   await page.getByRole('button', { name: 'Lưu bản nháp' }).click();
 
   await expect(page.getByTestId('practice-footer-status')).toContainText(
@@ -85,6 +89,32 @@ async function expectSingleEditor(page: Page): Promise<void> {
   await expect(
     page.locator('.syn-activity-summary input, .syn-activity-summary textarea'),
   ).toHaveCount(0);
+}
+
+interface MeasuredBox {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+async function requiredBox(locator: Locator): Promise<MeasuredBox> {
+  const box = await locator.boundingBox();
+  expect(box).not.toBeNull();
+  return box!;
+}
+
+async function workspaceGeometry(page: Page): Promise<{
+  readonly theory: MeasuredBox;
+  readonly practice: MeasuredBox;
+  readonly navigator: MeasuredBox;
+}> {
+  const [theory, practice, navigator] = await Promise.all([
+    requiredBox(page.locator('[data-workspace-theory-zone]')),
+    requiredBox(page.locator('[data-workspace-practice-zone]')),
+    requiredBox(page.locator('[data-workspace-navigator-zone]')),
+  ]);
+  return { theory, practice, navigator };
 }
 
 test.beforeAll(async () => {
@@ -229,33 +259,9 @@ test('matches Revision 3 geometry across six responsive states', async ({ page }
   const panelBottoms = [theoryBox!, practiceBox!, navigatorBox!].map((box) => box.y + box.height);
   expect(Math.max(...panelBottoms) - Math.min(...panelBottoms)).toBeLessThanOrEqual(2);
 
-  const workspaceMainBox = await page.locator('[data-workspace-main]').boundingBox();
-  const assistantBox = await page.getByTestId('workspace-assistant').boundingBox();
-  expect(workspaceMainBox).not.toBeNull();
-  expect(assistantBox).not.toBeNull();
-  expect(
-    Math.abs(workspaceMainBox!.y + workspaceMainBox!.height - assistantBox!.y),
-  ).toBeLessThanOrEqual(2);
-  expect(assistantBox!.y + assistantBox!.height).toBeLessThanOrEqual(canonicalViewport.height + 1);
-  expect(assistantBox!.x).toBeGreaterThanOrEqual(132);
-  expect(assistantBox!.x).toBeLessThanOrEqual(138);
-  expect(assistantBox!.width).toBeGreaterThanOrEqual(1212);
-  expect(assistantBox!.width).toBeLessThanOrEqual(1220);
-  const assistantDockBox = await page
-    .getByRole('complementary', { name: 'Trợ lý AI' })
-    .boundingBox();
-  expect(assistantDockBox).not.toBeNull();
-  expect(assistantDockBox!.width / canonicalViewport.width).toBeGreaterThanOrEqual(0.7);
-  expect(assistantDockBox!.width / canonicalViewport.width).toBeLessThanOrEqual(0.76);
-  expect(
-    Math.abs(assistantDockBox!.x - (canonicalViewport.width - assistantDockBox!.width) / 2),
-  ).toBeLessThanOrEqual(3);
-  expect(assistantDockBox!.height).toBeGreaterThanOrEqual(56);
-  expect(assistantDockBox!.height).toBeLessThanOrEqual(64);
-  await expect(page.getByRole('textbox', { name: 'Câu hỏi cho Trợ lý AI' })).toHaveAttribute(
-    'placeholder',
-    'Đặt câu hỏi về bài học này…',
-  );
+  await expect(page.getByTestId('workspace-assistant')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Hỏi AI về lý thuyết' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Hỏi AI về bài tập đang làm' })).toBeVisible();
   await expect(page.getByRole('progressbar', { name: 'Tiến độ bài học' })).toBeVisible();
   await expect(page.getByText(/\[!NOTE\]/)).toHaveCount(0);
   await expect(page.getByRole('note', { name: 'Ghi chú' })).toBeVisible();
@@ -370,11 +376,10 @@ test('matches Revision 3 geometry across six responsive states', async ({ page }
   const compactTitleBox = await page
     .getByRole('heading', { name: 'Dòng chảy thuật toán', level: 1 })
     .boundingBox();
-  const compactAssistantBox = await page.getByTestId('workspace-assistant').boundingBox();
   expect(compactTitleBox).not.toBeNull();
-  expect(compactAssistantBox).not.toBeNull();
   expect(compactTitleBox!.height).toBeLessThanOrEqual(120);
-  expect(compactAssistantBox!.y + compactAssistantBox!.height).toBeLessThanOrEqual(901);
+  await expect(page.getByTestId('workspace-assistant')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Hỏi AI về bài tập đang làm' })).toBeVisible();
   await expect(page).toHaveScreenshot('single-active-compact.png', { fullPage: true });
 
   await page.setViewportSize({ width: 390, height: 844 });
@@ -398,4 +403,78 @@ test('matches Revision 3 geometry across six responsive states', async ({ page }
   expect(runActionBox!.height).toBeLessThanOrEqual(64);
   await expectSingleEditor(page);
   await expect(page).toHaveScreenshot('single-active-mobile.png', { fullPage: true });
+});
+
+test('keeps contextual AI zero-footprint across source, selection, item, and mobile flows', async ({
+  page,
+}) => {
+  await prepareCanonicalOrderingState(page);
+
+  await expect(page.getByTestId('workspace-assistant')).toHaveCount(0);
+  const before = await workspaceGeometry(page);
+  const practiceTrigger = page.getByRole('button', { name: 'Hỏi AI về bài tập đang làm' });
+  await practiceTrigger.click();
+  const quick = page.getByTestId('assistant-quick-popover');
+  await expect(quick).toBeVisible();
+  await expect(quick).toContainText('Bài tập · Sắp xếp thuật toán');
+  expect(await workspaceGeometry(page)).toEqual(before);
+
+  await quick.getByRole('button', { name: 'Mở cuộc hội thoại đầy đủ' }).click();
+  const expanded = page.getByTestId('assistant-expanded-panel');
+  await expect(expanded).toBeVisible();
+  expect(await workspaceGeometry(page)).toEqual(before);
+  await expect(page.getByRole('navigation', { name: 'Danh sách hoạt động' })).toBeAttached();
+  await page.keyboard.press('Escape');
+  await expect(expanded).toHaveCount(0);
+  await expect(practiceTrigger).toBeFocused();
+
+  const theoryParagraph = page.locator('[data-theory-reading-column] p').first();
+  await theoryParagraph.selectText();
+  const selectionToolbar = page.getByTestId('assistant-selection-toolbar');
+  await expect(selectionToolbar).toBeVisible();
+  await selectionToolbar
+    .getByRole('button', { name: 'Hỏi AI về đoạn lý thuyết đã chọn' })
+    .click();
+  await expect(quick).toBeVisible();
+  await expect(quick).toContainText('Đoạn được chọn');
+  await page.keyboard.press('Escape');
+
+  await page.locator('.syn-app-header__brand').selectText();
+  await expect(selectionToolbar).toHaveCount(0);
+
+  const orderingLabels = page.locator('.syn-activity-ordering__label');
+  const labelsBefore = await orderingLabels.allTextContents();
+  await page.getByRole('button', { name: 'Hỏi AI về bước Hiển thị kết quả' }).click();
+  await expect(quick).toBeVisible();
+  await expect(quick).toContainText('Bước được chọn · Sắp xếp thuật toán');
+  await expect(quick).toContainText('Hiển thị kết quả');
+  expect(await orderingLabels.allTextContents()).toEqual(labelsBefore);
+  await page.keyboard.press('Escape');
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobilePractice = page.getByRole('dialog', { name: /Sắp xếp thuật toán/ });
+  await expect(mobilePractice).toBeVisible();
+  const mobileLabelsBefore = await orderingLabels.allTextContents();
+  const mobileTrigger = mobilePractice.getByRole('button', {
+    name: 'Hỏi AI về bài tập đang làm',
+  });
+  await mobileTrigger.click();
+  await expect(quick).toBeVisible();
+  const mobileQuickBox = await requiredBox(quick);
+  expect(Math.abs(mobileQuickBox.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(mobileQuickBox.x + mobileQuickBox.width - 390)).toBeLessThanOrEqual(1);
+  expect(Math.abs(mobileQuickBox.y + mobileQuickBox.height - 844)).toBeLessThanOrEqual(2);
+
+  await quick.getByRole('button', { name: 'Mở cuộc hội thoại đầy đủ' }).click();
+  const mobileAssistant = page.getByRole('dialog', { name: 'Trợ lý AI' });
+  await expect(mobileAssistant).toHaveAttribute('aria-modal', 'true');
+  const mobileAssistantBox = await requiredBox(mobileAssistant);
+  expect(Math.abs(mobileAssistantBox.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(mobileAssistantBox.y)).toBeLessThanOrEqual(1);
+  expect(mobileAssistantBox.width).toBeLessThanOrEqual(391);
+  expect(mobileAssistantBox.height).toBeLessThanOrEqual(845);
+  await page.keyboard.press('Escape');
+  await expect(mobileAssistant).toHaveCount(0);
+  await expect(mobileTrigger).toBeFocused();
+  expect(await orderingLabels.allTextContents()).toEqual(mobileLabelsBefore);
 });
