@@ -2423,17 +2423,30 @@ body,
 
 .syn-contextual-assistant__expand,
 .syn-contextual-assistant__close {
-  width: 2rem;
-  height: 2rem;
+  width: 1rem;
+  height: 1rem;
   padding: 0;
-  border: 1px solid var(--syn-color-border);
-  border-radius: 0.7rem;
-  background: var(--syn-color-surface);
-  color: var(--syn-color-text-muted);
+  border: 0;
+  border-radius: 50%;
+  line-height: 0;
   cursor: pointer;
 }
 
+.syn-contextual-assistant__expand svg,
+.syn-contextual-assistant__close svg {
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.syn-contextual-assistant__expand {
+  color: #111827;
+  background: #4ade80;
+}
+
 .syn-contextual-assistant__close {
+  color: #111827;
+  background: #f87171;
   border-radius: 50%;
 }
 
@@ -2442,7 +2455,19 @@ body,
 .syn-contextual-assistant__close:hover,
 .syn-contextual-assistant__close:focus-visible {
   color: var(--syn-color-text);
-  border-color: var(--syn-color-border-strong);
+  background: color-mix(in srgb, var(--syn-color-primary-soft) 65%, white);
+}
+
+.syn-contextual-assistant__expand:hover,
+.syn-contextual-assistant__expand:focus-visible {
+  color: #111827;
+  background: #22c55e;
+}
+
+.syn-contextual-assistant__close:hover,
+.syn-contextual-assistant__close:focus-visible {
+  color: #111827;
+  background: #ef4444;
 }
 
 .syn-contextual-assistant-context {
@@ -2454,7 +2479,7 @@ body,
 
 .syn-contextual-assistant-popover__body {
   display: grid;
-  min-height: 0;
+  min-height: 11rem;
   align-content: start;
   gap: 0.625rem;
   overflow: auto;
@@ -2578,6 +2603,23 @@ body,
   color: #ea7a00;
 }
 
+.syn-contextual-assistant-popover__show-actions {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--syn-color-primary);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.syn-contextual-assistant-popover__show-actions:hover,
+.syn-contextual-assistant-popover__show-actions:focus-visible {
+  text-decoration: underline;
+}
+
 .syn-contextual-assistant-popover__footer {
   display: grid;
   gap: 0.35rem;
@@ -2610,15 +2652,18 @@ body,
   gap: 0.45rem;
   padding: 0.2rem 0.25rem 0.2rem 0.65rem;
   border: 1px solid var(--syn-color-border);
-  border-radius: 999px;
+  border-radius: 1rem;
   background: var(--syn-color-surface);
 }
 
 .syn-contextual-assistant-popover__footer textarea {
-  min-height: 2.75rem;
-  padding: 0.45rem 0;
+  align-self: center;
+  min-height: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.45rem;
   border: 0;
   background: transparent;
+  line-height: 1.5rem;
   resize: none;
 }
 
@@ -2642,6 +2687,10 @@ body,
   background: var(--syn-color-primary);
   color: var(--syn-color-on-primary);
   cursor: pointer;
+}
+
+.syn-contextual-assistant-popover__composer-row button:not(:disabled) {
+  color: white;
 }
 
 .syn-contextual-assistant-popover__composer-row button:disabled {
@@ -2703,7 +2752,7 @@ body,
   border: 0;
   border-radius: 999px;
   background: var(--syn-color-primary);
-  color: var(--syn-color-on-primary);
+  color: var(--syn-color-on-primary, #fff);
   font: inherit;
   font-size: 0.75rem;
   font-weight: 650;
@@ -2716,92 +2765,339 @@ body,
 
 /* Expanded contextual AI conversation surface. */
 .syn-contextual-assistant-panel {
-  position: absolute;
+  position: static;
   inset-block: 0;
   inset-inline-end: 0;
   z-index: 80;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  width: clamp(22rem, 21vw, 22.5rem);
+  width: clamp(30rem, 27vw, 33rem);
   max-width: 100%;
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
-  border-inline-start: 1px solid var(--syn-color-border-strong);
+  border: 0;
+  border-radius: 0;
   background: var(--syn-color-surface);
-  box-shadow: -18px 0 48px rgb(15 23 42 / 16%);
+  box-shadow: none;
 }
 
 .syn-contextual-assistant-panel--compact {
-  width: min(72vw, 22.5rem);
+  width: min(78vw, 33rem);
 }
 
 .syn-contextual-assistant-panel__header {
-  padding: 1rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--syn-color-border);
+}
+
+.syn-contextual-assistant-panel__avatar,
+.syn-contextual-assistant-panel__message-avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  color: white;
+  background: radial-gradient(circle at 38% 25%, #dbeafe, #bfdbfe 34%, #2563eb 100%);
+  box-shadow: none;
+}
+
+.syn-contextual-assistant-panel__avatar {
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid rgb(255 255 255 / 85%);
+  border-radius: 0.9rem;
+}
+
+.syn-contextual-assistant-panel__identity {
+  min-width: 0;
+}
+
+.syn-contextual-assistant-panel__identity > strong {
+  display: block;
+  font-size: 1.3rem;
+  line-height: 1.15;
+}
+
+.syn-contextual-assistant-panel__identity .syn-contextual-assistant-context {
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+}
+
+.syn-contextual-assistant-panel .syn-contextual-assistant__close {
+  display: grid;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #f87171;
+  color: #111827;
+}
+
+.syn-contextual-assistant-panel .syn-contextual-assistant__close {
+  border-radius: 50%;
 }
 
 .syn-contextual-assistant-panel__messages {
+  display: grid;
+  align-content: start;
   min-height: 0;
+  gap: 0.7rem;
   overflow: auto;
-  padding: 1rem;
+  padding: 1.35rem 1.5rem;
+}
+
+.syn-contextual-assistant-panel__assistant-label {
+  margin: 0 0 -0.3rem 3.7rem;
+  color: var(--syn-color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .syn-contextual-assistant-panel__messages article {
-  width: min(88%, 30rem);
-  margin-block: 0 0.75rem;
-  padding: 0.75rem;
+  width: min(88%, 22rem);
+  margin: 0;
+  padding: 0.75rem 0.9rem;
   border: 1px solid var(--syn-color-border);
-  border-radius: 0.75rem;
+  border-radius: 0.8rem;
   background: var(--syn-color-surface);
 }
 
 .syn-contextual-assistant-panel__messages article[data-role='assistant'] {
-  background: var(--syn-color-surface-subtle);
+  background: var(--syn-color-surface-raised);
 }
 
 .syn-contextual-assistant-panel__messages article[data-role='user'] {
   margin-inline-start: auto;
+  border-color: color-mix(in srgb, var(--syn-color-primary) 35%, var(--syn-color-border));
+  background: var(--syn-color-primary-soft);
 }
 
 .syn-contextual-assistant-panel__messages article span,
-.syn-contextual-assistant-panel__empty {
+.syn-contextual-assistant-panel__messages time {
+  display: block;
+  margin-top: 0.45rem;
   color: var(--syn-color-text-muted);
-  font-size: 0.8125rem;
+  font-size: 0.72rem;
 }
 
 .syn-contextual-assistant-panel__messages article p {
-  margin: 0.25rem 0 0;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
-.syn-contextual-assistant-panel__empty {
-  width: min(22rem, 100%);
-  margin: 0;
-  padding: 0.75rem;
-  border-radius: 0.625rem;
-  background: var(--syn-color-surface-subtle);
-  line-height: 1.5;
+.syn-contextual-assistant-panel__starter {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.syn-contextual-assistant-panel__starter-message {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.7rem;
+}
+
+.syn-contextual-assistant-panel__message-avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.8rem;
+}
+
+.syn-contextual-assistant-panel__messages article[data-variant='greeting'] {
+  width: min(100%, 21rem);
+  border-color: color-mix(in srgb, var(--syn-color-primary) 14%, var(--syn-color-border));
+  background: color-mix(in srgb, var(--syn-color-primary-soft) 60%, white);
+}
+
+.syn-contextual-assistant-panel__messages article[data-variant='guidance'] {
+  width: min(calc(100% - 3.7rem), 23rem);
+  margin-inline-start: 3.7rem;
+  background: var(--syn-color-surface);
+}
+
+.syn-contextual-assistant-panel__suggestions {
+  margin-top: 0.45rem;
+}
+
+.syn-contextual-assistant-panel__suggestions h2 {
+  margin: 0 0 0.7rem;
+  font-size: 1rem;
+}
+
+.syn-contextual-assistant-panel__actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.syn-contextual-assistant-panel__actions button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 6rem;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  border: 1px solid var(--syn-color-border);
+  border-radius: 0.8rem;
+  background: var(--syn-color-surface);
+  color: var(--syn-color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.syn-contextual-assistant-panel__actions button[data-tone='blue'] {
+  border-color: color-mix(in srgb, var(--syn-color-primary) 30%, var(--syn-color-border));
+}
+
+.syn-contextual-assistant-panel__actions button[data-tone='green'] {
+  border-color: color-mix(in srgb, var(--syn-color-success) 42%, var(--syn-color-border));
+}
+
+.syn-contextual-assistant-panel__actions button[data-tone='violet'] {
+  border-color: color-mix(in srgb, #7c3aed 34%, var(--syn-color-border));
+}
+
+.syn-contextual-assistant-panel__actions button:focus-visible {
+  outline: var(--syn-focus-ring);
+}
+
+.syn-contextual-assistant-panel__action-icon {
+  display: grid;
+  width: 2.15rem;
+  height: 2.15rem;
+  place-items: center;
+  border-radius: 0.7rem;
+  color: var(--syn-color-primary);
+  background: var(--syn-color-primary-soft);
+}
+
+.syn-contextual-assistant-panel__actions button[data-tone='green'] .syn-contextual-assistant-panel__action-icon {
+  color: var(--syn-color-success);
+  background: var(--syn-color-success-soft);
+}
+
+.syn-contextual-assistant-panel__actions button[data-tone='violet'] .syn-contextual-assistant-panel__action-icon {
+  color: #7c3aed;
+  background: #f3e8ff;
+}
+
+.syn-contextual-assistant-panel__action-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.2rem;
+}
+
+.syn-contextual-assistant-panel__action-copy strong {
+  font-size: 0.85rem;
+}
+
+.syn-contextual-assistant-panel__action-copy small {
+  color: var(--syn-color-text-muted);
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.syn-contextual-assistant-panel__actions button[data-tone='blue'] > svg {
+  color: var(--syn-color-primary);
+}
+
+.syn-contextual-assistant-panel__actions button[data-tone='green'] > svg {
+  color: var(--syn-color-success);
+}
+
+.syn-contextual-assistant-panel__actions button[data-tone='violet'] > svg {
+  color: #7c3aed;
 }
 
 .syn-contextual-assistant-panel__composer {
   display: grid;
   gap: 0.5rem;
-  padding: 0.875rem 1rem;
+  padding: 0.9rem 1.5rem 1.1rem;
   border-top: 1px solid var(--syn-color-border);
+}
+
+.syn-contextual-assistant-panel__composer > label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .syn-contextual-assistant-panel__composer-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 0.5rem;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  min-height: 4rem;
+  gap: 0.4rem;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--syn-color-border-strong);
+  border-radius: 1rem;
+  background: var(--syn-color-surface);
+}
+
+.syn-contextual-assistant-panel__composer-row:focus-within {
+  border-color: color-mix(in srgb, var(--syn-color-primary) 62%, var(--syn-color-border));
 }
 
 .syn-contextual-assistant-panel__composer textarea {
-  min-height: 3rem;
+  min-height: 1.75rem;
   max-height: 8rem;
-  resize: vertical;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  line-height: 1.75rem;
+  outline: none;
+  box-shadow: none;
+  resize: none;
 }
 
-.syn-contextual-assistant-panel__composer button {
-  min-height: 2.5rem;
+.syn-contextual-assistant-panel__composer-adornment {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--syn-color-text-muted);
+}
+
+.syn-contextual-assistant-panel__composer-adornment:first-child {
+  color: var(--syn-color-text);
+  background: var(--syn-color-surface-muted);
+}
+
+.syn-contextual-assistant-panel__composer-row button {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: white;
+  background: var(--syn-color-primary);
+  box-shadow: none;
+}
+
+.syn-contextual-assistant-panel__composer-row button:disabled {
+  color: var(--syn-color-text-muted);
+  background: color-mix(in srgb, var(--syn-color-primary) 34%, white);
+  box-shadow: none;
+}
+
+.syn-contextual-assistant-panel__disclaimer {
+  margin: 0;
+  color: var(--syn-color-text-muted);
+  font-size: 0.7rem;
+  text-align: center;
 }
 
 .syn-contextual-assistant-panel--mobile {
@@ -2810,7 +3106,79 @@ body,
   width: 100%;
   max-width: none;
   border: 0;
+  border-radius: 0;
   box-shadow: none;
+}
+
+.syn-learning-workspace-layout:has(.syn-contextual-assistant-panel) {
+  grid-template-columns: minmax(0, 1fr) clamp(30rem, 27vw, 33rem);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.syn-learning-workspace-layout:has(.syn-contextual-assistant-panel)
+  .syn-learning-workspace-layout__main {
+  grid-column: 1;
+}
+
+.syn-learning-workspace-layout:has(.syn-contextual-assistant-panel)
+  .syn-learning-workspace-layout__overlay {
+  position: static;
+  grid-column: 2;
+  grid-row: 1;
+  pointer-events: auto;
+}
+
+.syn-learning-workspace-layout:has(.syn-contextual-assistant-panel)
+  .syn-contextual-assistant-panel,
+.syn-learning-workspace-layout:has(.syn-contextual-assistant-panel)
+  .syn-contextual-assistant-panel--compact {
+  width: 100%;
+  max-width: none;
+}
+
+@media (max-width: 62rem) {
+  .syn-contextual-assistant-panel:not(.syn-contextual-assistant-panel--mobile) {
+    width: min(82vw, 33rem);
+  }
+
+  .syn-contextual-assistant-panel__header,
+  .syn-contextual-assistant-panel__messages,
+  .syn-contextual-assistant-panel__composer {
+    padding-inline: 1rem;
+  }
+}
+
+@media (max-width: 44rem) {
+  .syn-contextual-assistant-panel__header {
+    padding-block: 0.85rem;
+  }
+
+  .syn-contextual-assistant-panel__avatar {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .syn-contextual-assistant-panel__identity > strong {
+    font-size: 1.2rem;
+  }
+
+  .syn-contextual-assistant-panel .syn-contextual-assistant__close {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .syn-contextual-assistant-panel__actions {
+    grid-template-columns: 1fr;
+  }
+
+  .syn-contextual-assistant-panel__actions button {
+    min-height: 4.75rem;
+  }
+
+  .syn-contextual-assistant-panel__messages article[data-variant='guidance'] {
+    width: 100%;
+    margin-inline-start: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

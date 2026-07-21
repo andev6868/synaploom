@@ -1,15 +1,11 @@
-import type { AiRequestKind } from '@synaploom/ai-contracts';
 import {
   Bot,
-  Code2,
-  Lightbulb,
   Maximize2,
-  NotebookPen,
   SendHorizontal,
   X,
-  type LucideIcon,
 } from 'lucide-react';
-import type { CSSProperties, ReactNode } from 'react';
+import { useState, type CSSProperties, type ReactNode } from 'react';
+import { assistantActionsForInvocation } from '#src/features/ai-assistant/assistant-actions';
 import { AssistantContextBadge } from '#src/features/ai-assistant/AssistantContextBadge';
 import type {
   AssistantInvocation,
@@ -36,63 +32,25 @@ export function assistantPopoverPosition(
   return { left, top, width };
 }
 
-type QuickAction = {
-  readonly label: string;
-  readonly description: string;
-  readonly kind: AiRequestKind;
-  readonly prompt: string;
-  readonly icon: LucideIcon;
-};
-
-const theoryActions: readonly QuickAction[] = [
-  {
-    label: 'Giải thích',
-    description: 'Giải thích khái niệm',
-    kind: 'explain',
-    prompt: 'Giải thích nội dung này bằng ngôn ngữ dễ hiểu.',
-    icon: Lightbulb,
-  },
-  {
-    label: 'Cho ví dụ',
-    description: 'Ví dụ minh hoạ',
-    kind: 'explain',
-    prompt: 'Cho một ví dụ cụ thể về nội dung này.',
-    icon: Code2,
-  },
-  {
-    label: 'Tóm tắt',
-    description: 'Tóm tắt nội dung',
-    kind: 'summarize',
-    prompt: 'Tóm tắt các ý chính của nội dung này.',
-    icon: NotebookPen,
-  },
-];
-
-const practiceActions: readonly QuickAction[] = [
-  {
-    label: 'Gợi ý',
-    description: 'Gợi ý bước tiếp theo',
-    kind: 'hint',
-    prompt: 'Cho một gợi ý tiếp theo nhưng không đưa đáp án hoàn chỉnh.',
-    icon: Lightbulb,
-  },
-  {
-    label: 'Giải thích lỗi',
-    description: 'Giải thích điểm cần xem lại',
-    kind: 'explain-check-failure',
-    prompt: 'Giải thích lỗi trong cách làm hiện tại.',
-    icon: Code2,
-  },
-  {
-    label: 'Kiểm tra cách làm',
-    description: 'Kiểm tra hướng làm',
-    kind: 'explain',
-    prompt: 'Kiểm tra hướng làm hiện tại và nêu điểm cần xem lại.',
-    icon: NotebookPen,
-  },
-];
-
 type QuickPreviewMessage = Pick<AssistantMessage, 'id' | 'role' | 'content'>;
+
+const mockPreviewMessages: readonly QuickPreviewMessage[] = [
+  {
+    id: 'mock-assistant-greeting',
+    role: 'assistant',
+    content: 'Mình có thể giúp gì cho bạn?',
+  },
+  {
+    id: 'mock-user-question',
+    role: 'user',
+    content: 'Giải thích dòng chảy thuật toán',
+  },
+  {
+    id: 'mock-assistant-answer',
+    role: 'assistant',
+    content: 'Mình sẽ giải thích ngắn gọn và dễ hiểu.',
+  },
+];
 
 function quickPreviewMessages(
   controller: ContextualAssistantController,
@@ -100,7 +58,7 @@ function quickPreviewMessages(
   if (controller.messages.length > 0) return controller.messages.slice(-2);
   return controller.response
     ? [{ id: 'assistant-response', role: 'assistant', content: controller.response }]
-    : [];
+    : mockPreviewMessages;
 }
 
 export function AssistantQuickPopover({
@@ -108,6 +66,10 @@ export function AssistantQuickPopover({
 }: {
   readonly controller: ContextualAssistantController;
 }): ReactNode {
+  const [revealedForState, setRevealedForState] = useState<
+    ContextualAssistantController['state'] | null
+  >(null);
+
   if (controller.state.kind !== 'quick') return null;
   const invocation = controller.state.invocation;
   const anchorRect =
@@ -122,8 +84,10 @@ export function AssistantQuickPopover({
     new DOMRect(0, 0, window.innerWidth, window.innerHeight);
   const position = assistantPopoverPosition(anchorRect, boundaryRect, invocation.source);
   const pending = controller.status === 'submitting';
-  const actions = invocation.source === 'theory' ? theoryActions : practiceActions;
+  const actions = assistantActionsForInvocation(invocation);
   const previewMessages = quickPreviewMessages(controller);
+  const actionsRevealed = revealedForState === controller.state;
+  const showActions = previewMessages.length === 0 || actionsRevealed;
   const style = {
     left: position.left,
     top: position.top,
@@ -156,7 +120,7 @@ export function AssistantQuickPopover({
           aria-label="Mở cuộc hội thoại đầy đủ"
           onClick={() => controller.expand()}
         >
-          <Maximize2 aria-hidden="true" size={16} />
+          <Maximize2 aria-hidden="true" size={8} />
         </button>
         <button
           type="button"
@@ -164,7 +128,7 @@ export function AssistantQuickPopover({
           aria-label="Đóng Trợ lý AI"
           onClick={() => controller.close()}
         >
-          <X aria-hidden="true" size={16} />
+          <X aria-hidden="true" size={8} />
         </button>
       </header>
       <div className="syn-contextual-assistant-popover__body">
@@ -187,29 +151,42 @@ export function AssistantQuickPopover({
             ))
           )}
         </div>
-        <div
-          className="syn-contextual-assistant-popover__actions"
-          data-testid="assistant-quick-actions"
-          aria-label="Các gợi ý của Trợ lý AI"
-        >
-          {actions.map(({ label, description, kind, prompt, icon: Icon }) => (
-            <button
-              key={label}
-              type="button"
-              aria-label={label}
-              disabled={pending}
-              onClick={() => void controller.submit(kind, prompt)}
-            >
-              <span className="syn-contextual-assistant-popover__action-icon" aria-hidden="true">
-                <Icon size={18} />
-              </span>
-              <span>
-                <strong>{label}</strong>
-                <small>{description}</small>
-              </span>
-            </button>
-          ))}
-        </div>
+        {showActions ? (
+          <div
+            id="assistant-quick-actions"
+            className="syn-contextual-assistant-popover__actions"
+            data-testid="assistant-quick-actions"
+            aria-label="Các gợi ý của Trợ lý AI"
+          >
+            {actions.map(({ label, description, kind, prompt, icon: Icon }) => (
+              <button
+                key={label}
+                type="button"
+                aria-label={label}
+                disabled={pending}
+                onClick={() => void controller.submit(kind, prompt)}
+              >
+                <span className="syn-contextual-assistant-popover__action-icon" aria-hidden="true">
+                  <Icon size={18} />
+                </span>
+                <span>
+                  <strong>{label}</strong>
+                  <small>{description}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="syn-contextual-assistant-popover__show-actions"
+            aria-expanded={actionsRevealed}
+            aria-controls="assistant-quick-actions"
+            onClick={() => setRevealedForState(controller.state)}
+          >
+            Xem gợi ý
+          </button>
+        )}
       </div>
       <footer className="syn-contextual-assistant-popover__footer">
         <div className="syn-contextual-assistant-popover__status" aria-live="polite" role="status">

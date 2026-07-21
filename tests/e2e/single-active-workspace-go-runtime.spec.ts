@@ -422,6 +422,11 @@ test('keeps contextual AI zero-footprint across source, selection, item, and mob
   const quick = page.getByTestId('assistant-quick-popover');
   await expect(quick).toBeVisible();
   await expect(quick).toContainText('Bài tập · Sắp xếp thuật toán');
+  await expect(quick.getByText('Mình có thể giúp gì cho bạn?')).toBeVisible();
+  await expect(quick.getByText('Giải thích dòng chảy thuật toán')).toBeVisible();
+  await expect(quick.getByText('Mình sẽ giải thích ngắn gọn và dễ hiểu.')).toBeVisible();
+  await expect(quick.getByTestId('assistant-quick-actions')).toHaveCount(0);
+  await quick.getByRole('button', { name: 'Xem gợi ý' }).click();
   await expect(quick.getByTestId('assistant-quick-actions')).toBeVisible();
   await expect(quick.getByTestId('assistant-quick-actions').getByRole('button')).toHaveCount(3);
   await expect(quick.getByLabel('Gửi')).toBeDisabled();
@@ -437,22 +442,72 @@ test('keeps contextual AI zero-footprint across source, selection, item, and mob
   });
   expect(quickVisuals.borderRadius).toBe('16px');
   expect(quickVisuals.headerBackgroundImage).toContain('linear-gradient');
+  expect(
+    await quick
+      .locator('.syn-contextual-assistant-popover__body')
+      .evaluate((element) => getComputedStyle(element).minHeight),
+  ).toBe('176px');
+  const composerVisuals = await quick
+    .locator('.syn-contextual-assistant-popover__composer-row')
+    .evaluate((element) => {
+      const textarea = element.querySelector('textarea');
+      return {
+        borderRadius: getComputedStyle(element).borderRadius,
+        textareaPaddingBlockStart: textarea ? getComputedStyle(textarea).paddingBlockStart : '',
+        textareaPaddingBlockEnd: textarea ? getComputedStyle(textarea).paddingBlockEnd : '',
+      };
+    });
+  expect(composerVisuals.borderRadius).toBe(quickVisuals.borderRadius);
+  expect(composerVisuals.textareaPaddingBlockStart).toBe('0px');
+  expect(composerVisuals.textareaPaddingBlockEnd).toBe('0px');
+  await quick.getByLabel('Câu hỏi').fill('Giải thích thêm');
+  await expect(quick.getByLabel('Gửi')).toBeEnabled();
+  expect(await quick.getByLabel('Gửi').evaluate((element) => getComputedStyle(element).color)).toBe(
+    'rgb(255, 255, 255)',
+  );
   expect(practiceQuickBox.x).toBeGreaterThanOrEqual(before.practice.x + 8);
   expect(practiceQuickBox.x + practiceQuickBox.width).toBeLessThanOrEqual(
     before.practice.x + before.practice.width - 8,
   );
   expect(await workspaceGeometry(page)).toEqual(before);
 
+  const workspaceBeforeAssistant = await requiredBox(page.locator('[data-workspace-main]'));
   await quick.getByRole('button', { name: 'Mở cuộc hội thoại đầy đủ' }).click();
   const expanded = page.getByTestId('assistant-expanded-panel');
   await expect(expanded).toBeVisible();
   const expandedBox = await requiredBox(expanded);
-  expect(expandedBox.width).toBeLessThanOrEqual(361);
-  expect(expandedBox.x).toBeGreaterThanOrEqual(before.practice.x + before.practice.width - 145);
-  expect(await workspaceGeometry(page)).toEqual(before);
+  await expect(expanded.getByText('Mình có thể giúp gì cho bạn? 👋')).toBeVisible();
+  await expect(expanded.getByTestId('assistant-expanded-actions')).toBeVisible();
+  await expect(expanded.getByTestId('assistant-expanded-actions').getByRole('button')).toHaveCount(3);
+  await expect(expanded.getByLabel('Gửi')).toBeEnabled();
+  expect(expandedBox.width).toBeGreaterThanOrEqual(480);
+  expect(expandedBox.width).toBeLessThanOrEqual(528);
+  const workspaceAfterAssistant = await requiredBox(page.locator('[data-workspace-main]'));
+  const afterAssistantGeometry = await workspaceGeometry(page);
+  expect(workspaceAfterAssistant.width).toBeLessThan(workspaceBeforeAssistant.width);
+  expect(afterAssistantGeometry.theory.width).toBeLessThan(before.theory.width);
+  expect(afterAssistantGeometry.practice.width).toBeLessThan(before.practice.width);
+  expect(Math.abs(expandedBox.x - workspaceAfterAssistant.x - workspaceAfterAssistant.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(expandedBox.height - workspaceAfterAssistant.height)).toBeLessThanOrEqual(1);
+  const expandedVisuals = await expanded.evaluate((element) => {
+    const textarea = element.querySelector('textarea');
+    return {
+      borderRadius: getComputedStyle(element).borderRadius,
+      boxShadow: getComputedStyle(element).boxShadow,
+      borderTopWidth: getComputedStyle(element).borderTopWidth,
+      textareaOutline: textarea ? getComputedStyle(textarea).outlineStyle : '',
+      textareaResize: textarea ? getComputedStyle(textarea).resize : '',
+    };
+  });
+  expect(expandedVisuals.borderRadius).toBe('0px');
+  expect(expandedVisuals.boxShadow).toBe('none');
+  expect(expandedVisuals.borderTopWidth).toBe('0px');
+  expect(expandedVisuals.textareaOutline).toBe('none');
+  expect(expandedVisuals.textareaResize).toBe('none');
   await expect(page.getByRole('navigation', { name: 'Danh sách hoạt động' })).toBeAttached();
   await page.keyboard.press('Escape');
   await expect(expanded).toHaveCount(0);
+  expect(await workspaceGeometry(page)).toEqual(before);
   await expect(practiceTrigger).toBeFocused();
 
   const theoryParagraph = page.locator('[data-theory-reading-column] p').first();
@@ -461,6 +516,11 @@ test('keeps contextual AI zero-footprint across source, selection, item, and mob
   await expect(selectionToolbar).toBeVisible();
   await expect(selectionToolbar.getByRole('button')).toHaveCount(1);
   await expect(selectionToolbar.getByRole('button')).toHaveText('Hỏi AI về đoạn này');
+  expect(
+    await selectionToolbar
+      .getByRole('button', { name: 'Hỏi AI về đoạn lý thuyết đã chọn' })
+      .evaluate((element) => getComputedStyle(element).color),
+  ).toBe('rgb(255, 255, 255)');
   await selectionToolbar.getByRole('button', { name: 'Hỏi AI về đoạn lý thuyết đã chọn' }).click();
   await expect(quick).toBeVisible();
   const theoryQuickBox = await requiredBox(quick);
@@ -507,6 +567,9 @@ test('keeps contextual AI zero-footprint across source, selection, item, and mob
   expect(Math.abs(mobileAssistantBox.y)).toBeLessThanOrEqual(1);
   expect(mobileAssistantBox.width).toBeLessThanOrEqual(391);
   expect(mobileAssistantBox.height).toBeLessThanOrEqual(845);
+  await expect(mobileAssistant.getByTestId('assistant-expanded-actions').getByRole('button')).toHaveCount(
+    3,
+  );
   await page.keyboard.press('Escape');
   await expect(mobileAssistant).toHaveCount(0);
   await expect(mobileTrigger).toBeFocused();

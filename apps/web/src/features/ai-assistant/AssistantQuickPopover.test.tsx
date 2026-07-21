@@ -76,6 +76,7 @@ describe('AssistantQuickPopover', () => {
 
     expect(screen.getByRole('dialog', { name: 'Trợ lý AI' })).toBeVisible();
     expect(screen.getByText('Lý thuyết · Thuật toán là gì?')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Xem gợi ý' }));
     expect(screen.getByRole('button', { name: 'Giải thích' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Cho ví dụ' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Tóm tắt' })).toBeVisible();
@@ -100,6 +101,14 @@ describe('AssistantQuickPopover', () => {
     const popover = screen.getByTestId('assistant-quick-popover');
     expect(popover.querySelector('[data-assistant-quick-avatar]')).toBeInTheDocument();
     expect(screen.getByText('Mình có thể giúp gì cho bạn?')).toBeVisible();
+    expect(screen.getByText('Giải thích dòng chảy thuật toán')).toBeVisible();
+    expect(screen.getByText('Mình sẽ giải thích ngắn gọn và dễ hiểu.')).toBeVisible();
+    expect(screen.queryByTestId('assistant-quick-actions')).not.toBeInTheDocument();
+
+    const reveal = screen.getByRole('button', { name: 'Xem gợi ý' });
+    expect(reveal).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(reveal);
+
     const actions = screen.getByLabelText('Các gợi ý của Trợ lý AI');
     expect(actions).toHaveAttribute('data-testid', 'assistant-quick-actions');
     expect(screen.getByRole('button', { name: 'Giải thích' })).toHaveTextContent(
@@ -146,6 +155,10 @@ describe('AssistantQuickPopover', () => {
     expect(messages).toHaveTextContent('Mình sẽ giải thích ngắn gọn và dễ hiểu.');
     expect(messages.querySelector('[data-role="user"]')).toBeInTheDocument();
     expect(messages.querySelector('[data-role="assistant"]')).toBeInTheDocument();
+    expect(screen.queryByTestId('assistant-quick-actions')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Xem gợi ý' }));
+    expect(screen.getByTestId('assistant-quick-actions')).toBeVisible();
   });
 
   it('renders Practice actions and selected item context', () => {
@@ -161,6 +174,7 @@ describe('AssistantQuickPopover', () => {
 
     expect(screen.getByText('Bước được chọn · Sắp xếp thuật toán')).toBeVisible();
     expect(screen.getByText('Hiển thị kết quả')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Xem gợi ý' }));
     expect(screen.getByRole('button', { name: 'Gợi ý' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Giải thích lỗi' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Kiểm tra cách làm' })).toBeVisible();

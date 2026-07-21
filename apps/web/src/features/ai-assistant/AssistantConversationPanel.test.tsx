@@ -3,16 +3,21 @@ import { describe, expect, it, vi } from 'vitest';
 import type { ContextualAssistantController } from '#src/features/ai-assistant/contextual-assistant-model';
 import { AssistantConversationPanel } from '#src/features/ai-assistant/AssistantConversationPanel';
 
-function expandedController(): {
+function expandedController(
+  overrides: Partial<ContextualAssistantController> = {},
+): {
   readonly controller: ContextualAssistantController;
   readonly close: ReturnType<typeof vi.fn>;
   readonly setPrompt: ReturnType<typeof vi.fn>;
+  readonly submit: ReturnType<typeof vi.fn>;
 } {
   const close = vi.fn();
   const setPrompt = vi.fn();
+  const submit = vi.fn(() => Promise.resolve());
   return {
     close,
     setPrompt,
+    submit,
     controller: {
       target: { courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' },
       state: {
@@ -48,12 +53,50 @@ function expandedController(): {
       expand: vi.fn(),
       close,
       setPrompt,
-      submit: vi.fn(() => Promise.resolve()),
+      submit,
+      ...overrides,
     },
   };
 }
 
 describe('AssistantConversationPanel', () => {
+  it('renders the display-only starter conversation and submits its contextual suggestion', () => {
+    const { controller, submit } = expandedController({
+      prompt: '',
+      messages: [],
+      state: {
+        kind: 'expanded',
+        invocation: {
+          source: 'theory',
+          sectionTitle: 'Dòng chảy thuật toán',
+          anchor: new DOMRect(),
+        },
+      },
+    });
+    render(<AssistantConversationPanel controller={controller} mobile={false} compact={false} />);
+
+    expect(screen.getByText('Mình có thể giúp gì cho bạn? 👋')).toBeVisible();
+    expect(
+      screen.getByText('Hãy đặt câu hỏi để bắt đầu cuộc hội thoại theo ngữ cảnh hiện tại.'),
+    ).toBeVisible();
+    expect(screen.getByTestId('assistant-expanded-actions')).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Giải thích' }));
+    expect(submit).toHaveBeenCalledWith(
+      'explain',
+      'Giải thích nội dung này bằng ngôn ngữ dễ hiểu.',
+    );
+  });
+
+  it('replaces starter content with live messages and hides suggestions', () => {
+    const { controller } = expandedController();
+    render(<AssistantConversationPanel controller={controller} mobile={false} compact={false} />);
+
+    expect(screen.getByText('Vì sao bước này sai?')).toBeVisible();
+    expect(screen.queryByTestId('assistant-expanded-actions')).not.toBeInTheDocument();
+    expect(screen.queryByText('Mình có thể giúp gì cho bạn? 👋')).not.toBeInTheDocument();
+  });
+
   it('renders a desktop conversation overlay without losing prompt or context', () => {
     const { controller, setPrompt } = expandedController();
     render(<AssistantConversationPanel controller={controller} mobile={false} compact={false} />);
