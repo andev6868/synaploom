@@ -114,7 +114,16 @@ func NewRouter(service course.Service, sessions *SessionManager, options ...Rout
 		api.HandleFunc("GET /api/v1/dev/events", DevEventsHandler(configuration.devEvents))
 	}
 	if configuration.aiProvider != nil {
-		h := aiHandlers{provider: configuration.aiProvider, local: configuration.aiLocal}
+		h := aiHandlers{
+			provider: configuration.aiProvider,
+			local:    configuration.aiLocal,
+			builder: aiContextBuilder{
+				content:     service,
+				progression: configuration.progression,
+				activities:  configuration.activities,
+			},
+		}
+		api.HandleFunc("POST /api/v1/courses/{courseId}/{ownerKind}/{ownerId}/ai/generate", h.generate)
 		api.HandleFunc("POST /api/v1/ai/disclosure", h.disclosure)
 		api.HandleFunc("POST /api/v1/ai/stream", h.stream)
 	}
