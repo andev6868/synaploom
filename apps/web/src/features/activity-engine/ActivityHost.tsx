@@ -52,6 +52,7 @@ function AttemptActivityHost({
   onPersistenceHandleChange,
   surface = 'standalone',
   actionOutlet,
+  onAskAIAboutItem,
 }: ActivityHostProps): ReactNode {
   const controller = useActivityAttempt({
     owner,
@@ -81,6 +82,7 @@ function AttemptActivityHost({
     onSubmit: controller.submit,
     surface,
     ...(actionOutlet === undefined ? {} : { actionOutlet }),
+    ...(onAskAIAboutItem === undefined ? {} : { onAskAIAboutItem }),
   };
 
   return (

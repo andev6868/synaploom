@@ -1,4 +1,4 @@
-import { GripVertical } from 'lucide-react';
+import { GripVertical, Sparkles } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { ActivityActions } from '#src/features/activity-engine/renderers/ActivityActions';
@@ -15,6 +15,7 @@ export function OrderingActivity({
   onChange,
   onSaveDraft,
   onSubmit,
+  onAskAIAboutItem,
 }: ActivityRendererProps): ReactNode {
   const config = activity.config as PublicOrderingConfig;
   const itemIds =
@@ -52,6 +53,22 @@ export function OrderingActivity({
               </span>
               <span className="syn-activity-ordering__label">{label}</span>
               <span className="syn-activity-ordering__actions">
+                {onAskAIAboutItem ? (
+                  <button
+                    type="button"
+                    className="syn-activity-ordering__ask-ai"
+                    disabled={disabled}
+                    aria-label={`Hỏi AI về bước ${label}`}
+                    onClick={(event) =>
+                      onAskAIAboutItem(
+                        { label, selectedText: label },
+                        event.currentTarget,
+                      )
+                    }
+                  >
+                    <Sparkles aria-hidden="true" size={15} />
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   disabled={disabled || index === 0}

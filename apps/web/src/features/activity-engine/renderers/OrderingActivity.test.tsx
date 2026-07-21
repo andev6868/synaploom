@@ -1,6 +1,6 @@
 import type { ActivityPublicView } from '@synaploom/contracts';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { OrderingActivity } from '#src/features/activity-engine/renderers/OrderingActivity';
 import { RendererHarness } from '#src/features/activity-engine/renderers/test-utils';
 
@@ -43,4 +43,31 @@ it('renders a visual drag affordance while preserving keyboard move controls', (
   expect(screen.getByText('Kéo và thả để sắp xếp theo trình tự đúng.')).toBeVisible();
   expect(document.querySelectorAll('[data-ordering-drag-handle]')).toHaveLength(3);
   expect(screen.getByRole('button', { name: 'Di chuyển First xuống' })).toBeEnabled();
+});
+
+it('asks AI about an item without reordering or changing the answer', () => {
+  const onChange = vi.fn();
+  const onAskAIAboutItem = vi.fn();
+
+  render(
+    <OrderingActivity
+      activity={activity}
+      answer={{ kind: 'ordering', itemIds: ['a', 'b', 'c'] }}
+      disabled={false}
+      onChange={onChange}
+      onSaveDraft={() => Promise.resolve()}
+      onSubmit={() => Promise.resolve()}
+      onAskAIAboutItem={onAskAIAboutItem}
+    />,
+  );
+
+  const button = screen.getByRole('button', { name: 'Hỏi AI về bước Second' });
+  expect(button.closest('[data-ordering-drag-handle]')).toBeNull();
+  fireEvent.click(button);
+
+  expect(onAskAIAboutItem).toHaveBeenCalledWith(
+    { label: 'Second', selectedText: 'Second' },
+    expect.any(HTMLButtonElement),
+  );
+  expect(onChange).not.toHaveBeenCalled();
 });

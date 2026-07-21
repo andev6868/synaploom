@@ -2537,3 +2537,7 @@ body,
 .syn-theory-assistant-entry__selection {
   padding: 0.4rem 0.65rem;
 }
+
+.syn-activity-ordering__actions .syn-activity-ordering__ask-ai {
+  color: var(--syn-color-primary);
+}

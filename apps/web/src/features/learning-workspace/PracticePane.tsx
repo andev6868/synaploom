@@ -104,6 +104,14 @@ export function PracticePane({
     surface: 'practice-contained',
     actionOutlet,
     onPersistenceHandleChange: controller.registerPersistenceHandle,
+    onAskAIAboutItem: (target, anchor) =>
+      onAskPractice({
+        source: 'practice',
+        activityId: focused.activity.id,
+        activityTitle: focused.activity.title,
+        selectedText: target.selectedText ?? target.label,
+        anchor,
+      }),
   };
   return (
     <section className="syn-practice-pane" aria-label="Khu vực thực hành" data-practice-surface>

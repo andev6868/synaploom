@@ -159,4 +159,43 @@ describe('ActivityHost', () => {
       expect(screen.queryByRole('button', { name: 'Thử tải lại' })).not.toBeInTheDocument(),
     );
   });
+  it('forwards item-level AI actions to supported renderers', async () => {
+    const onAskAIAboutItem = vi.fn();
+    const ordering: ActivityPublicView = {
+      ...base,
+      id: 'ordering',
+      kind: 'ordering',
+      title: 'Ordering',
+      config: {
+        items: [
+          { id: 'read', label: 'Đọc dữ liệu' },
+          { id: 'show', label: 'Hiển thị kết quả' },
+        ],
+        evaluationMode: 'exact',
+      },
+    };
+
+    render(
+      <AppProviders api={api()}>
+        <ActivityHost
+          owner={owner}
+          activity={ordering}
+          policy={policy}
+          onProgressChanged={vi.fn()}
+          onAskAIAboutItem={onAskAIAboutItem}
+        />
+      </AppProviders>,
+    );
+
+    const askButton = await screen.findByRole('button', {
+      name: 'Hỏi AI về bước Hiển thị kết quả',
+    });
+    await waitFor(() => expect(askButton).toBeEnabled());
+    fireEvent.click(askButton);
+    expect(onAskAIAboutItem).toHaveBeenCalledWith(
+      { label: 'Hiển thị kết quả', selectedText: 'Hiển thị kết quả' },
+      expect.any(HTMLButtonElement),
+    );
+  });
+
 });

@@ -24,6 +24,11 @@ export interface ActivityPersistenceHandle {
   saveIfDirty(): Promise<void>;
 }
 
+export interface ActivityAssistantTarget {
+  readonly label: string;
+  readonly selectedText?: string;
+}
+
 export interface ActivityHostProps {
   readonly owner: ActivityOwner;
   readonly activity: ActivityPublicView;
@@ -31,6 +36,10 @@ export interface ActivityHostProps {
   readonly onProgressChanged: () => Promise<void> | void;
   readonly surface?: ActivityHostSurface;
   readonly actionOutlet?: ActivityActionOutlet;
+  readonly onAskAIAboutItem?: (
+    target: ActivityAssistantTarget,
+    anchor: HTMLButtonElement,
+  ) => void;
   readonly onPersistenceHandleChange?: (
     activityId: string,
     handle: ActivityPersistenceHandle | null,
@@ -47,6 +56,10 @@ export interface ActivityRendererProps {
   readonly onSaveDraft: () => Promise<void>;
   readonly surface?: ActivityHostSurface;
   readonly actionOutlet?: ActivityActionOutlet;
+  readonly onAskAIAboutItem?: (
+    target: ActivityAssistantTarget,
+    anchor: HTMLButtonElement,
+  ) => void;
 }
 
 export interface ActivityAttemptController {
