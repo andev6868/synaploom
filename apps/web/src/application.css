@@ -2502,3 +2502,38 @@ body,
   justify-content: flex-end;
   margin: -0.25rem 0 0.75rem;
 }
+
+/* Contextual AI selection affordance. */
+.syn-assistant-selection-toolbar {
+  position: fixed;
+  z-index: 75;
+  padding: 0.25rem;
+  border: 1px solid var(--syn-color-border-strong);
+  border-radius: 0.625rem;
+  background: var(--syn-color-surface);
+  box-shadow: 0 10px 30px rgb(15 23 42 / 16%);
+}
+
+.syn-assistant-selection-toolbar button,
+.syn-theory-assistant-entry__selection {
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--syn-color-primary);
+  color: var(--syn-color-on-primary);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.syn-assistant-selection-toolbar button {
+  padding: 0.45rem 0.7rem;
+}
+
+.syn-theory-assistant-entry {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.syn-theory-assistant-entry__selection {
+  padding: 0.4rem 0.65rem;
+}

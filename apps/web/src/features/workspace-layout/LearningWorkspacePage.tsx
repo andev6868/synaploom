@@ -13,12 +13,14 @@ import type {
 import { AppHeader, ScrollArea, StatusBadge } from '@synaploom/ui';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2 } from 'lucide-react';
-import { useCallback, useState, type ReactNode } from 'react';
+import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { useApi } from '#src/app/providers/AppProviders';
 import { navigateToAssessment, navigateToLesson } from '#src/app/router/lesson-route';
+import { AssistantSelectionToolbar } from '#src/features/ai-assistant/AssistantSelectionToolbar';
 import { AssistantTrigger } from '#src/features/ai-assistant/AssistantTrigger';
 import { ContextualAssistantLayer } from '#src/features/ai-assistant/ContextualAssistantLayer';
 import { useContextualAssistant } from '#src/features/ai-assistant/useContextualAssistant';
+import { useTheoryAssistantSelection } from '#src/features/ai-assistant/useTheoryAssistantSelection';
 import { AssessmentWorkspaceContent } from '#src/features/chapter-assessment/AssessmentWorkspaceContent';
 import { LessonActivities } from '#src/features/lesson-content/LessonActivities';
 import { LearningWorkspaceShell } from '#src/features/learning-workspace/LearningWorkspaceShell';
@@ -88,6 +90,20 @@ function LessonWorkspaceComposition({
       ...(chapterId ? { chapterId } : {}),
     },
   });
+  const theoryContainerRef = useRef<HTMLElement | null>(null);
+  const theorySelection = useTheoryAssistantSelection(theoryContainerRef);
+  const askAboutTheorySelection = (anchor: DOMRect): void => {
+    const selected = theorySelection.selection;
+    if (!selected) return;
+    assistant.openQuick({
+      source: 'theory',
+      sectionTitle: lesson.title,
+      selectedText: selected.text,
+      anchor,
+    });
+    theorySelection.clearToolbar();
+    window.getSelection()?.removeAllRanges();
+  };
   const onAction = (action: NextActionPayload): void => {
     if (action.type === 'START_REQUIRED_PRACTICE' || action.type === 'RETRY_REQUIRED_PRACTICE') {
       const direct = activities.find((item) => item.activity.id === action.practiceId);
@@ -101,7 +117,7 @@ function LessonWorkspaceComposition({
   const theory = (
     <section className="syn-lesson-panel">
       <ScrollArea className="syn-lesson-panel__scroll">
-        <article className="syn-lesson-panel__article" data-theory-reading-column>
+        <article ref={theoryContainerRef} className="syn-lesson-panel__article" data-theory-reading-column>
           {heading}
           <div className="syn-theory-assistant-entry">
             <AssistantTrigger
@@ -110,7 +126,23 @@ function LessonWorkspaceComposition({
                 assistant.openQuick({ source: 'theory', sectionTitle: lesson.title, anchor })
               }
             />
+            {theorySelection.selection ? (
+              <button
+                type="button"
+                className="syn-theory-assistant-entry__selection"
+                aria-label="Hỏi AI về đoạn lý thuyết đã chọn"
+                onClick={(event) => askAboutTheorySelection(event.currentTarget.getBoundingClientRect())}
+              >
+                Hỏi đoạn đã chọn
+              </button>
+            ) : null}
           </div>
+          {theorySelection.selection ? (
+            <AssistantSelectionToolbar
+              selection={theorySelection.selection}
+              onAsk={askAboutTheorySelection}
+            />
+          ) : null}
           <LessonActivities
             blocks={lesson.blocks}
             activities={activities}
@@ -214,27 +246,59 @@ function AssessmentWorkspaceComposition({
       chapterId,
     },
   });
+  const theoryContainerRef = useRef<HTMLElement | null>(null);
+  const theorySelection = useTheoryAssistantSelection(theoryContainerRef);
+  const askAboutTheorySelection = (anchor: DOMRect): void => {
+    const selected = theorySelection.selection;
+    if (!selected) return;
+    assistant.openQuick({
+      source: 'theory',
+      sectionTitle: assessment.title,
+      selectedText: selected.text,
+      anchor,
+    });
+    theorySelection.clearToolbar();
+    window.getSelection()?.removeAllRanges();
+  };
   const theory = (
     <section className="syn-lesson-panel">
       <ScrollArea className="syn-lesson-panel__scroll">
-        <div className="syn-theory-assistant-entry">
-          <AssistantTrigger
-            source="theory"
-            onInvoke={(anchor) =>
-              assistant.openQuick({ source: 'theory', sectionTitle: assessment.title, anchor })
-            }
+        <article ref={theoryContainerRef} className="syn-lesson-panel__article" data-theory-reading-column>
+          <div className="syn-theory-assistant-entry">
+            <AssistantTrigger
+              source="theory"
+              onInvoke={(anchor) =>
+                assistant.openQuick({ source: 'theory', sectionTitle: assessment.title, anchor })
+              }
+            />
+            {theorySelection.selection ? (
+              <button
+                type="button"
+                className="syn-theory-assistant-entry__selection"
+                aria-label="Hỏi AI về đoạn lý thuyết đã chọn"
+                onClick={(event) => askAboutTheorySelection(event.currentTarget.getBoundingClientRect())}
+              >
+                Hỏi đoạn đã chọn
+              </button>
+            ) : null}
+          </div>
+          {theorySelection.selection ? (
+            <AssistantSelectionToolbar
+              selection={theorySelection.selection}
+              onAsk={askAboutTheorySelection}
+            />
+          ) : null}
+          <AssessmentWorkspaceContent
+            chapterId={chapterId}
+            assessment={assessment}
+            navigation={navigation}
+            activities={activities}
+            statuses={statuses}
+            focusedActivityId={controller.state.focusedActivityId}
+            controller={controller}
+            onAction={onAction}
           />
-        </div>
-        <AssessmentWorkspaceContent
-          chapterId={chapterId}
-          assessment={assessment}
-          navigation={navigation}
-          activities={activities}
-          statuses={statuses}
-          focusedActivityId={controller.state.focusedActivityId}
-          controller={controller}
-          onAction={onAction}
-        />
+        </article>
       </ScrollArea>
     </section>
   );
