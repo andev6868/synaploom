@@ -25,10 +25,21 @@ export interface AiProvider {
   generate(request: AiRequest, signal: AbortSignal): Promise<AiResponse>;
 }
 
-/** Browser command. Context is intentionally generated only by the daemon. */
+export type AiContextSource = 'theory' | 'practice';
+
+export interface AiWorkspaceTarget {
+  readonly courseId: string;
+  readonly ownerKind: 'lessons' | 'assessments';
+  readonly ownerId: string;
+  readonly chapterId?: string;
+}
+
+/** Browser command. Trusted lesson/activity context is generated only by the daemon. */
 export interface AiGenerateCommand {
   readonly kind: AiRequestKind;
   readonly prompt: string;
+  readonly source: AiContextSource;
+  readonly activityId?: string;
   readonly selectedText?: string;
 }
 

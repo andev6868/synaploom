@@ -1,4 +1,4 @@
-import type { AiGenerateCommand, AiResponse } from '@synaploom/ai-contracts';
+import type { AiGenerateCommand, AiResponse, AiWorkspaceTarget } from '@synaploom/ai-contracts';
 import type { ProcessEvent } from '@synaploom/contracts';
 import type {
   ActivityAttempt,
@@ -166,13 +166,19 @@ export interface SynaploomApiClient {
     target: CodingWorkspaceTarget,
     actionId: string,
   ): Promise<ProcessSessionPayload>;
-  requestAi(command: AiGenerateCommand): Promise<AiResponse>;
+  requestAi(target: AiWorkspaceTarget, command: AiGenerateCommand): Promise<AiResponse>;
   getPaneRatio(): Promise<number>;
   setPaneRatio(ratio: number): Promise<number>;
 }
 
 function activityOwnerPath(owner: ActivityOwner): string {
   return `/courses/${encodeURIComponent(owner.courseId)}/${owner.ownerKind}/${encodeURIComponent(owner.ownerId)}`;
+}
+
+function aiWorkspacePath(target: AiWorkspaceTarget): string {
+  const base = `/courses/${encodeURIComponent(target.courseId)}/${target.ownerKind}/${encodeURIComponent(target.ownerId)}/ai/generate`;
+  if (!target.chapterId) return base;
+  return `${base}?chapterId=${encodeURIComponent(target.chapterId)}`;
 }
 
 function codingWorkspacePath(target: CodingWorkspaceTarget): string {
@@ -357,8 +363,8 @@ export function createApiClient(
         api(`${codingWorkspacePath(target)}/actions/${encodeURIComponent(actionId)}`),
         { method: 'POST' },
       ),
-    requestAi: (command) =>
-      request<AiResponse>(fetchImpl, api('/ai/generate'), {
+    requestAi: (target, command) =>
+      request<AiResponse>(fetchImpl, api(aiWorkspacePath(target)), {
         method: 'POST',
         body: JSON.stringify(command),
       }),
