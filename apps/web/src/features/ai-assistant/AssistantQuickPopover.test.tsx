@@ -88,6 +88,66 @@ describe('AssistantQuickPopover', () => {
     expect(close).not.toHaveBeenCalled();
   });
 
+  it('renders the compact conversation preview, action cards, and icon-led composer', () => {
+    const { controller } = controllerFor({
+      source: 'theory',
+      sectionTitle: 'Thuật toán là gì?',
+      anchor: new DOMRect(100, 80, 120, 30),
+    });
+
+    render(<AssistantQuickPopover controller={controller} />);
+
+    const popover = screen.getByTestId('assistant-quick-popover');
+    expect(popover.querySelector('[data-assistant-quick-avatar]')).toBeInTheDocument();
+    expect(screen.getByText('Mình có thể giúp gì cho bạn?')).toBeVisible();
+    const actions = screen.getByLabelText('Các gợi ý của Trợ lý AI');
+    expect(actions).toHaveAttribute('data-testid', 'assistant-quick-actions');
+    expect(screen.getByRole('button', { name: 'Giải thích' })).toHaveTextContent(
+      'Giải thích khái niệm',
+    );
+    expect(screen.getByRole('button', { name: 'Cho ví dụ' })).toHaveTextContent('Ví dụ minh hoạ');
+    expect(screen.getByRole('button', { name: 'Tóm tắt' })).toHaveTextContent('Tóm tắt nội dung');
+    expect(screen.getByRole('button', { name: 'Mở cuộc hội thoại đầy đủ' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Gửi' })).toBeDisabled();
+  });
+
+  it('shows the latest user and assistant messages as chat bubbles', () => {
+    const invocation: AssistantInvocation = {
+      source: 'theory',
+      sectionTitle: 'Thuật toán là gì?',
+      anchor: new DOMRect(100, 80, 120, 30),
+    };
+
+    render(
+      <AssistantQuickPopover
+        controller={controllerWithState(invocation, {
+          messages: [
+            {
+              id: 'user-1',
+              role: 'user',
+              content: 'Giải thích dòng chảy thuật toán',
+              source: 'theory',
+              contextLabel: 'Lý thuyết',
+            },
+            {
+              id: 'assistant-1',
+              role: 'assistant',
+              content: 'Mình sẽ giải thích ngắn gọn và dễ hiểu.',
+              source: 'theory',
+              contextLabel: 'Lý thuyết',
+            },
+          ],
+        })}
+      />,
+    );
+
+    const messages = screen.getByLabelText('Tóm tắt cuộc hội thoại');
+    expect(messages).toHaveTextContent('Giải thích dòng chảy thuật toán');
+    expect(messages).toHaveTextContent('Mình sẽ giải thích ngắn gọn và dễ hiểu.');
+    expect(messages.querySelector('[data-role="user"]')).toBeInTheDocument();
+    expect(messages.querySelector('[data-role="assistant"]')).toBeInTheDocument();
+  });
+
   it('renders Practice actions and selected item context', () => {
     const { controller } = controllerFor({
       source: 'practice',
