@@ -422,7 +422,21 @@ test('keeps contextual AI zero-footprint across source, selection, item, and mob
   const quick = page.getByTestId('assistant-quick-popover');
   await expect(quick).toBeVisible();
   await expect(quick).toContainText('Bài tập · Sắp xếp thuật toán');
+  await expect(quick.getByTestId('assistant-quick-actions')).toBeVisible();
+  await expect(quick.getByTestId('assistant-quick-actions').getByRole('button')).toHaveCount(3);
+  await expect(quick.getByLabel('Gửi')).toBeDisabled();
   const practiceQuickBox = await requiredBox(quick);
+  expect(practiceQuickBox.width).toBeLessThanOrEqual(420);
+  expect(practiceQuickBox.width).toBeGreaterThanOrEqual(320);
+  const quickVisuals = await quick.evaluate((element) => {
+    const header = element.querySelector<HTMLElement>('.syn-contextual-assistant-popover__header');
+    return {
+      borderRadius: getComputedStyle(element).borderRadius,
+      headerBackgroundImage: header ? getComputedStyle(header).backgroundImage : '',
+    };
+  });
+  expect(quickVisuals.borderRadius).toBe('16px');
+  expect(quickVisuals.headerBackgroundImage).toContain('linear-gradient');
   expect(practiceQuickBox.x).toBeGreaterThanOrEqual(before.practice.x + 8);
   expect(practiceQuickBox.x + practiceQuickBox.width).toBeLessThanOrEqual(
     before.practice.x + before.practice.width - 8,
