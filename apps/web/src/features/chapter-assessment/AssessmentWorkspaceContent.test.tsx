@@ -198,8 +198,14 @@ function fakeApi(): SynaploomApiClient {
     writeFile: () => Promise.resolve(),
     resetWorkspace: () => Promise.resolve(),
     runAction: () => Promise.resolve({ sessionId: 'session', eventsUrl: '/events' }),
-    requestAi: () =>
-      Promise.resolve({ status: 'disabled', message: 'AI assistance is not configured.' }),
+    requestAi: (target, command) => {
+      void target;
+      void command;
+      return Promise.resolve({
+        status: 'disabled',
+        message: 'AI assistance is not configured.',
+      });
+    },
     getPaneRatio: () => Promise.resolve(0.48),
     setPaneRatio: (ratio) => Promise.resolve(ratio),
   };

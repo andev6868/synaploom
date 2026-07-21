@@ -21,11 +21,6 @@ export {
 } from '#ui/components/terminal-shell/terminal-shell';
 export { ActionBar } from '#ui/components/action-bar/action-bar';
 export {
-  AssistantDock,
-  type AssistantDockProps,
-  type AssistantMode,
-} from '#ui/components/assistant-dock/assistant-dock';
-export {
   WorkspaceShell,
   clampWorkspaceRatio,
   type WorkspaceShellProps,

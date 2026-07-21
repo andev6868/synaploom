@@ -124,8 +124,14 @@ function fakeApi(): SynaploomApiClient {
     writeFile: () => Promise.resolve(),
     resetWorkspace: () => Promise.resolve(),
     runAction: () => Promise.resolve({ sessionId: 'session', eventsUrl: '/events' }),
-    requestAi: () =>
-      Promise.resolve({ status: 'disabled', message: 'AI assistance is not configured.' }),
+    requestAi: (target, command) => {
+      void target;
+      void command;
+      return Promise.resolve({
+        status: 'disabled',
+        message: 'AI assistance is not configured.',
+      });
+    },
     getPaneRatio: () => Promise.resolve(0.48),
     setPaneRatio: (ratio) => Promise.resolve(ratio),
   };
@@ -164,6 +170,8 @@ describe('LearningWorkspacePage', () => {
     expect(screen.getByRole('button', { name: 'Hoàn thành phần đọc' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Hỏi AI về lý thuyết' })).toBeVisible();
     expect(screen.queryByTestId('workspace-assistant')).not.toBeInTheDocument();
+    expect(document.querySelector('[data-assistant-dock-surface]')).not.toBeInTheDocument();
+    expect(document.querySelector('.syn-assistant-dock')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Hỏi AI về lý thuyết' }));
     expect(screen.getByRole('dialog', { name: 'Trợ lý AI' })).toHaveTextContent('Lý thuyết');
     expect(

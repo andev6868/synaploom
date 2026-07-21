@@ -108,7 +108,11 @@ function fakeApi(): SynaploomApiClient {
         sessionId: 'session-1',
         eventsUrl: '/api/processes/session-1/events',
       }),
-    requestAi: () => Promise.resolve({ status: 'disabled', message: 'disabled' }),
+    requestAi: (target, command) => {
+      void target;
+      void command;
+      return Promise.resolve({ status: 'disabled', message: 'disabled' });
+    },
     getPaneRatio: () => Promise.resolve(0.48),
     setPaneRatio: (ratio) => Promise.resolve(ratio),
   };
