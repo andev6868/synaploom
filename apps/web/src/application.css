@@ -2541,3 +2541,115 @@ body,
 .syn-activity-ordering__actions .syn-activity-ordering__ask-ai {
   color: var(--syn-color-primary);
 }
+
+/* Expanded contextual AI conversation surface. */
+.syn-contextual-assistant-panel {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  z-index: 80;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: clamp(26.25rem, 36vw, 35rem);
+  max-width: 100%;
+  overflow: hidden;
+  border-inline-start: 1px solid var(--syn-color-border-strong);
+  background: var(--syn-color-surface);
+  box-shadow: -18px 0 48px rgb(15 23 42 / 16%);
+  pointer-events: auto;
+}
+
+.syn-contextual-assistant-panel--compact {
+  width: min(80vw, 34rem);
+}
+
+.syn-contextual-assistant-panel__messages {
+  min-height: 0;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.syn-contextual-assistant-panel__messages article {
+  width: min(88%, 34rem);
+  margin-block: 0 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--syn-color-border);
+  border-radius: 0.75rem;
+  background: var(--syn-color-surface);
+}
+
+.syn-contextual-assistant-panel__messages article[data-role='assistant'] {
+  background: var(--syn-color-surface-subtle);
+}
+
+.syn-contextual-assistant-panel__messages article[data-role='user'] {
+  margin-inline-start: auto;
+}
+
+.syn-contextual-assistant-panel__messages article span,
+.syn-contextual-assistant-panel__empty {
+  color: var(--syn-color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.syn-contextual-assistant-panel__messages article p {
+  margin: 0.25rem 0 0;
+}
+
+.syn-contextual-assistant-panel__composer {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid var(--syn-color-border);
+}
+
+.syn-contextual-assistant-panel__composer textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+.syn-contextual-assistant-panel__composer button {
+  justify-self: end;
+}
+
+.syn-contextual-assistant-panel__mobile-context {
+  padding-block: 0.25rem 0.75rem;
+}
+
+.syn-contextual-assistant-panel__mobile-body {
+  display: grid;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.syn-dialog__content.syn-contextual-assistant-panel--mobile {
+  inset: 0;
+  top: 0;
+  left: 0;
+  display: grid;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  transform: none;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  padding: 1rem;
+  border: 0;
+  border-radius: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .syn-contextual-assistant-popover,
+  .syn-contextual-assistant-panel {
+    transition: none;
+  }
+}
+
+@media (max-width: 719px) {
+  .syn-contextual-assistant-popover {
+    inset: auto 0 0 !important;
+    width: 100%;
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 1rem 1rem 0 0;
+  }
+}

@@ -55,9 +55,6 @@ describe('ContextualAssistantLayer', () => {
   it('renders the expanded conversation surface for mobile', () => {
     viewport('mobile');
     render(<ContextualAssistantLayer controller={controller('expanded')} />);
-    expect(screen.getByTestId('assistant-expanded-panel')).toHaveAttribute(
-      'data-assistant-mobile',
-      'true',
-    );
+    expect(screen.getByRole('dialog', { name: 'Trợ lý AI' })).toHaveAttribute('aria-modal', 'true');
   });
 });

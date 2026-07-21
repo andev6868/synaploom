@@ -33,6 +33,7 @@ export function Dialog({
       <RadixDialog.Portal>
         <RadixDialog.Overlay className="syn-dialog__overlay" />
         <RadixDialog.Content
+          aria-modal="true"
           className={['syn-dialog__content', contentClassName].filter(Boolean).join(' ')}
         >
           <RadixDialog.Title className="syn-dialog__title">{title}</RadixDialog.Title>
