@@ -44,6 +44,10 @@ function ConversationContent({
         )}
       </div>
       <footer className="syn-contextual-assistant-panel__composer">
+        <div aria-live="polite" role="status">
+          {pending ? 'Đang tạo câu trả lời…' : controller.status === 'disabled' ? controller.response : null}
+        </div>
+        {controller.error ? <p role="alert">{controller.error}</p> : null}
         <label htmlFor="assistant-conversation-prompt">Tiếp tục cuộc hội thoại</label>
         <textarea
           id="assistant-conversation-prompt"

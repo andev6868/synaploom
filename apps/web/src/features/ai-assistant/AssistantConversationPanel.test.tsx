@@ -80,4 +80,24 @@ describe('AssistantConversationPanel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Đóng' }));
     expect(close).toHaveBeenCalledTimes(1);
   });
+
+  it('renders localized lifecycle feedback while preserving the conversation prompt', () => {
+    const { controller } = expandedController();
+    render(
+      <AssistantConversationPanel
+        controller={{
+          ...controller,
+          status: 'error',
+          error: 'Không thể gửi câu hỏi. Hãy thử lại.',
+        }}
+        mobile={false}
+        compact={false}
+      />,
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Không thể gửi câu hỏi. Hãy thử lại.');
+    expect(screen.getByRole('textbox', { name: 'Tiếp tục cuộc hội thoại' })).toHaveValue(
+      'Giải thích bước này',
+    );
+  });
 });

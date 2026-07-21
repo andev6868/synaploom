@@ -6,8 +6,17 @@ import type {
 } from '#src/features/ai-assistant/contextual-assistant-model';
 import { AssistantQuickPopover } from '#src/features/ai-assistant/AssistantQuickPopover';
 
-function controllerFor(invocation: AssistantInvocation): ContextualAssistantController {
+function controllerFor(invocation: AssistantInvocation): {
+  readonly controller: ContextualAssistantController;
+  readonly close: ReturnType<typeof vi.fn>;
+  readonly submit: ReturnType<typeof vi.fn>;
+} {
+  const close = vi.fn();
+  const submit = vi.fn(() => Promise.resolve());
   return {
+    close,
+    submit,
+    controller: {
     target: { courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' },
     state: { kind: 'quick', invocation },
     prompt: '',
@@ -17,15 +26,23 @@ function controllerFor(invocation: AssistantInvocation): ContextualAssistantCont
     error: null,
     openQuick: vi.fn(),
     expand: vi.fn(),
-    close: vi.fn(),
+    close,
     setPrompt: vi.fn(),
-    submit: vi.fn(() => Promise.resolve()),
+    submit,
+    },
   };
+}
+
+function controllerWithState(
+  invocation: AssistantInvocation,
+  overrides: Partial<ContextualAssistantController>,
+): ContextualAssistantController {
+  return { ...controllerFor(invocation).controller, ...overrides };
 }
 
 describe('AssistantQuickPopover', () => {
   it('renders Theory actions and submits without closing', () => {
-    const controller = controllerFor({
+    const { controller, close, submit } = controllerFor({
       source: 'theory',
       sectionTitle: 'Thuật toán là gì?',
       anchor: new DOMRect(100, 80, 120, 30),
@@ -40,15 +57,15 @@ describe('AssistantQuickPopover', () => {
     expect(screen.getByRole('button', { name: 'Tóm tắt' })).toBeVisible();
 
     fireEvent.click(screen.getByRole('button', { name: 'Giải thích' }));
-    expect(controller.submit).toHaveBeenCalledWith(
+    expect(submit).toHaveBeenCalledWith(
       'explain',
       'Giải thích nội dung này bằng ngôn ngữ dễ hiểu.',
     );
-    expect(controller.close).not.toHaveBeenCalled();
+    expect(close).not.toHaveBeenCalled();
   });
 
   it('renders Practice actions and selected item context', () => {
-    const controller = controllerFor({
+    const { controller } = controllerFor({
       source: 'practice',
       activityId: 'ordering',
       activityTitle: 'Sắp xếp thuật toán',
@@ -63,5 +80,48 @@ describe('AssistantQuickPopover', () => {
     expect(screen.getByRole('button', { name: 'Gợi ý' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Giải thích lỗi' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Kiểm tra cách làm' })).toBeVisible();
+  });
+
+  it('announces disabled and error lifecycle states without enabling repeated submit', () => {
+    const invocation: AssistantInvocation = {
+      source: 'theory',
+      sectionTitle: 'Thuật toán là gì?',
+      anchor: new DOMRect(100, 80, 120, 30),
+    };
+    const { rerender } = render(
+      <AssistantQuickPopover
+        controller={controllerWithState(invocation, {
+          prompt: 'Câu hỏi chưa gửi được',
+          response: 'Trợ lý AI chưa được cấu hình.',
+          status: 'disabled',
+        })}
+      />,
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent('Trợ lý AI chưa được cấu hình.');
+    expect(screen.getByRole('textbox', { name: 'Câu hỏi' })).toHaveValue(
+      'Câu hỏi chưa gửi được',
+    );
+
+    rerender(
+      <AssistantQuickPopover
+        controller={controllerWithState(invocation, {
+          prompt: 'Câu hỏi chưa gửi được',
+          status: 'error',
+          error: 'Không thể gửi câu hỏi. Hãy thử lại.',
+        })}
+      />,
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent('Không thể gửi câu hỏi. Hãy thử lại.');
+
+    rerender(
+      <AssistantQuickPopover
+        controller={controllerWithState(invocation, {
+          prompt: 'Đang gửi',
+          status: 'submitting',
+        })}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Gửi' })).toBeDisabled();
   });
 });

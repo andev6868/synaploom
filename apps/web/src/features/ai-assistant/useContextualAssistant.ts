@@ -7,6 +7,15 @@ import type {
   AssistantSurfaceState,
   ContextualAssistantController,
 } from '#src/features/ai-assistant/contextual-assistant-model';
+import { SynaploomApiError } from '#src/shared/api/client';
+
+const assistantDisabledMessage = 'Trợ lý AI chưa được cấu hình.';
+
+function localizedAssistantError(error: unknown): string {
+  return error instanceof SynaploomApiError && error.code === 'AI_CONTEXT_INVALID'
+    ? 'Ngữ cảnh câu hỏi không hợp lệ. Hãy chọn lại nội dung.'
+    : 'Không thể gửi câu hỏi. Hãy thử lại.';
+}
 
 export function assistantContextLabel(invocation: AssistantInvocation): string {
   if (invocation.source === 'theory') {
@@ -142,7 +151,7 @@ export function useContextualAssistant({
         }
         if (result.status === 'disabled') {
           replaceStatus('disabled');
-          setResponse(result.message);
+          setResponse(assistantDisabledMessage);
           return;
         }
         const label = assistantContextLabel(invocation);
@@ -168,10 +177,10 @@ export function useContextualAssistant({
         replacePrompt('');
         setResponse(result.content);
         replaceStatus('idle');
-      } catch {
+      } catch (caught) {
         if (requestIdentityRef.current !== requestId) return;
         replaceStatus('error');
-        setError('Không thể gửi câu hỏi. Hãy thử lại.');
+        setError(localizedAssistantError(caught));
       }
     },
     [api, replacePrompt, replaceStatus, target],

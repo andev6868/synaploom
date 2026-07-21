@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { AppProviders } from '#src/app/providers/AppProviders';
 import type { AssistantInvocation } from '#src/features/ai-assistant/contextual-assistant-model';
 import { useContextualAssistant } from '#src/features/ai-assistant/useContextualAssistant';
-import type { SynaploomApiClient } from '#src/shared/api/client';
+import { SynaploomApiError, type SynaploomApiClient } from '#src/shared/api/client';
 
 const target: AiWorkspaceTarget = {
   courseId: 'course',
@@ -125,4 +125,44 @@ describe('useContextualAssistant', () => {
 
     expect(trigger).toHaveFocus();
   });
+
+  it('localizes disabled state and preserves the unsent prompt', async () => {
+    const requestAi = vi.fn(() =>
+      Promise.resolve({ status: 'disabled' as const, message: 'AI assistance is not configured.' }),
+    );
+    const trigger = document.createElement('button');
+    const { result } = renderHook(() => useContextualAssistant({ target }), {
+      wrapper: wrapper(apiWith(requestAi)),
+    });
+
+    act(() => result.current.openQuick(theoryInvocation(trigger)));
+    act(() => result.current.setPrompt('Câu hỏi chưa gửi được'));
+    await act(() => result.current.submit('explain'));
+
+    expect(result.current.status).toBe('disabled');
+    expect(result.current.response).toBe('Trợ lý AI chưa được cấu hình.');
+    expect(result.current.prompt).toBe('Câu hỏi chưa gửi được');
+  });
+
+  it('localizes invalid context and network failures without clearing the prompt', async () => {
+    const requestAi = vi
+      .fn()
+      .mockRejectedValueOnce(new SynaploomApiError('AI_CONTEXT_INVALID', 'invalid'))
+      .mockRejectedValueOnce(new Error('offline'));
+    const trigger = document.createElement('button');
+    const { result } = renderHook(() => useContextualAssistant({ target }), {
+      wrapper: wrapper(apiWith(requestAi)),
+    });
+
+    act(() => result.current.openQuick(theoryInvocation(trigger)));
+    act(() => result.current.setPrompt('Câu hỏi chưa gửi được'));
+    await act(() => result.current.submit('explain'));
+    expect(result.current.error).toBe('Ngữ cảnh câu hỏi không hợp lệ. Hãy chọn lại nội dung.');
+    expect(result.current.prompt).toBe('Câu hỏi chưa gửi được');
+
+    await act(() => result.current.submit('explain'));
+    expect(result.current.error).toBe('Không thể gửi câu hỏi. Hãy thử lại.');
+    expect(result.current.prompt).toBe('Câu hỏi chưa gửi được');
+  });
+
 });
