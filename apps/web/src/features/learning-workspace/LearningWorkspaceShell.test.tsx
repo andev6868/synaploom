@@ -28,7 +28,7 @@ const common = {
   theoryRail: <div>Theory rail</div>,
   practiceTitle: 'Practice',
   navigator: <div data-testid="navigator-surface">Navigator</div>,
-  assistant: <div data-testid="assistant-surface">Assistant</div>,
+  overlay: <div data-testid="assistant-overlay">Assistant</div>,
   onSplitRatioCommit: vi.fn(),
   onCloseMobilePractice: vi.fn(),
 };
@@ -48,7 +48,7 @@ it('maps wide collapsed, split and expanded surfaces', () => {
     'workspace-activity-navigator',
   );
   expect(screen.getByTestId('workspace-navigator-zone')).toHaveAttribute('tabindex', '-1');
-  expect(screen.getByTestId('assistant-surface')).toBeVisible();
+  expect(screen.getByTestId('assistant-overlay')).toBeVisible();
   expect(screen.getByRole('separator', { name: 'Thay đổi kích thước hai vùng học' })).toBeVisible();
   view.rerender(<LearningWorkspaceShell {...common} mode="expanded" />);
   expect(screen.getByText('Practice editor')).toBeVisible();
@@ -66,12 +66,15 @@ it('does not reserve a permanent navigator column at wide-two', () => {
   expect(screen.getByText('Practice editor')).toBeVisible();
 });
 
-it('composes the assistant outside the Theory surface', () => {
+it('mounts overlays without reserving a workspace row', () => {
   viewport('wide-three');
   render(<LearningWorkspaceShell {...common} mode="split" />);
-  expect(
-    screen.getByTestId('theory-surface').contains(screen.getByTestId('assistant-surface')),
-  ).toBe(false);
+  expect(screen.getByTestId('assistant-overlay')).toBeVisible();
+  expect(screen.getByTestId('workspace-main')).toBeVisible();
+  expect(screen.queryByTestId('workspace-assistant')).not.toBeInTheDocument();
+  expect(screen.getByTestId('workspace-layout')).toContainElement(
+    screen.getByTestId('assistant-overlay'),
+  );
 });
 
 it('uses local segmented controls on compact screens', () => {
@@ -138,14 +141,14 @@ it('renders bounded Theory and Practice regions in wide split mode', () => {
   expect(screen.getByTestId('practice-surface')).toBeVisible();
 });
 
-it('exposes bounded main and assistant composition hooks', () => {
+it('exposes bounded main and overlay composition hooks', () => {
   viewport('wide-three');
   render(<LearningWorkspaceShell {...common} mode="split" />);
   expect(screen.getByTestId('workspace-layout')).toContainElement(
     screen.getByTestId('workspace-main'),
   );
-  expect(screen.getByTestId('workspace-assistant')).toContainElement(
-    screen.getByTestId('assistant-surface'),
+  expect(screen.getByTestId('workspace-layout')).toContainElement(
+    screen.getByTestId('assistant-overlay'),
   );
   expect(screen.getByTestId('workspace-main')).toHaveAttribute('data-workspace-main');
 });

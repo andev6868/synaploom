@@ -13,7 +13,7 @@ export interface LearningWorkspaceShellProps {
   readonly theoryRail: ReactNode;
   readonly practiceTitle: string;
   readonly navigator?: ReactNode;
-  readonly assistant?: ReactNode;
+  readonly overlay?: ReactNode;
   readonly onSplitRatioCommit: (ratio: number) => Promise<void> | void;
   readonly onCloseMobilePractice: () => Promise<void> | void;
   readonly eventOwner?: ActivityOwner;
@@ -30,7 +30,7 @@ export function LearningWorkspaceShell({
   theoryRail,
   practiceTitle,
   navigator,
-  assistant,
+  overlay,
   onSplitRatioCommit,
   onCloseMobilePractice,
   eventOwner,
@@ -88,9 +88,13 @@ export function LearningWorkspaceShell({
       >
         {workspace}
       </div>
-      {assistant === undefined ? null : (
-        <div className="syn-learning-workspace-layout__assistant" data-testid="workspace-assistant">
-          {assistant}
+      {overlay === undefined ? null : (
+        <div
+          className="syn-learning-workspace-layout__overlay"
+          data-testid="workspace-overlay"
+          data-workspace-overlay-root
+        >
+          {overlay}
         </div>
       )}
     </div>

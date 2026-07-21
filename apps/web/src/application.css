@@ -2457,3 +2457,42 @@ body,
   min-height: 4.5rem;
   resize: vertical;
 }
+
+/* Contextual AI overlay composition. */
+.syn-learning-workspace-layout {
+  position: relative;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.syn-learning-workspace-layout__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.syn-contextual-assistant-popover,
+.syn-contextual-assistant-panel {
+  pointer-events: auto;
+}
+
+.syn-contextual-assistant-panel {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  z-index: 70;
+  width: clamp(26rem, 34vw, 34rem);
+  max-width: 100%;
+  border-left: 1px solid var(--syn-color-border-strong);
+  background: var(--syn-color-surface);
+  box-shadow: -18px 0 48px rgb(15 23 42 / 16%);
+}
+
+.syn-contextual-assistant-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--syn-color-border);
+}
