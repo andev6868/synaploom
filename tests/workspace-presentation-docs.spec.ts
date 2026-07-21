@@ -83,7 +83,7 @@ void test('keeps the lower theory content compact and includes single-activity g
   assert.match(lesson, /Chỉ 1 hoạt động mở tại một thời điểm\./);
 });
 
-test('contextual AI remains compact and does not duplicate selected-text actions', async () => {
+void test('contextual AI remains compact and does not duplicate selected-text actions', async () => {
   const css = await text('apps/web/src/application.css');
   const page = await text('apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx');
   assert.match(css, /width: clamp\(22rem, 21vw, 22\.5rem\)/);
