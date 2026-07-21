@@ -2,6 +2,7 @@ import type { ActivityStatusPayload } from '@synaploom/protocol';
 import { Button } from '@synaploom/ui';
 import { Check, Circle, List, Maximize2, Minimize2 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { AssistantTrigger } from '#src/features/ai-assistant/AssistantTrigger';
 import type { LearningWorkspaceController } from '#src/features/learning-workspace/useLearningWorkspaceController';
 import type { ResolvedWorkspaceActivity } from '#src/features/learning-workspace/workspace-model';
 
@@ -15,6 +16,7 @@ export function PracticePaneHeader({
   navigatorTargetId,
   navigatorUsesDrawer,
   onToggleNavigator,
+  onAskAI,
 }: {
   readonly focusedActivity: ResolvedWorkspaceActivity;
   readonly ordinal: number;
@@ -25,6 +27,7 @@ export function PracticePaneHeader({
   readonly navigatorTargetId: string;
   readonly navigatorUsesDrawer: boolean;
   readonly onToggleNavigator: () => void;
+  readonly onAskAI: (anchor: HTMLButtonElement) => void;
 }): ReactNode {
   const activeLabel = 'Đang làm';
   const hasSavedDraft = status?.status === 'DRAFT';
@@ -79,6 +82,7 @@ export function PracticePaneHeader({
         </div>
       </div>
       <div className="syn-practice-workspace-card__controls" data-testid="practice-header-controls">
+        <AssistantTrigger source="practice" onInvoke={onAskAI} />
         <Button
           size="sm"
           variant="secondary"

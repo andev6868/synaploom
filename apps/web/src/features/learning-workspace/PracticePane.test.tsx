@@ -56,6 +56,7 @@ afterEach(() => vi.unstubAllGlobals());
 it('mounts exactly one focused host and exposes explicit next and retry actions', () => {
   const selectNextActivity = vi.fn(() => Promise.resolve());
   const retryLastSave = vi.fn(() => Promise.resolve());
+  const onAskPractice = vi.fn();
   const controller = {
     focusedActivity: activities[0],
     state: { paneMode: 'split' },
@@ -85,6 +86,7 @@ it('mounts exactly one focused host and exposes explicit next and retry actions'
       ]}
       controller={controller}
       onProgressChanged={vi.fn()}
+      onAskPractice={onAskPractice}
       renderHost={() => <input aria-label="active editor" />}
     />,
   );
@@ -100,6 +102,17 @@ it('mounts exactly one focused host and exposes explicit next and retry actions'
   );
   expect(screen.getByTestId('practice-workspace-footer')).toBeVisible();
   expect(screen.getByRole('button', { name: 'Danh sách hoạt động' })).toBeVisible();
+  const askButton = screen.getByRole('button', { name: 'Hỏi AI về bài tập đang làm' });
+  expect(askButton).toBeVisible();
+  fireEvent.click(askButton);
+  expect(onAskPractice).toHaveBeenCalledWith(
+    expect.objectContaining({
+      source: 'practice',
+      activityId: 'Quiz',
+      activityTitle: 'Quiz',
+      anchor: askButton,
+    }),
+  );
   expect(screen.getByTestId('practice-header-controls')).toContainElement(
     screen.getByRole('button', { name: 'Danh sách hoạt động' }),
   );
@@ -153,6 +166,7 @@ it('separates completion status from the footer action group', () => {
       ]}
       controller={controller}
       onProgressChanged={vi.fn()}
+      onAskPractice={vi.fn()}
       renderHost={() => <input aria-label="active editor" />}
     />,
   );
@@ -186,6 +200,7 @@ it('does not report a draft from workspace-presentation save status alone', () =
       statuses={[]}
       controller={controller}
       onProgressChanged={vi.fn()}
+      onAskPractice={vi.fn()}
       renderHost={() => <input aria-label="active editor" />}
     />,
   );
@@ -219,6 +234,7 @@ it('shows a deterministic local save time when the focused status transitions in
         statuses={[]}
         controller={controller}
         onProgressChanged={vi.fn()}
+        onAskPractice={vi.fn()}
         renderHost={() => <input aria-label="active editor" />}
       />,
     );
@@ -240,6 +256,7 @@ it('shows a deterministic local save time when the focused status transitions in
         ]}
         controller={controller}
         onProgressChanged={vi.fn()}
+        onAskPractice={vi.fn()}
         renderHost={() => <input aria-label="active editor" />}
       />,
     );
@@ -287,6 +304,7 @@ it('does not fabricate a save time when a historical draft is loaded', () => {
         ]}
         controller={controller}
         onProgressChanged={vi.fn()}
+        onAskPractice={vi.fn()}
         renderHost={() => <input aria-label="active editor" />}
       />,
     );
@@ -327,6 +345,7 @@ it('uses the permanent navigator at wide-three without opening a duplicate drawe
         statuses={[]}
         controller={controller}
         onProgressChanged={vi.fn()}
+        onAskPractice={vi.fn()}
         renderHost={() => <input aria-label="active editor" />}
       />,
     );
@@ -365,6 +384,7 @@ it('opens the activity drawer at wide-two where no permanent navigator exists', 
       statuses={[]}
       controller={controller}
       onProgressChanged={vi.fn()}
+      onAskPractice={vi.fn()}
       renderHost={() => <input aria-label="active editor" />}
     />,
   );
@@ -405,6 +425,7 @@ it('derives the saved-draft label from activity status instead of workspace save
       ]}
       controller={controller}
       onProgressChanged={vi.fn()}
+      onAskPractice={vi.fn()}
       renderHost={() => <input aria-label="active editor" />}
     />,
   );

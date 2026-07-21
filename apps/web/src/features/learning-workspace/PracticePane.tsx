@@ -3,6 +3,7 @@ import { Button } from '@synaploom/ui';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { ActivityHost } from '#src/features/activity-engine/ActivityHost';
 import type { ActivityHostProps } from '#src/features/activity-engine/types';
+import type { AssistantInvocation } from '#src/features/ai-assistant/contextual-assistant-model';
 import { PracticeActivityNavigator } from '#src/features/learning-workspace/PracticeActivityNavigator';
 import { PracticePaneHeader } from '#src/features/learning-workspace/PracticePaneHeader';
 import type {
@@ -40,6 +41,7 @@ export interface PracticePaneProps {
   readonly statuses: readonly ActivityStatusPayload[];
   readonly controller: LearningWorkspaceController;
   readonly onProgressChanged: () => Promise<void> | void;
+  readonly onAskPractice: (invocation: AssistantInvocation) => void;
   readonly renderHost?: (props: ActivityHostProps) => ReactNode;
 }
 
@@ -49,6 +51,7 @@ export function PracticePane({
   statuses,
   controller,
   onProgressChanged,
+  onAskPractice,
   renderHost = (props) => <ActivityHost {...props} />,
 }: PracticePaneProps): ReactNode {
   const viewport = useWorkspaceViewport();
@@ -115,6 +118,14 @@ export function PracticePane({
           navigatorTargetId={navigatorTargetId}
           navigatorUsesDrawer={navigatorUsesDrawer}
           onToggleNavigator={toggleNavigator}
+          onAskAI={(anchor) =>
+            onAskPractice({
+              source: 'practice',
+              activityId: focused.activity.id,
+              activityTitle: focused.activity.title,
+              anchor,
+            })
+          }
         />
         <div
           className="syn-practice-workspace-card__content"

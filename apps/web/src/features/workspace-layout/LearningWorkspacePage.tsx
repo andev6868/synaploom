@@ -16,7 +16,9 @@ import { CheckCircle2 } from 'lucide-react';
 import { useCallback, useState, type ReactNode } from 'react';
 import { useApi } from '#src/app/providers/AppProviders';
 import { navigateToAssessment, navigateToLesson } from '#src/app/router/lesson-route';
-import { AssistantPanel } from '#src/features/ai-assistant/AssistantPanel';
+import { AssistantTrigger } from '#src/features/ai-assistant/AssistantTrigger';
+import { ContextualAssistantLayer } from '#src/features/ai-assistant/ContextualAssistantLayer';
+import { useContextualAssistant } from '#src/features/ai-assistant/useContextualAssistant';
 import { AssessmentWorkspaceContent } from '#src/features/chapter-assessment/AssessmentWorkspaceContent';
 import { LessonActivities } from '#src/features/lesson-content/LessonActivities';
 import { LearningWorkspaceShell } from '#src/features/learning-workspace/LearningWorkspaceShell';
@@ -51,6 +53,7 @@ export type LearningWorkspaceRoute =
 
 function LessonWorkspaceComposition({
   owner,
+  chapterId,
   lesson,
   activitySets,
   presentation,
@@ -61,6 +64,7 @@ function LessonWorkspaceComposition({
   onProgressChanged,
 }: {
   readonly owner: ActivityOwner;
+  readonly chapterId?: string;
   readonly lesson: LessonPayload;
   readonly activitySets: readonly PublicActivitySetPayload[];
   readonly presentation: WorkspacePresentationState;
@@ -75,6 +79,14 @@ function LessonWorkspaceComposition({
     owner,
     initialState: presentation,
     activities,
+  });
+  const assistant = useContextualAssistant({
+    target: {
+      courseId: owner.courseId,
+      ownerKind: owner.ownerKind,
+      ownerId: owner.ownerId,
+      ...(chapterId ? { chapterId } : {}),
+    },
   });
   const onAction = (action: NextActionPayload): void => {
     if (action.type === 'START_REQUIRED_PRACTICE' || action.type === 'RETRY_REQUIRED_PRACTICE') {
@@ -91,6 +103,14 @@ function LessonWorkspaceComposition({
       <ScrollArea className="syn-lesson-panel__scroll">
         <article className="syn-lesson-panel__article" data-theory-reading-column>
           {heading}
+          <div className="syn-theory-assistant-entry">
+            <AssistantTrigger
+              source="theory"
+              onInvoke={(anchor) =>
+                assistant.openQuick({ source: 'theory', sectionTitle: lesson.title, anchor })
+              }
+            />
+          </div>
           <LessonActivities
             blocks={lesson.blocks}
             activities={activities}
@@ -110,6 +130,7 @@ function LessonWorkspaceComposition({
       statuses={statuses}
       controller={controller}
       onProgressChanged={onProgressChanged}
+      onAskPractice={(invocation) => assistant.openQuick(invocation)}
     />
   );
   const practiceRail = (
@@ -126,14 +147,6 @@ function LessonWorkspaceComposition({
       statuses={statuses}
       focusedActivityId={controller.state.focusedActivityId}
       onSelectActivity={(activityId) => controller.focusActivity(activityId)}
-    />
-  );
-  const assistant = (
-    <AssistantPanel
-      lessonTitle={lesson.title}
-      {...(controller.focusedActivity
-        ? { activityTitle: controller.focusedActivity.activity.title }
-        : {})}
     />
   );
   const theoryRail = (
@@ -157,7 +170,7 @@ function LessonWorkspaceComposition({
       practiceRail={practiceRail}
       theoryRail={theoryRail}
       navigator={navigator}
-      assistant={assistant}
+      overlay={<ContextualAssistantLayer controller={assistant} />}
       practiceTitle={controller.focusedActivity?.activity.title ?? 'Khu vực thực hành'}
       onSplitRatioCommit={(ratio) => controller.setSplitRatio(ratio)}
       onCloseMobilePractice={() => controller.collapsePracticePane()}
@@ -193,9 +206,25 @@ function AssessmentWorkspaceComposition({
     initialState: presentation,
     activities,
   });
+  const assistant = useContextualAssistant({
+    target: {
+      courseId: owner.courseId,
+      ownerKind: owner.ownerKind,
+      ownerId: owner.ownerId,
+      chapterId,
+    },
+  });
   const theory = (
     <section className="syn-lesson-panel">
       <ScrollArea className="syn-lesson-panel__scroll">
+        <div className="syn-theory-assistant-entry">
+          <AssistantTrigger
+            source="theory"
+            onInvoke={(anchor) =>
+              assistant.openQuick({ source: 'theory', sectionTitle: assessment.title, anchor })
+            }
+          />
+        </div>
         <AssessmentWorkspaceContent
           chapterId={chapterId}
           assessment={assessment}
@@ -216,6 +245,7 @@ function AssessmentWorkspaceComposition({
       statuses={statuses}
       controller={controller}
       onProgressChanged={onProgressChanged}
+      onAskPractice={(invocation) => assistant.openQuick(invocation)}
     />
   );
   const practiceRail = (
@@ -232,14 +262,6 @@ function AssessmentWorkspaceComposition({
       statuses={statuses}
       focusedActivityId={controller.state.focusedActivityId}
       onSelectActivity={(activityId) => controller.focusActivity(activityId)}
-    />
-  );
-  const assistant = (
-    <AssistantPanel
-      lessonTitle={assessment.title}
-      {...(controller.focusedActivity
-        ? { activityTitle: controller.focusedActivity.activity.title }
-        : {})}
     />
   );
   const theoryRail = (
@@ -263,7 +285,7 @@ function AssessmentWorkspaceComposition({
       practiceRail={practiceRail}
       theoryRail={theoryRail}
       navigator={navigator}
-      assistant={assistant}
+      overlay={<ContextualAssistantLayer controller={assistant} />}
       practiceTitle={controller.focusedActivity?.activity.title ?? 'Khu vực thực hành'}
       onSplitRatioCommit={(ratio) => controller.setSplitRatio(ratio)}
       onCloseMobilePractice={() => controller.collapsePracticePane()}
@@ -590,6 +612,7 @@ export function LearningWorkspacePage({
       {header}
       <LessonWorkspaceComposition
         owner={activityOwner}
+        chapterId={route.chapterId}
         lesson={lesson}
         activitySets={activitySets}
         presentation={presentation}

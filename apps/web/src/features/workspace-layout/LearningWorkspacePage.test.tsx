@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppProviders } from '#src/app/providers/AppProviders';
 import { LearningWorkspacePage } from '#src/features/workspace-layout/LearningWorkspacePage';
@@ -162,6 +162,10 @@ describe('LearningWorkspacePage', () => {
     expect(screen.getByLabelText('Hồ sơ người học')).toHaveTextContent('N');
     expect(screen.getByTestId('app-header-divider')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Hoàn thành phần đọc' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Hỏi AI về lý thuyết' })).toBeVisible();
+    expect(screen.queryByTestId('workspace-assistant')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Hỏi AI về lý thuyết' }));
+    expect(screen.getByRole('dialog', { name: 'Trợ lý AI' })).toHaveTextContent('Lý thuyết');
     expect(
       screen.queryByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
     ).not.toBeInTheDocument();
@@ -344,8 +348,8 @@ describe('LearningWorkspacePage', () => {
       await screen.findByRole('heading', { name: 'Runtime Checkpoint', level: 1 }),
     ).toBeVisible();
     expect(screen.getByRole('navigation', { name: 'Điều hướng khóa học' })).toBeVisible();
-    expect(screen.getByText('Trợ lý AI')).toBeVisible();
-    expect(screen.getAllByLabelText('Trợ lý AI')[0]).toHaveClass('syn-assistant-context');
+    expect(screen.getByRole('button', { name: 'Hỏi AI về lý thuyết' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Hỏi AI về bài tập đang làm' })).toBeVisible();
     expect(
       screen.getByRole('separator', { name: 'Thay đổi kích thước hai vùng học' }),
     ).toBeVisible();

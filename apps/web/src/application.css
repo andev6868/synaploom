@@ -2496,3 +2496,9 @@ body,
   padding: 1rem;
   border-bottom: 1px solid var(--syn-color-border);
 }
+
+.syn-theory-assistant-entry {
+  display: flex;
+  justify-content: flex-end;
+  margin: -0.25rem 0 0.75rem;
+}
