@@ -4,7 +4,10 @@ import type {
   AssistantInvocation,
   ContextualAssistantController,
 } from '#src/features/ai-assistant/contextual-assistant-model';
-import { AssistantQuickPopover } from '#src/features/ai-assistant/AssistantQuickPopover';
+import {
+  AssistantQuickPopover,
+  assistantPopoverPosition,
+} from '#src/features/ai-assistant/AssistantQuickPopover';
 
 function controllerFor(invocation: AssistantInvocation): {
   readonly controller: ContextualAssistantController;
@@ -17,18 +20,18 @@ function controllerFor(invocation: AssistantInvocation): {
     close,
     submit,
     controller: {
-    target: { courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' },
-    state: { kind: 'quick', invocation },
-    prompt: '',
-    messages: [],
-    response: null,
-    status: 'idle',
-    error: null,
-    openQuick: vi.fn(),
-    expand: vi.fn(),
-    close,
-    setPrompt: vi.fn(),
-    submit,
+      target: { courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' },
+      state: { kind: 'quick', invocation },
+      prompt: '',
+      messages: [],
+      response: null,
+      status: 'idle',
+      error: null,
+      openQuick: vi.fn(),
+      expand: vi.fn(),
+      close,
+      setPrompt: vi.fn(),
+      submit,
     },
   };
 }
@@ -41,6 +44,27 @@ function controllerWithState(
 }
 
 describe('AssistantQuickPopover', () => {
+  it('keeps Theory Quick Ask inside the Theory pane boundary', () => {
+    const boundary = new DOMRect(0, 50, 500, 700);
+    const anchor = new DOMRect(400, 180, 72, 32);
+
+    const position = assistantPopoverPosition(anchor, boundary, 'theory');
+
+    expect(position.left).toBeGreaterThanOrEqual(boundary.left + 12);
+    expect(position.left + position.width).toBeLessThanOrEqual(boundary.right - 12);
+    expect(position.top).toBeGreaterThanOrEqual(anchor.bottom);
+  });
+
+  it('keeps Practice Quick Ask inside the Practice pane boundary', () => {
+    const boundary = new DOMRect(500, 50, 720, 700);
+    const anchor = new DOMRect(1110, 110, 72, 32);
+
+    const position = assistantPopoverPosition(anchor, boundary, 'practice');
+
+    expect(position.left).toBeGreaterThanOrEqual(boundary.left + 12);
+    expect(position.left + position.width).toBeLessThanOrEqual(boundary.right - 12);
+    expect(position.top).toBeGreaterThanOrEqual(anchor.bottom);
+  });
   it('renders Theory actions and submits without closing', () => {
     const { controller, close, submit } = controllerFor({
       source: 'theory',
@@ -99,9 +123,7 @@ describe('AssistantQuickPopover', () => {
     );
 
     expect(screen.getByRole('status')).toHaveTextContent('Trợ lý AI chưa được cấu hình.');
-    expect(screen.getByRole('textbox', { name: 'Câu hỏi' })).toHaveValue(
-      'Câu hỏi chưa gửi được',
-    );
+    expect(screen.getByRole('textbox', { name: 'Câu hỏi' })).toHaveValue('Câu hỏi chưa gửi được');
 
     rerender(
       <AssistantQuickPopover

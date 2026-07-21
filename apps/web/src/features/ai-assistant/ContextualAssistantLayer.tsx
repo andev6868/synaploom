@@ -16,10 +16,12 @@ export function ContextualAssistantLayer({
     const closeOnEscape = (event: KeyboardEvent): void => {
       if (event.key !== 'Escape') return;
       event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
       controller.close();
     };
-    document.addEventListener('keydown', closeOnEscape);
-    return () => document.removeEventListener('keydown', closeOnEscape);
+    window.addEventListener('keydown', closeOnEscape, true);
+    return () => window.removeEventListener('keydown', closeOnEscape, true);
   }, [controller]);
 
   if (controller.state.kind === 'closed') return null;

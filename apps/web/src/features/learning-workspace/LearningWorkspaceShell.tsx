@@ -79,7 +79,17 @@ export function LearningWorkspaceShell({
     </div>
   );
 
-  const compose = (workspace: ReactNode): ReactNode => (
+  const renderAssistantOverlay = (): ReactNode =>
+    overlay === undefined ? null : (
+      <div
+        className="syn-learning-workspace-layout__overlay"
+        data-testid="workspace-overlay"
+        data-workspace-overlay-root
+      >
+        {overlay}
+      </div>
+    );
+  const compose = (workspace: ReactNode, includeOverlay = true): ReactNode => (
     <div className="syn-learning-workspace-layout" data-testid="workspace-layout">
       <div
         className="syn-learning-workspace-layout__main"
@@ -88,15 +98,7 @@ export function LearningWorkspaceShell({
       >
         {workspace}
       </div>
-      {overlay === undefined ? null : (
-        <div
-          className="syn-learning-workspace-layout__overlay"
-          data-testid="workspace-overlay"
-          data-workspace-overlay-root
-        >
-          {overlay}
-        </div>
-      )}
+      {includeOverlay ? renderAssistantOverlay() : null}
     </div>
   );
 
@@ -113,9 +115,13 @@ export function LearningWorkspaceShell({
           }}
           contentClassName="syn-learning-workspace__mobile-practice"
         >
-          {practice}
+          <div className="syn-learning-workspace__mobile-practice-stack">
+            {practice}
+            {renderAssistantOverlay()}
+          </div>
         </Dialog>
       </main>,
+      false,
     );
   }
 

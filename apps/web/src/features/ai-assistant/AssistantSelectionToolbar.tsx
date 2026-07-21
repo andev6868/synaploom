@@ -25,7 +25,7 @@ export function AssistantSelectionToolbar({
         aria-label="Hỏi AI về đoạn lý thuyết đã chọn"
         onClick={() => onAsk(selection.rect)}
       >
-        Hỏi AI
+        Hỏi AI về đoạn này
       </button>
     </div>
   );

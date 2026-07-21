@@ -14,41 +14,41 @@ function expandedController(): {
     close,
     setPrompt,
     controller: {
-    target: { courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' },
-    state: {
-      kind: 'expanded',
-      invocation: {
-        source: 'practice',
-        activityId: 'ordering',
-        activityTitle: 'Sắp xếp thuật toán',
-        anchor: new DOMRect(10, 10, 20, 20),
+      target: { courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' },
+      state: {
+        kind: 'expanded',
+        invocation: {
+          source: 'practice',
+          activityId: 'ordering',
+          activityTitle: 'Sắp xếp thuật toán',
+          anchor: new DOMRect(10, 10, 20, 20),
+        },
       },
-    },
-    prompt: 'Giải thích bước này',
-    messages: [
-      {
-        id: 'user-1',
-        role: 'user',
-        content: 'Vì sao bước này sai?',
-        source: 'practice',
-        contextLabel: 'Bài tập · Sắp xếp thuật toán',
-      },
-      {
-        id: 'assistant-1',
-        role: 'assistant',
-        content: 'Cần tính trước khi hiển thị.',
-        source: 'practice',
-        contextLabel: 'Bài tập · Sắp xếp thuật toán',
-      },
-    ],
-    response: null,
-    status: 'idle',
-    error: null,
-    openQuick: vi.fn(),
-    expand: vi.fn(),
-    close,
-    setPrompt,
-    submit: vi.fn(() => Promise.resolve()),
+      prompt: 'Giải thích bước này',
+      messages: [
+        {
+          id: 'user-1',
+          role: 'user',
+          content: 'Vì sao bước này sai?',
+          source: 'practice',
+          contextLabel: 'Bài tập · Sắp xếp thuật toán',
+        },
+        {
+          id: 'assistant-1',
+          role: 'assistant',
+          content: 'Cần tính trước khi hiển thị.',
+          source: 'practice',
+          contextLabel: 'Bài tập · Sắp xếp thuật toán',
+        },
+      ],
+      response: null,
+      status: 'idle',
+      error: null,
+      openQuick: vi.fn(),
+      expand: vi.fn(),
+      close,
+      setPrompt,
+      submit: vi.fn(() => Promise.resolve()),
     },
   };
 }
@@ -72,13 +72,23 @@ describe('AssistantConversationPanel', () => {
     expect(setPrompt).toHaveBeenCalledWith('Câu hỏi tiếp theo');
   });
 
-  it('uses the focus-managed Dialog surface on mobile and closes through onOpenChange', () => {
+  it('renders inside the existing mobile modal layer without creating a second portal dialog', () => {
+    const host = document.createElement('div');
+    host.setAttribute('data-testid', 'mobile-modal-host');
+    document.body.append(host);
     const { controller, close } = expandedController();
-    render(<AssistantConversationPanel controller={controller} mobile compact={false} />);
+    const view = render(
+      <AssistantConversationPanel controller={controller} mobile compact={false} />,
+      { container: host },
+    );
 
-    expect(screen.getByRole('dialog', { name: 'Trợ lý AI' })).toHaveAttribute('aria-modal', 'true');
-    fireEvent.click(screen.getByRole('button', { name: 'Đóng' }));
+    const assistant = screen.getByRole('dialog', { name: 'Trợ lý AI' });
+    expect(host).toContainElement(assistant);
+    expect(document.querySelectorAll('.syn-dialog__overlay')).toHaveLength(0);
+    fireEvent.click(screen.getByRole('button', { name: 'Đóng Trợ lý AI' }));
     expect(close).toHaveBeenCalledTimes(1);
+    view.unmount();
+    host.remove();
   });
 
   it('renders localized lifecycle feedback while preserving the conversation prompt', () => {

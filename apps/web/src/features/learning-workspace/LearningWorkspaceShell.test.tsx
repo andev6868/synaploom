@@ -114,11 +114,14 @@ it('emits a sanitized viewport mapping event for the active owner', () => {
   window.removeEventListener('synaploom:workspace-event', listener);
 });
 
-it('mounts Practice once inside the mobile dialog', () => {
+it('mounts Practice and the contextual assistant overlay inside the mobile modal layer', () => {
   viewport('mobile');
   render(<LearningWorkspaceShell {...common} mode="split" />);
+  const dialog = screen.getByRole('dialog');
   expect(screen.getAllByTestId('practice-surface')).toHaveLength(1);
-  expect(screen.getByRole('dialog')).toContainElement(screen.getByTestId('practice-surface'));
+  expect(dialog).toContainElement(screen.getByTestId('practice-surface'));
+  expect(dialog).toContainElement(screen.getByTestId('assistant-overlay'));
+  expect(screen.getAllByTestId('assistant-overlay')).toHaveLength(1);
 });
 
 it('keeps compact switching local without persisting split ratio', () => {

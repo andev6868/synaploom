@@ -27,25 +27,25 @@ function controller(kind: 'quick' | 'expanded'): {
   return {
     close,
     controller: {
-    target: { courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' },
-    state: {
-      kind,
-      invocation: {
-        source: 'theory',
-        sectionTitle: 'Thuật toán',
-        anchor: new DOMRect(10, 10, 10, 10),
+      target: { courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' },
+      state: {
+        kind,
+        invocation: {
+          source: 'theory',
+          sectionTitle: 'Thuật toán',
+          anchor: new DOMRect(10, 10, 10, 10),
+        },
       },
-    },
-    prompt: '',
-    messages: [],
-    response: null,
-    status: 'idle',
-    error: null,
-    openQuick: vi.fn(),
-    expand: vi.fn(),
-    close,
-    setPrompt: vi.fn(),
-    submit: vi.fn(() => Promise.resolve()),
+      prompt: '',
+      messages: [],
+      response: null,
+      status: 'idle',
+      error: null,
+      openQuick: vi.fn(),
+      expand: vi.fn(),
+      close,
+      setPrompt: vi.fn(),
+      submit: vi.fn(() => Promise.resolve()),
     },
   };
 }
@@ -65,6 +65,20 @@ describe('ContextualAssistantLayer', () => {
     expect(screen.getByRole('dialog', { name: 'Trợ lý AI' })).toHaveAttribute('aria-modal', 'true');
   });
 
+  it('consumes Escape before the parent Practice dialog can close', () => {
+    viewport('mobile');
+    const active = controller('expanded');
+    render(<ContextualAssistantLayer controller={active.controller} />);
+    const parentEscapeHandler = vi.fn();
+    document.addEventListener('keydown', parentEscapeHandler);
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(active.close).toHaveBeenCalledTimes(1);
+    expect(parentEscapeHandler).not.toHaveBeenCalled();
+    document.removeEventListener('keydown', parentEscapeHandler);
+  });
+
   it('closes the topmost assistant surface with Escape', () => {
     viewport('wide-three');
     const active = controller('quick');
@@ -73,5 +87,4 @@ describe('ContextualAssistantLayer', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(active.close).toHaveBeenCalledTimes(1);
   });
-
 });

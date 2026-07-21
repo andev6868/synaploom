@@ -1,4 +1,4 @@
-import { Dialog } from '@synaploom/ui';
+import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { AssistantContextBadge } from '#src/features/ai-assistant/AssistantContextBadge';
 import type { ContextualAssistantController } from '#src/features/ai-assistant/contextual-assistant-model';
@@ -20,8 +20,13 @@ function ConversationContent({
             <strong>Trợ lý AI</strong>
             <AssistantContextBadge invocation={controller.state.invocation} />
           </div>
-          <button type="button" aria-label="Đóng Trợ lý AI" onClick={() => controller.close()}>
-            ×
+          <button
+            type="button"
+            className="syn-contextual-assistant__close"
+            aria-label="Đóng Trợ lý AI"
+            onClick={() => controller.close()}
+          >
+            <X aria-hidden="true" size={16} />
           </button>
         </header>
       ) : (
@@ -45,22 +50,29 @@ function ConversationContent({
       </div>
       <footer className="syn-contextual-assistant-panel__composer">
         <div aria-live="polite" role="status">
-          {pending ? 'Đang tạo câu trả lời…' : controller.status === 'disabled' ? controller.response : null}
+          {pending
+            ? 'Đang tạo câu trả lời…'
+            : controller.status === 'disabled'
+              ? controller.response
+              : null}
         </div>
         {controller.error ? <p role="alert">{controller.error}</p> : null}
         <label htmlFor="assistant-conversation-prompt">Tiếp tục cuộc hội thoại</label>
-        <textarea
-          id="assistant-conversation-prompt"
-          value={controller.prompt}
-          onChange={(event) => controller.setPrompt(event.currentTarget.value)}
-        />
-        <button
-          type="button"
-          disabled={pending || controller.prompt.trim() === ''}
-          onClick={() => void controller.submit('explain')}
-        >
-          {pending ? 'Đang gửi…' : 'Gửi'}
-        </button>
+        <div className="syn-contextual-assistant-panel__composer-row">
+          <textarea
+            id="assistant-conversation-prompt"
+            placeholder="Tiếp tục cuộc hội thoại…"
+            value={controller.prompt}
+            onChange={(event) => controller.setPrompt(event.currentTarget.value)}
+          />
+          <button
+            type="button"
+            disabled={pending || controller.prompt.trim() === ''}
+            onClick={() => void controller.submit('explain')}
+          >
+            {pending ? 'Đang gửi…' : 'Gửi'}
+          </button>
+        </div>
       </footer>
     </>
   );
@@ -78,23 +90,15 @@ export function AssistantConversationPanel({
   if (controller.state.kind !== 'expanded') return null;
   if (mobile) {
     return (
-      <Dialog
-        title="Trợ lý AI"
-        description={
-          controller.state.invocation.source === 'theory'
-            ? 'Hội thoại theo ngữ cảnh lý thuyết đang xem.'
-            : 'Hội thoại theo ngữ cảnh bài tập đang làm.'
-        }
-        open
-        onOpenChange={(open) => {
-          if (!open) controller.close();
-        }}
-        contentClassName="syn-contextual-assistant-panel--mobile"
+      <section
+        className="syn-contextual-assistant-panel syn-contextual-assistant-panel--mobile"
+        data-testid="assistant-expanded-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Trợ lý AI"
       >
-        <div data-testid="assistant-expanded-panel" className="syn-contextual-assistant-panel__mobile-body">
-          <ConversationContent controller={controller} includeHeader={false} />
-        </div>
-      </Dialog>
+        <ConversationContent controller={controller} includeHeader />
+      </section>
     );
   }
   return (

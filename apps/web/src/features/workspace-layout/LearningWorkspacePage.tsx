@@ -71,7 +71,7 @@ function LessonWorkspaceComposition({
   readonly activitySets: readonly PublicActivitySetPayload[];
   readonly presentation: WorkspacePresentationState;
   readonly statuses: readonly ActivityStatusPayload[];
-  readonly heading: ReactNode;
+  readonly heading: (assistantTrigger: ReactNode) => ReactNode;
   readonly renderFooter: (onAction: (action: NextActionPayload) => void) => ReactNode;
   readonly onNavigationAction: (action: NextActionPayload) => void;
   readonly onProgressChanged: () => Promise<void>;
@@ -117,26 +117,19 @@ function LessonWorkspaceComposition({
   const theory = (
     <section className="syn-lesson-panel">
       <ScrollArea className="syn-lesson-panel__scroll">
-        <article ref={theoryContainerRef} className="syn-lesson-panel__article" data-theory-reading-column>
-          {heading}
-          <div className="syn-theory-assistant-entry">
+        <article
+          ref={theoryContainerRef}
+          className="syn-lesson-panel__article"
+          data-theory-reading-column
+        >
+          {heading(
             <AssistantTrigger
               source="theory"
               onInvoke={(anchor) =>
                 assistant.openQuick({ source: 'theory', sectionTitle: lesson.title, anchor })
               }
-            />
-            {theorySelection.selection ? (
-              <button
-                type="button"
-                className="syn-theory-assistant-entry__selection"
-                aria-label="Hỏi AI về đoạn lý thuyết đã chọn"
-                onClick={(event) => askAboutTheorySelection(event.currentTarget.getBoundingClientRect())}
-              >
-                Hỏi đoạn đã chọn
-              </button>
-            ) : null}
-          </div>
+            />,
+          )}
           {theorySelection.selection ? (
             <AssistantSelectionToolbar
               selection={theorySelection.selection}
@@ -263,7 +256,11 @@ function AssessmentWorkspaceComposition({
   const theory = (
     <section className="syn-lesson-panel">
       <ScrollArea className="syn-lesson-panel__scroll">
-        <article ref={theoryContainerRef} className="syn-lesson-panel__article" data-theory-reading-column>
+        <article
+          ref={theoryContainerRef}
+          className="syn-lesson-panel__article"
+          data-theory-reading-column
+        >
           <div className="syn-theory-assistant-entry">
             <AssistantTrigger
               source="theory"
@@ -271,16 +268,6 @@ function AssessmentWorkspaceComposition({
                 assistant.openQuick({ source: 'theory', sectionTitle: assessment.title, anchor })
               }
             />
-            {theorySelection.selection ? (
-              <button
-                type="button"
-                className="syn-theory-assistant-entry__selection"
-                aria-label="Hỏi AI về đoạn lý thuyết đã chọn"
-                onClick={(event) => askAboutTheorySelection(event.currentTarget.getBoundingClientRect())}
-              >
-                Hỏi đoạn đã chọn
-              </button>
-            ) : null}
           </div>
           {theorySelection.selection ? (
             <AssistantSelectionToolbar
@@ -636,12 +623,15 @@ export function LearningWorkspacePage({
   const activitySets = (activitySetsQuery.data ?? []) as readonly PublicActivitySetPayload[];
   const presentation = presentationQuery.data;
   if (activityOwner?.ownerKind !== 'lessons' || !presentation) return null;
-  const heading = (
+  const heading = (assistantTrigger: ReactNode): ReactNode => (
     <div className="syn-lesson-panel__heading">
       <div>
-        <StatusBadge status={lesson.status === 'COMPLETED' ? 'passed' : 'active'}>
-          {lessonStatusLabel}
-        </StatusBadge>
+        <div className="syn-lesson-panel__status-row">
+          <StatusBadge status={lesson.status === 'COMPLETED' ? 'passed' : 'active'}>
+            {lessonStatusLabel}
+          </StatusBadge>
+          {assistantTrigger}
+        </div>
         <h1>{lesson.title}</h1>
       </div>
       <div
@@ -676,7 +666,7 @@ export function LearningWorkspacePage({
       {header}
       <LessonWorkspaceComposition
         owner={activityOwner}
-        chapterId={route.chapterId}
+        {...(route.chapterId ? { chapterId: route.chapterId } : {})}
         lesson={lesson}
         activitySets={activitySets}
         presentation={presentation}

@@ -1,20 +1,29 @@
 import type { AiRequestKind } from '@synaploom/ai-contracts';
+import { X } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { AssistantContextBadge } from '#src/features/ai-assistant/AssistantContextBadge';
-import type { ContextualAssistantController } from '#src/features/ai-assistant/contextual-assistant-model';
+import type {
+  AssistantInvocation,
+  ContextualAssistantController,
+} from '#src/features/ai-assistant/contextual-assistant-model';
 
 export function assistantPopoverPosition(
   anchor: DOMRect,
-  viewport: DOMRect,
-): { readonly left: number; readonly top: number } {
-  const width = Math.min(420, Math.max(360, viewport.width * 0.28));
+  boundary: DOMRect,
+  source: AssistantInvocation['source'],
+): { readonly left: number; readonly top: number; readonly width: number } {
   const gap = 8;
-  const left = Math.min(
-    Math.max(viewport.left + 12, anchor.left),
-    Math.max(viewport.left + 12, viewport.right - width - 12),
-  );
-  const top = Math.min(anchor.bottom + gap, viewport.bottom - 320);
-  return { left, top: Math.max(viewport.top + 12, top) };
+  const edge = 12;
+  const width = Math.min(420, Math.max(320, boundary.width - edge * 2));
+  const minimumLeft = boundary.left + edge;
+  const maximumLeft = Math.max(minimumLeft, boundary.right - width - edge);
+  const preferredLeft =
+    source === 'theory' ? anchor.right - width : Math.min(anchor.left, anchor.right - width);
+  const left = Math.min(Math.max(minimumLeft, preferredLeft), maximumLeft);
+  const below = anchor.bottom + gap;
+  const above = anchor.top - gap - 320;
+  const top = below + 320 <= boundary.bottom - edge ? below : Math.max(boundary.top + edge, above);
+  return { left, top, width };
 }
 
 const theoryActions = [
@@ -40,13 +49,20 @@ export function AssistantQuickPopover({
     invocation.anchor instanceof HTMLElement
       ? invocation.anchor.getBoundingClientRect()
       : invocation.anchor;
-  const workspaceRect =
+  const boundarySelector =
+    invocation.source === 'theory' ? '[data-workspace-theory-zone]' : '[data-practice-surface]';
+  const boundaryRect =
+    document.querySelector<HTMLElement>(boundarySelector)?.getBoundingClientRect() ??
     document.querySelector<HTMLElement>('[data-workspace-main]')?.getBoundingClientRect() ??
     new DOMRect(0, 0, window.innerWidth, window.innerHeight);
-  const position = assistantPopoverPosition(anchorRect, workspaceRect);
+  const position = assistantPopoverPosition(anchorRect, boundaryRect, invocation.source);
   const pending = controller.status === 'submitting';
   const actions = invocation.source === 'theory' ? theoryActions : practiceActions;
-  const style = { left: position.left, top: position.top } satisfies CSSProperties;
+  const style = {
+    left: position.left,
+    top: position.top,
+    width: position.width,
+  } satisfies CSSProperties;
 
   return (
     <section
@@ -61,14 +77,23 @@ export function AssistantQuickPopover({
           <strong>Trợ lý AI</strong>
           <AssistantContextBadge invocation={invocation} />
         </div>
-        <button type="button" aria-label="Đóng Trợ lý AI" onClick={() => controller.close()}>
-          ×
+        <button
+          type="button"
+          className="syn-contextual-assistant__close"
+          aria-label="Đóng Trợ lý AI"
+          onClick={() => controller.close()}
+        >
+          <X aria-hidden="true" size={16} />
         </button>
       </header>
       <div className="syn-contextual-assistant-popover__body">
-        {invocation.selectedText ? <blockquote>{invocation.selectedText.slice(0, 240)}</blockquote> : null}
-        <div aria-live="polite" role="status">
-          {pending ? 'Đang tạo câu trả lời…' : controller.response}
+        {invocation.selectedText ? (
+          <blockquote>{invocation.selectedText.slice(0, 240)}</blockquote>
+        ) : null}
+        <div className="syn-contextual-assistant-popover__answer" aria-live="polite" role="status">
+          {pending
+            ? 'Đang tạo câu trả lời…'
+            : (controller.response ?? 'Hãy đặt câu hỏi hoặc chọn một gợi ý bên dưới.')}
         </div>
         {controller.error ? <p role="alert">{controller.error}</p> : null}
         <div className="syn-contextual-assistant-popover__actions">
@@ -88,6 +113,11 @@ export function AssistantQuickPopover({
         <label htmlFor="assistant-quick-prompt">Câu hỏi</label>
         <textarea
           id="assistant-quick-prompt"
+          placeholder={
+            invocation.source === 'theory'
+              ? 'Hỏi về nội dung lý thuyết…'
+              : 'Hỏi về bài tập đang làm…'
+          }
           value={controller.prompt}
           onChange={(event) => controller.setPrompt(event.currentTarget.value)}
         />
@@ -99,8 +129,12 @@ export function AssistantQuickPopover({
           >
             Gửi
           </button>
-          <button type="button" onClick={() => controller.expand()}>
-            Mở cuộc hội thoại đầy đủ
+          <button
+            type="button"
+            className="syn-contextual-assistant-popover__expand"
+            onClick={() => controller.expand()}
+          >
+            Mở cuộc hội thoại đầy đủ →
           </button>
         </div>
       </footer>

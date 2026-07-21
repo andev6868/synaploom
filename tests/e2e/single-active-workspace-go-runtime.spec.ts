@@ -44,8 +44,13 @@ async function openActivity(page: Page, title: string): Promise<void> {
   await expect(heading).toBeVisible();
 }
 
-async function prepareCanonicalOrderingState(page: Page): Promise<void> {
-  await page.clock.install({ time: new Date('2026-07-20T07:32:00Z') });
+async function prepareCanonicalOrderingState(
+  page: Page,
+  options: { readonly freezeTime?: boolean } = {},
+): Promise<void> {
+  if (options.freezeTime) {
+    await page.clock.install({ time: new Date('2026-07-20T07:32:00Z') });
+  }
   await page.route(/\/api\/courses\/[^/]+\/navigation(?:\?.*)?$/, async (route) => {
     const response = await route.fetch();
     const navigation = (await response.json()) as {
@@ -75,7 +80,7 @@ async function prepareCanonicalOrderingState(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Lưu bản nháp' }).click();
 
   await expect(page.getByTestId('practice-footer-status')).toContainText(
-    'Đã lưu bản nháp lúc 14:32',
+    options.freezeTime ? 'Đã lưu bản nháp lúc 14:32' : 'Đã lưu bản nháp',
   );
   const rows = page.locator('.syn-activity-ordering > li');
   await expect(rows).toHaveCount(3);
@@ -155,7 +160,7 @@ test.afterAll(async () => {
 });
 
 test('matches Revision 3 geometry across six responsive states', async ({ page }) => {
-  await prepareCanonicalOrderingState(page);
+  await prepareCanonicalOrderingState(page, { freezeTime: true });
 
   const secondSummary = page
     .locator('[data-activity-summary-card]')
@@ -264,7 +269,7 @@ test('matches Revision 3 geometry across six responsive states', async ({ page }
   await expect(page.getByRole('button', { name: 'Hỏi AI về bài tập đang làm' })).toBeVisible();
   await expect(page.getByRole('progressbar', { name: 'Tiến độ bài học' })).toBeVisible();
   await expect(page.getByText(/\[!NOTE\]/)).toHaveCount(0);
-  await expect(page.getByRole('note', { name: 'Ghi chú' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ghi nhớ', level: 3 })).toBeVisible();
 
   await openActivity(page, 'Sắp xếp thuật toán');
   const card = page.getByTestId('practice-workspace-card');
@@ -371,7 +376,7 @@ test('matches Revision 3 geometry across six responsive states', async ({ page }
   await expect(page).toHaveScreenshot('single-active-navigator-1366.png', { fullPage: true });
 
   await page.setViewportSize({ width: 900, height: 900 });
-  await expect(page.getByRole('button', { name: 'Lý thuyết' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Lý thuyết', exact: true })).toBeVisible();
   await expect(page.locator('[data-active-activity-editor]')).toHaveCount(1);
   const compactTitleBox = await page
     .getByRole('heading', { name: 'Dòng chảy thuật toán', level: 1 })
@@ -417,11 +422,19 @@ test('keeps contextual AI zero-footprint across source, selection, item, and mob
   const quick = page.getByTestId('assistant-quick-popover');
   await expect(quick).toBeVisible();
   await expect(quick).toContainText('Bài tập · Sắp xếp thuật toán');
+  const practiceQuickBox = await requiredBox(quick);
+  expect(practiceQuickBox.x).toBeGreaterThanOrEqual(before.practice.x + 8);
+  expect(practiceQuickBox.x + practiceQuickBox.width).toBeLessThanOrEqual(
+    before.practice.x + before.practice.width - 8,
+  );
   expect(await workspaceGeometry(page)).toEqual(before);
 
   await quick.getByRole('button', { name: 'Mở cuộc hội thoại đầy đủ' }).click();
   const expanded = page.getByTestId('assistant-expanded-panel');
   await expect(expanded).toBeVisible();
+  const expandedBox = await requiredBox(expanded);
+  expect(expandedBox.width).toBeLessThanOrEqual(361);
+  expect(expandedBox.x).toBeGreaterThanOrEqual(before.practice.x + before.practice.width - 145);
   expect(await workspaceGeometry(page)).toEqual(before);
   await expect(page.getByRole('navigation', { name: 'Danh sách hoạt động' })).toBeAttached();
   await page.keyboard.press('Escape');
@@ -432,10 +445,15 @@ test('keeps contextual AI zero-footprint across source, selection, item, and mob
   await theoryParagraph.selectText();
   const selectionToolbar = page.getByTestId('assistant-selection-toolbar');
   await expect(selectionToolbar).toBeVisible();
-  await selectionToolbar
-    .getByRole('button', { name: 'Hỏi AI về đoạn lý thuyết đã chọn' })
-    .click();
+  await expect(selectionToolbar.getByRole('button')).toHaveCount(1);
+  await expect(selectionToolbar.getByRole('button')).toHaveText('Hỏi AI về đoạn này');
+  await selectionToolbar.getByRole('button', { name: 'Hỏi AI về đoạn lý thuyết đã chọn' }).click();
   await expect(quick).toBeVisible();
+  const theoryQuickBox = await requiredBox(quick);
+  expect(theoryQuickBox.x).toBeGreaterThanOrEqual(before.theory.x + 8);
+  expect(theoryQuickBox.x + theoryQuickBox.width).toBeLessThanOrEqual(
+    before.theory.x + before.theory.width - 8,
+  );
   await expect(quick).toContainText('Đoạn được chọn');
   await page.keyboard.press('Escape');
 
@@ -465,7 +483,9 @@ test('keeps contextual AI zero-footprint across source, selection, item, and mob
   expect(Math.abs(mobileQuickBox.x + mobileQuickBox.width - 390)).toBeLessThanOrEqual(1);
   expect(Math.abs(mobileQuickBox.y + mobileQuickBox.height - 844)).toBeLessThanOrEqual(2);
 
-  await quick.getByRole('button', { name: 'Mở cuộc hội thoại đầy đủ' }).click();
+  const mobileExpand = quick.getByRole('button', { name: 'Mở cuộc hội thoại đầy đủ' });
+  await expect(mobileExpand).toBeVisible();
+  await mobileExpand.click();
   const mobileAssistant = page.getByRole('dialog', { name: 'Trợ lý AI' });
   await expect(mobileAssistant).toHaveAttribute('aria-modal', 'true');
   const mobileAssistantBox = await requiredBox(mobileAssistant);
@@ -476,5 +496,6 @@ test('keeps contextual AI zero-footprint across source, selection, item, and mob
   await page.keyboard.press('Escape');
   await expect(mobileAssistant).toHaveCount(0);
   await expect(mobileTrigger).toBeFocused();
+  await expect(mobilePractice).toBeVisible();
   expect(await orderingLabels.allTextContents()).toEqual(mobileLabelsBefore);
 });
