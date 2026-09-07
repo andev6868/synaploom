@@ -478,7 +478,9 @@ test('keeps contextual AI zero-footprint across source, selection, item, and mob
   const expandedBox = await requiredBox(expanded);
   await expect(expanded.getByText('Mình có thể giúp gì cho bạn? 👋')).toBeVisible();
   await expect(expanded.getByTestId('assistant-expanded-actions')).toBeVisible();
-  await expect(expanded.getByTestId('assistant-expanded-actions').getByRole('button')).toHaveCount(3);
+  await expect(expanded.getByTestId('assistant-expanded-actions').getByRole('button')).toHaveCount(
+    3,
+  );
   await expect(expanded.getByLabel('Gửi')).toBeEnabled();
   expect(expandedBox.width).toBeGreaterThanOrEqual(480);
   expect(expandedBox.width).toBeLessThanOrEqual(528);
@@ -487,7 +489,9 @@ test('keeps contextual AI zero-footprint across source, selection, item, and mob
   expect(workspaceAfterAssistant.width).toBeLessThan(workspaceBeforeAssistant.width);
   expect(afterAssistantGeometry.theory.width).toBeLessThan(before.theory.width);
   expect(afterAssistantGeometry.practice.width).toBeLessThan(before.practice.width);
-  expect(Math.abs(expandedBox.x - workspaceAfterAssistant.x - workspaceAfterAssistant.width)).toBeLessThanOrEqual(1);
+  expect(
+    Math.abs(expandedBox.x - workspaceAfterAssistant.x - workspaceAfterAssistant.width),
+  ).toBeLessThanOrEqual(1);
   expect(Math.abs(expandedBox.height - workspaceAfterAssistant.height)).toBeLessThanOrEqual(1);
   const expandedVisuals = await expanded.evaluate((element) => {
     const textarea = element.querySelector('textarea');
@@ -567,9 +571,9 @@ test('keeps contextual AI zero-footprint across source, selection, item, and mob
   expect(Math.abs(mobileAssistantBox.y)).toBeLessThanOrEqual(1);
   expect(mobileAssistantBox.width).toBeLessThanOrEqual(391);
   expect(mobileAssistantBox.height).toBeLessThanOrEqual(845);
-  await expect(mobileAssistant.getByTestId('assistant-expanded-actions').getByRole('button')).toHaveCount(
-    3,
-  );
+  await expect(
+    mobileAssistant.getByTestId('assistant-expanded-actions').getByRole('button'),
+  ).toHaveCount(3);
   await page.keyboard.press('Escape');
   await expect(mobileAssistant).toHaveCount(0);
   await expect(mobileTrigger).toBeFocused();

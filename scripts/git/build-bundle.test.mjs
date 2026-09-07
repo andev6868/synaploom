@@ -24,8 +24,14 @@ test('creates a complete cloneable bundle for all local refs', async (t) => {
 
   const result = await buildGitBundle({ repositoryRoot });
 
-  assert.match(result.bundlePath, /artifacts[\\/]source[\\/]synaploom-repository-[0-9a-f]{12}\.bundle$/);
+  assert.match(
+    result.bundlePath,
+    /artifacts[\\/]source[\\/]synaploom-repository-[0-9a-f]{12}\.bundle$/,
+  );
   assert.equal(git(['rev-parse', 'HEAD'], repositoryRoot), result.head);
-  assert.match(git(['bundle', 'list-heads', result.bundlePath], repositoryRoot), /refs\/heads\/recovery/);
+  assert.match(
+    git(['bundle', 'list-heads', result.bundlePath], repositoryRoot),
+    /refs\/heads\/recovery/,
+  );
   assert.equal(result.cloneHead, result.head);
 });

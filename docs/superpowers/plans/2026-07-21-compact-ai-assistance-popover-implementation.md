@@ -20,12 +20,12 @@
 
 ## File structure
 
-| File | Responsibility |
-| --- | --- |
-| `apps/web/src/features/ai-assistant/AssistantQuickPopover.tsx` | Build the compact header, display-only chat preview, action cards, and accessible composer from existing controller data. |
-| `apps/web/src/features/ai-assistant/AssistantQuickPopover.test.tsx` | Cover the new semantic structure, previews, action submission, and preserved status/error behavior. |
-| `apps/web/src/application.css` | Define the scaled mockup visual system and retain responsive quick-popover behavior. |
-| `tests/e2e/single-active-workspace-go-runtime.spec.ts` | Keep browser coverage aligned with the quick-card and compact-size contract. |
+| File                                                                | Responsibility                                                                                                            |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web/src/features/ai-assistant/AssistantQuickPopover.tsx`      | Build the compact header, display-only chat preview, action cards, and accessible composer from existing controller data. |
+| `apps/web/src/features/ai-assistant/AssistantQuickPopover.test.tsx` | Cover the new semantic structure, previews, action submission, and preserved status/error behavior.                       |
+| `apps/web/src/application.css`                                      | Define the scaled mockup visual system and retain responsive quick-popover behavior.                                      |
+| `tests/e2e/single-active-workspace-go-runtime.spec.ts`              | Keep browser coverage aligned with the quick-card and compact-size contract.                                              |
 
 ### Task 1: Render a compact mockup-style quick popover
 
@@ -87,8 +87,20 @@
       <AssistantQuickPopover
         controller={controllerWithState(invocation, {
           messages: [
-            { id: 'user-1', role: 'user', content: 'Giải thích dòng chảy thuật toán', source: 'theory', contextLabel: 'Lý thuyết' },
-            { id: 'assistant-1', role: 'assistant', content: 'Mình sẽ giải thích ngắn gọn và dễ hiểu.', source: 'theory', contextLabel: 'Lý thuyết' },
+            {
+              id: 'user-1',
+              role: 'user',
+              content: 'Giải thích dòng chảy thuật toán',
+              source: 'theory',
+              contextLabel: 'Lý thuyết',
+            },
+            {
+              id: 'assistant-1',
+              role: 'assistant',
+              content: 'Mình sẽ giải thích ngắn gọn và dễ hiểu.',
+              source: 'theory',
+              contextLabel: 'Lý thuyết',
+            },
           ],
         })}
       />,
@@ -129,9 +141,27 @@
   };
 
   const theoryActions: readonly QuickAction[] = [
-    { label: 'Giải thích', description: 'Giải thích khái niệm', kind: 'explain', prompt: 'Giải thích nội dung này bằng ngôn ngữ dễ hiểu.', icon: Lightbulb },
-    { label: 'Cho ví dụ', description: 'Ví dụ minh hoạ', kind: 'explain', prompt: 'Cho một ví dụ cụ thể về nội dung này.', icon: Code2 },
-    { label: 'Tóm tắt', description: 'Tóm tắt nội dung', kind: 'summarize', prompt: 'Tóm tắt các ý chính của nội dung này.', icon: NotebookPen },
+    {
+      label: 'Giải thích',
+      description: 'Giải thích khái niệm',
+      kind: 'explain',
+      prompt: 'Giải thích nội dung này bằng ngôn ngữ dễ hiểu.',
+      icon: Lightbulb,
+    },
+    {
+      label: 'Cho ví dụ',
+      description: 'Ví dụ minh hoạ',
+      kind: 'explain',
+      prompt: 'Cho một ví dụ cụ thể về nội dung này.',
+      icon: Code2,
+    },
+    {
+      label: 'Tóm tắt',
+      description: 'Tóm tắt nội dung',
+      kind: 'summarize',
+      prompt: 'Tóm tắt các ý chính của nội dung này.',
+      icon: NotebookPen,
+    },
   ];
   ```
 
@@ -147,7 +177,9 @@
   function quickPreviewMessages(controller: ContextualAssistantController) {
     if (controller.messages.length > 0) return controller.messages.slice(-2);
     if (controller.response) {
-      return [{ id: 'assistant-response', role: 'assistant' as const, content: controller.response }];
+      return [
+        { id: 'assistant-response', role: 'assistant' as const, content: controller.response },
+      ];
     }
     return [];
   }

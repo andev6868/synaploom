@@ -36,7 +36,10 @@ export async function buildGitBundle({ repositoryRoot = process.cwd() } = {}) {
   }
 }
 
-if (process.argv[1] !== undefined && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+if (
+  process.argv[1] !== undefined &&
+  fileURLToPath(import.meta.url) === path.resolve(process.argv[1])
+) {
   const result = await buildGitBundle();
   console.log(result.bundlePath);
 }

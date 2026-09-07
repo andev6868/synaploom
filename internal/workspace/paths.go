@@ -15,7 +15,7 @@ func safeJoin(root, relative string) (string, error) {
 		return "", ErrUnsafePath
 	}
 	clean := filepath.Clean(filepath.FromSlash(relative))
-	if clean == ".." || strings.HasPrefix(clean, ".."+string(filepath.Separator)) {
+	if clean == ".." || strings.HasPrefix(clean, ".."+string(filepath.Separator)) || strings.HasPrefix(clean, string(filepath.Separator)) {
 		return "", ErrUnsafePath
 	}
 	rootAbs, err := filepath.Abs(root)

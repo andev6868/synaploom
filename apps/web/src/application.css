@@ -2978,12 +2978,16 @@ body,
   background: var(--syn-color-primary-soft);
 }
 
-.syn-contextual-assistant-panel__actions button[data-tone='green'] .syn-contextual-assistant-panel__action-icon {
+.syn-contextual-assistant-panel__actions
+  button[data-tone='green']
+  .syn-contextual-assistant-panel__action-icon {
   color: var(--syn-color-success);
   background: var(--syn-color-success-soft);
 }
 
-.syn-contextual-assistant-panel__actions button[data-tone='violet'] .syn-contextual-assistant-panel__action-icon {
+.syn-contextual-assistant-panel__actions
+  button[data-tone='violet']
+  .syn-contextual-assistant-panel__action-icon {
   color: #7c3aed;
   background: #f3e8ff;
 }
@@ -3128,8 +3132,7 @@ body,
   pointer-events: auto;
 }
 
-.syn-learning-workspace-layout:has(.syn-contextual-assistant-panel)
-  .syn-contextual-assistant-panel,
+.syn-learning-workspace-layout:has(.syn-contextual-assistant-panel) .syn-contextual-assistant-panel,
 .syn-learning-workspace-layout:has(.syn-contextual-assistant-panel)
   .syn-contextual-assistant-panel--compact {
   width: 100%;

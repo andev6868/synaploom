@@ -36,10 +36,7 @@ export interface ActivityHostProps {
   readonly onProgressChanged: () => Promise<void> | void;
   readonly surface?: ActivityHostSurface;
   readonly actionOutlet?: ActivityActionOutlet;
-  readonly onAskAIAboutItem?: (
-    target: ActivityAssistantTarget,
-    anchor: HTMLButtonElement,
-  ) => void;
+  readonly onAskAIAboutItem?: (target: ActivityAssistantTarget, anchor: HTMLButtonElement) => void;
   readonly onPersistenceHandleChange?: (
     activityId: string,
     handle: ActivityPersistenceHandle | null,
@@ -56,10 +53,7 @@ export interface ActivityRendererProps {
   readonly onSaveDraft: () => Promise<void>;
   readonly surface?: ActivityHostSurface;
   readonly actionOutlet?: ActivityActionOutlet;
-  readonly onAskAIAboutItem?: (
-    target: ActivityAssistantTarget,
-    anchor: HTMLButtonElement,
-  ) => void;
+  readonly onAskAIAboutItem?: (target: ActivityAssistantTarget, anchor: HTMLButtonElement) => void;
 }
 
 export interface ActivityAttemptController {

@@ -3,9 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { ContextualAssistantController } from '#src/features/ai-assistant/contextual-assistant-model';
 import { AssistantConversationPanel } from '#src/features/ai-assistant/AssistantConversationPanel';
 
-function expandedController(
-  overrides: Partial<ContextualAssistantController> = {},
-): {
+function expandedController(overrides: Partial<ContextualAssistantController> = {}): {
   readonly controller: ContextualAssistantController;
   readonly close: ReturnType<typeof vi.fn>;
   readonly setPrompt: ReturnType<typeof vi.fn>;

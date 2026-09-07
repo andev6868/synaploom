@@ -164,5 +164,4 @@ describe('useContextualAssistant', () => {
     expect(result.current.error).toBe('Không thể gửi câu hỏi. Hãy thử lại.');
     expect(result.current.prompt).toBe('Câu hỏi chưa gửi được');
   });
-
 });

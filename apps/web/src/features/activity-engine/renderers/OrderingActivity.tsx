@@ -60,10 +60,7 @@ export function OrderingActivity({
                     disabled={disabled}
                     aria-label={`Hỏi AI về bước ${label}`}
                     onClick={(event) =>
-                      onAskAIAboutItem(
-                        { label, selectedText: label },
-                        event.currentTarget,
-                      )
+                      onAskAIAboutItem({ label, selectedText: label }, event.currentTarget)
                     }
                   >
                     <Sparkles aria-hidden="true" size={15} />

@@ -60,6 +60,11 @@ func (w *Watcher) Run(ctx context.Context) <-chan DevEvent {
 							default:
 							}
 						}
+						// Also drain timerC variable if we use select
+						select {
+						case <-timerC:
+						default:
+						}
 						timer.Reset(w.debounce)
 					}
 					timerC = timer.C

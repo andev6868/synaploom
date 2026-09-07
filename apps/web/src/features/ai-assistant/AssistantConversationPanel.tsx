@@ -44,7 +44,10 @@ function ConversationContent({
         {isStarterState ? (
           <>
             <p className="syn-contextual-assistant-panel__assistant-label">Trợ lý AI</p>
-            <div className="syn-contextual-assistant-panel__starter" aria-label="Lời chào Trợ lý AI">
+            <div
+              className="syn-contextual-assistant-panel__starter"
+              aria-label="Lời chào Trợ lý AI"
+            >
               <div className="syn-contextual-assistant-panel__starter-message">
                 <span className="syn-contextual-assistant-panel__message-avatar" aria-hidden="true">
                   <Bot size={22} strokeWidth={2.25} />
@@ -77,7 +80,10 @@ function ConversationContent({
                     disabled={pending}
                     onClick={() => void controller.submit(kind, prompt)}
                   >
-                    <span className="syn-contextual-assistant-panel__action-icon" aria-hidden="true">
+                    <span
+                      className="syn-contextual-assistant-panel__action-icon"
+                      aria-hidden="true"
+                    >
                       <Icon size={24} />
                     </span>
                     <span className="syn-contextual-assistant-panel__action-copy">
