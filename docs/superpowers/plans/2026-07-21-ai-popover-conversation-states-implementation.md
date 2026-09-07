@@ -19,12 +19,12 @@
 
 ## File structure
 
-| File | Responsibility |
-| --- | --- |
-| `apps/web/src/features/ai-assistant/AssistantQuickPopover.tsx` | Derive sample/live preview, own the local action-card visibility toggle, and render the `Xem gợi ý` affordance. |
-| `apps/web/src/features/ai-assistant/AssistantQuickPopover.test.tsx` | Verify mock bubbles, hidden cards, and reopening cards without changing AI controller calls. |
-| `apps/web/src/application.css` | Increase body room and style the compact text action-toggle. |
-| `tests/e2e/single-active-workspace-go-runtime.spec.ts` | Verify the quick popover exposes mock conversation and can reveal its action group in a browser. |
+| File                                                                | Responsibility                                                                                                  |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `apps/web/src/features/ai-assistant/AssistantQuickPopover.tsx`      | Derive sample/live preview, own the local action-card visibility toggle, and render the `Xem gợi ý` affordance. |
+| `apps/web/src/features/ai-assistant/AssistantQuickPopover.test.tsx` | Verify mock bubbles, hidden cards, and reopening cards without changing AI controller calls.                    |
+| `apps/web/src/application.css`                                      | Increase body room and style the compact text action-toggle.                                                    |
+| `tests/e2e/single-active-workspace-go-runtime.spec.ts`              | Verify the quick popover exposes mock conversation and can reveal its action group in a browser.                |
 
 ### Task 1: Add preview state and action re-enable control
 
@@ -83,7 +83,11 @@
   const mockPreviewMessages: readonly QuickPreviewMessage[] = [
     { id: 'mock-assistant-greeting', role: 'assistant', content: 'Mình có thể giúp gì cho bạn?' },
     { id: 'mock-user-question', role: 'user', content: 'Giải thích dòng chảy thuật toán' },
-    { id: 'mock-assistant-answer', role: 'assistant', content: 'Mình sẽ giải thích ngắn gọn và dễ hiểu.' },
+    {
+      id: 'mock-assistant-answer',
+      role: 'assistant',
+      content: 'Mình sẽ giải thích ngắn gọn và dễ hiểu.',
+    },
   ];
   ```
 
@@ -169,9 +173,9 @@
 
   ```ts
   expect(
-    await quick.locator('.syn-contextual-assistant-popover__body').evaluate(
-      (element) => getComputedStyle(element).minHeight,
-    ),
+    await quick
+      .locator('.syn-contextual-assistant-popover__body')
+      .evaluate((element) => getComputedStyle(element).minHeight),
   ).toBe('176px');
   ```
 

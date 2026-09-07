@@ -14,7 +14,7 @@ var (
 	ErrInvalidAction  = errors.New("invalid runner action")
 )
 
-var windowsAbsolutePath = regexp.MustCompile(`^[A-Za-z]:[\\/]`)
+var windowsAbsolutePath = regexp.MustCompile(`^([A-Za-z]:)?[\\/]`)
 
 type Resolver struct{ actions map[string]Action }
 

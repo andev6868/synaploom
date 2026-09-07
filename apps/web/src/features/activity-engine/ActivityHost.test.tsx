@@ -197,5 +197,4 @@ describe('ActivityHost', () => {
       expect.any(HTMLButtonElement),
     );
   });
-
 });

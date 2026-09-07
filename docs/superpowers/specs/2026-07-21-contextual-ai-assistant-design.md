@@ -294,8 +294,8 @@ The current `AssistantDock` is retired from the learning workspace. It may remai
 Theory and Practice receive callbacks rather than importing assistant implementation details:
 
 ```ts
-onAskTheory(context)
-onAskPractice(context)
+onAskTheory(context);
+onAskPractice(context);
 ```
 
 Activity renderers expose optional target context through a narrow callback and do not call the AI API directly.

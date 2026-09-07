@@ -16,9 +16,7 @@ export function normalizeTheorySelection(value: string): string | null {
   return text;
 }
 
-export function useTheoryAssistantSelection(
-  containerRef: RefObject<HTMLElement | null>,
-): {
+export function useTheoryAssistantSelection(containerRef: RefObject<HTMLElement | null>): {
   readonly selection: TheoryAssistantSelection | null;
   readonly clearToolbar: () => void;
 } {
@@ -29,11 +27,7 @@ export function useTheoryAssistantSelection(
     const update = (): void => {
       const container = containerRef.current;
       const browserSelection = window.getSelection();
-      if (
-        !container ||
-        browserSelection?.rangeCount !== 1 ||
-        browserSelection.isCollapsed
-      ) {
+      if (!container || browserSelection?.rangeCount !== 1 || browserSelection.isCollapsed) {
         setSelection(null);
         return;
       }

@@ -8,7 +8,10 @@ export function AssistantContextBadge({
   readonly invocation: AssistantInvocation;
 }): ReactNode {
   return (
-    <span className="syn-contextual-assistant-context" data-assistant-context-source={invocation.source}>
+    <span
+      className="syn-contextual-assistant-context"
+      data-assistant-context-source={invocation.source}
+    >
       {assistantContextLabel(invocation)}
     </span>
   );

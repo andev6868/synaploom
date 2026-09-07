@@ -34,33 +34,33 @@
 
 ## File ownership map
 
-| File or area | Responsibility |
-| --- | --- |
-| `packages/ai-contracts/src/index.ts` | Browser command, owner-qualified target, response, and source types. |
-| `internal/server/ai_context.go` | Validation, selected-text normalization, and daemon-owned trusted context construction. |
-| `internal/server/ai_handlers.go` | Owner-qualified non-streaming generation endpoint and localized errors. |
-| `internal/server/router.go` | Route registration and injection of course/progression/activity services. |
-| `apps/web/src/shared/api/client.ts` | Owner-qualified AI transport. |
-| `apps/web/src/features/ai-assistant/contextual-assistant-model.ts` | Invocation, surface, message, and request-state types. |
-| `apps/web/src/features/ai-assistant/useContextualAssistant.ts` | Controller, request identity, drafts, messages, abort/stale protection, and focus restoration. |
-| `apps/web/src/features/ai-assistant/AssistantTrigger.tsx` | Reusable source-labelled entry action. |
-| `apps/web/src/features/ai-assistant/AssistantContextBadge.tsx` | Visible source/target identity. |
-| `apps/web/src/features/ai-assistant/AssistantQuickPopover.tsx` | Short response UI and source-specific actions. |
-| `apps/web/src/features/ai-assistant/AssistantConversationPanel.tsx` | Expanded multi-turn desktop/mobile surface. |
-| `apps/web/src/features/ai-assistant/AssistantSelectionToolbar.tsx` | Theory selection action anchored to the selection rectangle. |
-| `apps/web/src/features/ai-assistant/useTheoryAssistantSelection.ts` | Selection validation, normalization, anchor calculation, Escape/focus cleanup. |
-| `apps/web/src/features/ai-assistant/ContextualAssistantLayer.tsx` | Composes trigger invocations, popover, panel, and responsive presentation. |
-| `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx` | One controller per lesson/assessment composition and owner target wiring. |
-| `apps/web/src/features/learning-workspace/LearningWorkspaceShell.tsx` | Removes permanent assistant slot and exposes overlay mounting boundary. |
-| `apps/web/src/features/learning-workspace/PracticePane.tsx` | Practice invocation callback plumbing. |
-| `apps/web/src/features/learning-workspace/PracticePaneHeader.tsx` | Persistent Practice `Hỏi AI` trigger. |
-| `apps/web/src/features/lesson-content/LessonActivities.tsx` | Theory selection zone and Theory trigger placement. |
-| `apps/web/src/features/activity-engine/types.ts` | Narrow practice-item AI callback contract. |
-| `apps/web/src/features/activity-engine/ActivityHost.tsx` | Passes item-context callbacks to supported renderers. |
-| `apps/web/src/features/activity-engine/renderers/OrderingActivity.tsx` | Explicit `Hỏi AI về bước này` action without answer mutation. |
-| `apps/web/src/application.css` | Contextual assistant geometry, overlay, responsive, focus, and reduced-motion rules; removes dock layout rules. |
-| `packages/ui/src/styles.css` and `packages/ui/src/index.ts` | Retires AssistantDock export/styles when no consumer remains. |
-| `tests/e2e/single-active-workspace-go-runtime.spec.ts` | Zero-footprint, anchoring, overlay/no-reflow, selection, focus, and mobile contracts. |
+| File or area                                                           | Responsibility                                                                                                  |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `packages/ai-contracts/src/index.ts`                                   | Browser command, owner-qualified target, response, and source types.                                            |
+| `internal/server/ai_context.go`                                        | Validation, selected-text normalization, and daemon-owned trusted context construction.                         |
+| `internal/server/ai_handlers.go`                                       | Owner-qualified non-streaming generation endpoint and localized errors.                                         |
+| `internal/server/router.go`                                            | Route registration and injection of course/progression/activity services.                                       |
+| `apps/web/src/shared/api/client.ts`                                    | Owner-qualified AI transport.                                                                                   |
+| `apps/web/src/features/ai-assistant/contextual-assistant-model.ts`     | Invocation, surface, message, and request-state types.                                                          |
+| `apps/web/src/features/ai-assistant/useContextualAssistant.ts`         | Controller, request identity, drafts, messages, abort/stale protection, and focus restoration.                  |
+| `apps/web/src/features/ai-assistant/AssistantTrigger.tsx`              | Reusable source-labelled entry action.                                                                          |
+| `apps/web/src/features/ai-assistant/AssistantContextBadge.tsx`         | Visible source/target identity.                                                                                 |
+| `apps/web/src/features/ai-assistant/AssistantQuickPopover.tsx`         | Short response UI and source-specific actions.                                                                  |
+| `apps/web/src/features/ai-assistant/AssistantConversationPanel.tsx`    | Expanded multi-turn desktop/mobile surface.                                                                     |
+| `apps/web/src/features/ai-assistant/AssistantSelectionToolbar.tsx`     | Theory selection action anchored to the selection rectangle.                                                    |
+| `apps/web/src/features/ai-assistant/useTheoryAssistantSelection.ts`    | Selection validation, normalization, anchor calculation, Escape/focus cleanup.                                  |
+| `apps/web/src/features/ai-assistant/ContextualAssistantLayer.tsx`      | Composes trigger invocations, popover, panel, and responsive presentation.                                      |
+| `apps/web/src/features/workspace-layout/LearningWorkspacePage.tsx`     | One controller per lesson/assessment composition and owner target wiring.                                       |
+| `apps/web/src/features/learning-workspace/LearningWorkspaceShell.tsx`  | Removes permanent assistant slot and exposes overlay mounting boundary.                                         |
+| `apps/web/src/features/learning-workspace/PracticePane.tsx`            | Practice invocation callback plumbing.                                                                          |
+| `apps/web/src/features/learning-workspace/PracticePaneHeader.tsx`      | Persistent Practice `Hỏi AI` trigger.                                                                           |
+| `apps/web/src/features/lesson-content/LessonActivities.tsx`            | Theory selection zone and Theory trigger placement.                                                             |
+| `apps/web/src/features/activity-engine/types.ts`                       | Narrow practice-item AI callback contract.                                                                      |
+| `apps/web/src/features/activity-engine/ActivityHost.tsx`               | Passes item-context callbacks to supported renderers.                                                           |
+| `apps/web/src/features/activity-engine/renderers/OrderingActivity.tsx` | Explicit `Hỏi AI về bước này` action without answer mutation.                                                   |
+| `apps/web/src/application.css`                                         | Contextual assistant geometry, overlay, responsive, focus, and reduced-motion rules; removes dock layout rules. |
+| `packages/ui/src/styles.css` and `packages/ui/src/index.ts`            | Retires AssistantDock export/styles when no consumer remains.                                                   |
+| `tests/e2e/single-active-workspace-go-runtime.spec.ts`                 | Zero-footprint, anchoring, overlay/no-reflow, selection, focus, and mobile contracts.                           |
 
 ---
 
@@ -705,7 +705,10 @@ function theoryInvocation(anchor: HTMLElement): AssistantInvocation {
 
 function practiceInvocation(anchor: HTMLElement): AssistantInvocation {
   return {
-    source: 'practice', activityId: 'ordering', activityTitle: 'Sắp xếp thuật toán', anchor,
+    source: 'practice',
+    activityId: 'ordering',
+    activityTitle: 'Sắp xếp thuật toán',
+    anchor,
   };
 }
 
@@ -714,17 +717,20 @@ it('ignores a response after invocation changes', async () => {
   const requestAi = vi.fn().mockReturnValueOnce(first.promise);
   const trigger = document.createElement('button');
   document.body.append(trigger);
-  const { result } = renderHook(() =>
-    useContextualAssistant({
-      target: { courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' },
-    }),
+  const { result } = renderHook(
+    () =>
+      useContextualAssistant({
+        target: { courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' },
+      }),
     { wrapper: ({ children }) => <AppProviders api={apiWith(requestAi)}>{children}</AppProviders> },
   );
 
   act(() => result.current.openQuick(theoryInvocation(trigger)));
   act(() => result.current.setPrompt('Giải thích'));
   let submission!: Promise<void>;
-  act(() => { submission = result.current.submit('explain'); });
+  act(() => {
+    submission = result.current.submit('explain');
+  });
   act(() => result.current.openQuick(practiceInvocation(trigger)));
   await act(async () => {
     first.resolve({ status: 'ok', content: 'stale' });
@@ -949,8 +955,20 @@ export function useContextualAssistant({
         const stamp = `${requestId}`;
         setMessages((currentMessages) => [
           ...currentMessages,
-          { id: `user-${stamp}`, role: 'user', content: submittedPrompt, source: invocation.source, contextLabel: label },
-          { id: `assistant-${stamp}`, role: 'assistant', content: result.content, source: invocation.source, contextLabel: label },
+          {
+            id: `user-${stamp}`,
+            role: 'user',
+            content: submittedPrompt,
+            source: invocation.source,
+            contextLabel: label,
+          },
+          {
+            id: `assistant-${stamp}`,
+            role: 'assistant',
+            content: result.content,
+            source: invocation.source,
+            contextLabel: label,
+          },
         ]);
         draftsRef.current[invocation.source] = '';
         setPrompt('');
@@ -965,7 +983,20 @@ export function useContextualAssistant({
     [api, setPrompt, status, target],
   );
 
-  return { target, state, prompt, messages, response, status, error, openQuick, expand, close, setPrompt, submit };
+  return {
+    target,
+    state,
+    prompt,
+    messages,
+    response,
+    status,
+    error,
+    openQuick,
+    expand,
+    close,
+    setPrompt,
+    submit,
+  };
 }
 ```
 
@@ -1073,16 +1104,16 @@ export function AssistantTrigger({ source, onInvoke }: AssistantTriggerProps): R
 Add a pure helper inside `AssistantQuickPopover.tsx`:
 
 ```ts
-export function assistantPopoverPosition(anchor: DOMRect, viewport: DOMRect): {
+export function assistantPopoverPosition(
+  anchor: DOMRect,
+  viewport: DOMRect,
+): {
   readonly left: number;
   readonly top: number;
 } {
   const width = Math.min(420, Math.max(360, viewport.width * 0.28));
   const gap = 8;
-  const left = Math.min(
-    Math.max(viewport.left + 12, anchor.left),
-    viewport.right - width - 12,
-  );
+  const left = Math.min(Math.max(viewport.left + 12, anchor.left), viewport.right - width - 12);
   const top = Math.min(anchor.bottom + gap, viewport.bottom - 320);
   return { left, top: Math.max(viewport.top + 12, top) };
 }
@@ -1133,7 +1164,9 @@ export function AssistantQuickPopover({
           <strong>Trợ lý AI</strong>
           <AssistantContextBadge invocation={invocation} />
         </div>
-        <button type="button" aria-label="Đóng Trợ lý AI" onClick={controller.close}>×</button>
+        <button type="button" aria-label="Đóng Trợ lý AI" onClick={controller.close}>
+          ×
+        </button>
       </header>
       <div className="syn-contextual-assistant-popover__body">
         {invocation.selectedText ? (
@@ -1145,7 +1178,12 @@ export function AssistantQuickPopover({
         {controller.error ? <p role="alert">{controller.error}</p> : null}
         <div className="syn-contextual-assistant-popover__actions">
           {actions.map(([label, kind, prompt]) => (
-            <button key={label} type="button" disabled={pending} onClick={() => void controller.submit(kind, prompt)}>
+            <button
+              key={label}
+              type="button"
+              disabled={pending}
+              onClick={() => void controller.submit(kind, prompt)}
+            >
               {label}
             </button>
           ))}
@@ -1158,10 +1196,16 @@ export function AssistantQuickPopover({
           value={controller.prompt}
           onChange={(event) => controller.setPrompt(event.currentTarget.value)}
         />
-        <button type="button" disabled={pending || controller.prompt.trim() === ''} onClick={() => void controller.submit('explain')}>
+        <button
+          type="button"
+          disabled={pending || controller.prompt.trim() === ''}
+          onClick={() => void controller.submit('explain')}
+        >
           Gửi
         </button>
-        <button type="button" onClick={controller.expand}>Mở cuộc hội thoại đầy đủ</button>
+        <button type="button" onClick={controller.expand}>
+          Mở cuộc hội thoại đầy đủ
+        </button>
       </footer>
     </section>
   );
@@ -1591,9 +1635,7 @@ export function normalizeTheorySelection(value: string): string | null {
   return text;
 }
 
-export function useTheoryAssistantSelection(
-  containerRef: RefObject<HTMLElement | null>,
-): {
+export function useTheoryAssistantSelection(containerRef: RefObject<HTMLElement | null>): {
   readonly selection: TheoryAssistantSelection | null;
   readonly clearToolbar: () => void;
 } {
@@ -1602,7 +1644,12 @@ export function useTheoryAssistantSelection(
     const update = (): void => {
       const container = containerRef.current;
       const browserSelection = window.getSelection();
-      if (!container || !browserSelection || browserSelection.rangeCount !== 1 || browserSelection.isCollapsed) {
+      if (
+        !container ||
+        !browserSelection ||
+        browserSelection.rangeCount !== 1 ||
+        browserSelection.isCollapsed
+      ) {
         setSelection(null);
         return;
       }
@@ -1801,12 +1848,7 @@ Inside each ordering row, add a separate compact button:
   className="syn-activity-ordering__ask-ai"
   disabled={disabled}
   aria-label={`Hỏi AI về bước ${label}`}
-  onClick={(event) =>
-    onAskAIAboutItem?.(
-      { label, selectedText: label },
-      event.currentTarget,
-    )
-  }
+  onClick={(event) => onAskAIAboutItem?.({ label, selectedText: label }, event.currentTarget)}
 >
   <Sparkles aria-hidden="true" size={15} />
 </button>
@@ -1931,7 +1973,11 @@ Desktop panel:
 Implement the shared panel body and desktop surface:
 
 ```tsx
-function ConversationBody({ controller }: { readonly controller: ContextualAssistantController }): ReactNode {
+function ConversationBody({
+  controller,
+}: {
+  readonly controller: ContextualAssistantController;
+}): ReactNode {
   return (
     <>
       <header className="syn-contextual-assistant-panel__header">
@@ -1941,7 +1987,9 @@ function ConversationBody({ controller }: { readonly controller: ContextualAssis
             <AssistantContextBadge invocation={controller.state.invocation} />
           ) : null}
         </div>
-        <button type="button" aria-label="Đóng Trợ lý AI" onClick={controller.close}>×</button>
+        <button type="button" aria-label="Đóng Trợ lý AI" onClick={controller.close}>
+          ×
+        </button>
       </header>
       <div className="syn-contextual-assistant-panel__messages" aria-label="Cuộc hội thoại">
         {controller.messages.map((message) => (
@@ -1958,7 +2006,11 @@ function ConversationBody({ controller }: { readonly controller: ContextualAssis
           value={controller.prompt}
           onChange={(event) => controller.setPrompt(event.currentTarget.value)}
         />
-        <button type="button" disabled={controller.status === 'submitting'} onClick={() => void controller.submit('explain')}>
+        <button
+          type="button"
+          disabled={controller.status === 'submitting'}
+          onClick={() => void controller.submit('explain')}
+        >
           Gửi
         </button>
       </footer>
@@ -1981,7 +2033,9 @@ export function AssistantConversationPanel({
       <Dialog
         title="Trợ lý AI"
         open
-        onOpenChange={(open) => { if (!open) controller.close(); }}
+        onOpenChange={(open) => {
+          if (!open) controller.close();
+        }}
         contentClassName="syn-contextual-assistant-panel--mobile"
       >
         <ConversationBody controller={controller} />
@@ -1990,7 +2044,11 @@ export function AssistantConversationPanel({
   }
   return (
     <aside
-      className={compact ? 'syn-contextual-assistant-panel syn-contextual-assistant-panel--compact' : 'syn-contextual-assistant-panel'}
+      className={
+        compact
+          ? 'syn-contextual-assistant-panel syn-contextual-assistant-panel--compact'
+          : 'syn-contextual-assistant-panel'
+      }
       data-testid="assistant-expanded-panel"
       role="complementary"
       aria-label="Trợ lý AI"

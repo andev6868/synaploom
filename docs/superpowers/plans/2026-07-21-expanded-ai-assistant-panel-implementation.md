@@ -34,11 +34,13 @@
 ### Task 1: Centralize contextual action metadata
 
 **Files:**
+
 - Create: `apps/web/src/features/ai-assistant/assistant-actions.ts`
 - Create: `apps/web/src/features/ai-assistant/assistant-actions.test.ts`
 - Modify: `apps/web/src/features/ai-assistant/AssistantQuickPopover.tsx:1-94`
 
 **Interfaces:**
+
 - Consumes: `AssistantInvocation` from `contextual-assistant-model.ts` and `AiRequestKind` from `@synaploom/ai-contracts`.
 - Produces: `AssistantAction` and `assistantActionsForInvocation(invocation: AssistantInvocation): readonly AssistantAction[]` for both assistant surfaces.
 
@@ -90,15 +92,57 @@ export type AssistantAction = {
 };
 
 const theoryActions: readonly AssistantAction[] = [
-  { label: 'Giải thích', description: 'Giải thích khái niệm', kind: 'explain', prompt: 'Giải thích nội dung này bằng ngôn ngữ dễ hiểu.', icon: Lightbulb, tone: 'blue' },
-  { label: 'Cho ví dụ', description: 'Ví dụ minh hoạ', kind: 'explain', prompt: 'Cho một ví dụ cụ thể về nội dung này.', icon: Code2, tone: 'green' },
-  { label: 'Tóm tắt', description: 'Tóm tắt nội dung', kind: 'summarize', prompt: 'Tóm tắt các ý chính của nội dung này.', icon: NotebookPen, tone: 'violet' },
+  {
+    label: 'Giải thích',
+    description: 'Giải thích khái niệm',
+    kind: 'explain',
+    prompt: 'Giải thích nội dung này bằng ngôn ngữ dễ hiểu.',
+    icon: Lightbulb,
+    tone: 'blue',
+  },
+  {
+    label: 'Cho ví dụ',
+    description: 'Ví dụ minh hoạ',
+    kind: 'explain',
+    prompt: 'Cho một ví dụ cụ thể về nội dung này.',
+    icon: Code2,
+    tone: 'green',
+  },
+  {
+    label: 'Tóm tắt',
+    description: 'Tóm tắt nội dung',
+    kind: 'summarize',
+    prompt: 'Tóm tắt các ý chính của nội dung này.',
+    icon: NotebookPen,
+    tone: 'violet',
+  },
 ];
 
 const practiceActions: readonly AssistantAction[] = [
-  { label: 'Gợi ý', description: 'Gợi ý bước tiếp theo', kind: 'hint', prompt: 'Cho một gợi ý tiếp theo nhưng không đưa đáp án hoàn chỉnh.', icon: Lightbulb, tone: 'blue' },
-  { label: 'Giải thích lỗi', description: 'Giải thích điểm cần xem lại', kind: 'explain-check-failure', prompt: 'Giải thích lỗi trong cách làm hiện tại.', icon: Code2, tone: 'green' },
-  { label: 'Kiểm tra cách làm', description: 'Kiểm tra hướng làm', kind: 'explain', prompt: 'Kiểm tra hướng làm hiện tại và nêu điểm cần xem lại.', icon: NotebookPen, tone: 'violet' },
+  {
+    label: 'Gợi ý',
+    description: 'Gợi ý bước tiếp theo',
+    kind: 'hint',
+    prompt: 'Cho một gợi ý tiếp theo nhưng không đưa đáp án hoàn chỉnh.',
+    icon: Lightbulb,
+    tone: 'blue',
+  },
+  {
+    label: 'Giải thích lỗi',
+    description: 'Giải thích điểm cần xem lại',
+    kind: 'explain-check-failure',
+    prompt: 'Giải thích lỗi trong cách làm hiện tại.',
+    icon: Code2,
+    tone: 'green',
+  },
+  {
+    label: 'Kiểm tra cách làm',
+    description: 'Kiểm tra hướng làm',
+    kind: 'explain',
+    prompt: 'Kiểm tra hướng làm hiện tại và nêu điểm cần xem lại.',
+    icon: NotebookPen,
+    tone: 'violet',
+  },
 ];
 
 export function assistantActionsForInvocation(
@@ -134,10 +178,12 @@ git commit -m "refactor: share contextual AI actions"
 ### Task 2: Render the expanded starter conversation and contextual suggestions
 
 **Files:**
+
 - Modify: `apps/web/src/features/ai-assistant/AssistantConversationPanel.tsx:1-109`
 - Modify: `apps/web/src/features/ai-assistant/AssistantConversationPanel.test.tsx:6-113`
 
 **Interfaces:**
+
 - Consumes: `assistantActionsForInvocation(invocation)`, `ContextualAssistantController.submit(kind, promptOverride?)`, and `controller.messages`.
 - Produces: `data-testid="assistant-expanded-actions"` only while `controller.messages.length === 0`; all action buttons invoke `submit(action.kind, action.prompt)`.
 
@@ -146,9 +192,7 @@ git commit -m "refactor: share contextual AI actions"
 Extend the test helper so it accepts `Partial<ContextualAssistantController>` overrides, then add:
 
 ```tsx
-function expandedController(
-  overrides: Partial<ContextualAssistantController> = {},
-): {
+function expandedController(overrides: Partial<ContextualAssistantController> = {}): {
   readonly controller: ContextualAssistantController;
   readonly close: ReturnType<typeof vi.fn>;
   readonly setPrompt: ReturnType<typeof vi.fn>;
@@ -163,11 +207,31 @@ function expandedController(
     submit,
     controller: {
       target: { courseId: 'course', ownerKind: 'lessons', ownerId: 'lesson' },
-      state: { kind: 'expanded', invocation: { source: 'practice', activityId: 'ordering', activityTitle: 'Sắp xếp thuật toán', anchor: new DOMRect(10, 10, 20, 20) } },
+      state: {
+        kind: 'expanded',
+        invocation: {
+          source: 'practice',
+          activityId: 'ordering',
+          activityTitle: 'Sắp xếp thuật toán',
+          anchor: new DOMRect(10, 10, 20, 20),
+        },
+      },
       prompt: 'Giải thích bước này',
       messages: [
-        { id: 'user-1', role: 'user', content: 'Vì sao bước này sai?', source: 'practice', contextLabel: 'Bài tập · Sắp xếp thuật toán' },
-        { id: 'assistant-1', role: 'assistant', content: 'Cần tính trước khi hiển thị.', source: 'practice', contextLabel: 'Bài tập · Sắp xếp thuật toán' },
+        {
+          id: 'user-1',
+          role: 'user',
+          content: 'Vì sao bước này sai?',
+          source: 'practice',
+          contextLabel: 'Bài tập · Sắp xếp thuật toán',
+        },
+        {
+          id: 'assistant-1',
+          role: 'assistant',
+          content: 'Cần tính trước khi hiển thị.',
+          source: 'practice',
+          contextLabel: 'Bài tập · Sắp xếp thuật toán',
+        },
       ],
       response: null,
       status: 'idle',
@@ -199,10 +263,7 @@ it('renders the display-only starter conversation and submits its contextual sug
   ).toBeVisible();
   expect(screen.getByTestId('assistant-expanded-actions')).toBeVisible();
   fireEvent.click(screen.getByRole('button', { name: 'Giải thích' }));
-  expect(submit).toHaveBeenCalledWith(
-    'explain',
-    'Giải thích nội dung này bằng ngôn ngữ dễ hiểu.',
-  );
+  expect(submit).toHaveBeenCalledWith('explain', 'Giải thích nội dung này bằng ngôn ngữ dễ hiểu.');
 });
 
 it('replaces starter content with live messages and hides suggestions', () => {
@@ -241,37 +302,58 @@ const liveMessages = controller.messages.map((message) => (
   </article>
 ));
 
-{isStarterState ? (
-  <>
-    <p className="syn-contextual-assistant-panel__assistant-label">Trợ lý AI</p>
-    <div className="syn-contextual-assistant-panel__starter" aria-label="Lời chào Trợ lý AI">
-      <span className="syn-contextual-assistant-panel__message-avatar" aria-hidden="true">
-        <Bot size={22} />
-      </span>
-      <article data-role="assistant" data-variant="greeting">
-        <p>Mình có thể giúp gì cho bạn? 👋</p>
-        <time dateTime="">10:24</time>
-      </article>
-      <article data-role="assistant" data-variant="guidance">
-        <p>Hãy đặt câu hỏi để bắt đầu cuộc hội thoại theo ngữ cảnh hiện tại.</p>
-        <time dateTime="">10:24</time>
-      </article>
-    </div>
-    <section className="syn-contextual-assistant-panel__suggestions" aria-labelledby="assistant-suggestions-heading">
-      <h2 id="assistant-suggestions-heading">Gợi ý cho bạn</h2>
-      <div data-testid="assistant-expanded-actions" className="syn-contextual-assistant-panel__actions">
-        {actions.map(({ label, description, kind, prompt, icon: Icon, tone }) => (
-          <button key={label} type="button" data-tone={tone} disabled={pending}
-            aria-label={label} onClick={() => void controller.submit(kind, prompt)}>
-            <span aria-hidden="true"><Icon size={24} /></span>
-            <span><strong>{label}</strong><small>{description}</small></span>
-            <ChevronRight aria-hidden="true" size={20} />
-          </button>
-        ))}
+{
+  isStarterState ? (
+    <>
+      <p className="syn-contextual-assistant-panel__assistant-label">Trợ lý AI</p>
+      <div className="syn-contextual-assistant-panel__starter" aria-label="Lời chào Trợ lý AI">
+        <span className="syn-contextual-assistant-panel__message-avatar" aria-hidden="true">
+          <Bot size={22} />
+        </span>
+        <article data-role="assistant" data-variant="greeting">
+          <p>Mình có thể giúp gì cho bạn? 👋</p>
+          <time dateTime="">10:24</time>
+        </article>
+        <article data-role="assistant" data-variant="guidance">
+          <p>Hãy đặt câu hỏi để bắt đầu cuộc hội thoại theo ngữ cảnh hiện tại.</p>
+          <time dateTime="">10:24</time>
+        </article>
       </div>
-    </section>
-  </>
-) : liveMessages}
+      <section
+        className="syn-contextual-assistant-panel__suggestions"
+        aria-labelledby="assistant-suggestions-heading"
+      >
+        <h2 id="assistant-suggestions-heading">Gợi ý cho bạn</h2>
+        <div
+          data-testid="assistant-expanded-actions"
+          className="syn-contextual-assistant-panel__actions"
+        >
+          {actions.map(({ label, description, kind, prompt, icon: Icon, tone }) => (
+            <button
+              key={label}
+              type="button"
+              data-tone={tone}
+              disabled={pending}
+              aria-label={label}
+              onClick={() => void controller.submit(kind, prompt)}
+            >
+              <span aria-hidden="true">
+                <Icon size={24} />
+              </span>
+              <span>
+                <strong>{label}</strong>
+                <small>{description}</small>
+              </span>
+              <ChevronRight aria-hidden="true" size={20} />
+            </button>
+          ))}
+        </div>
+      </section>
+    </>
+  ) : (
+    liveMessages
+  );
+}
 ```
 
 Keep `data-role`, live status, error alert, label, textarea value/onChange,
@@ -298,11 +380,13 @@ git commit -m "feat: add expanded AI panel starter state"
 ### Task 3: Apply the reference layout and verify the Go-runtime surface
 
 **Files:**
+
 - Modify: `apps/web/src/application.css:2741-2838`
 - Modify: `tests/e2e/single-active-workspace-go-runtime.spec.ts:467-486`
 - Regenerate: `internal/webassets/dist/**`, `internal/webassets/inventory.json`
 
 **Interfaces:**
+
 - Consumes: the class names and `data-tone` attributes produced in Task 2.
 - Produces: a desktop expanded panel that fits three horizontal suggestion cards and a mobile dialog whose content remains reachable and scrollable.
 
@@ -318,7 +402,9 @@ await expect(expanded.getByTestId('assistant-expanded-actions').getByRole('butto
 await expect(expanded.getByLabel('Gửi')).toBeDisabled();
 expect(expandedBox.width).toBeGreaterThan(560);
 expect(expandedBox.width).toBeLessThanOrEqual(before.workspace.width);
-expect(Math.abs(expandedBox.x + expandedBox.width - before.workspace.x - before.workspace.width)).toBeLessThanOrEqual(1);
+expect(
+  Math.abs(expandedBox.x + expandedBox.width - before.workspace.x - before.workspace.width),
+).toBeLessThanOrEqual(1);
 ```
 
 Retain the workspace-zero-footprint and mobile-dialog assertions. In the mobile

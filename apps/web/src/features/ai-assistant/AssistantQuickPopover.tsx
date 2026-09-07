@@ -1,9 +1,4 @@
-import {
-  Bot,
-  Maximize2,
-  SendHorizontal,
-  X,
-} from 'lucide-react';
+import { Bot, Maximize2, SendHorizontal, X } from 'lucide-react';
 import { useState, type CSSProperties, type ReactNode } from 'react';
 import { assistantActionsForInvocation } from '#src/features/ai-assistant/assistant-actions';
 import { AssistantContextBadge } from '#src/features/ai-assistant/AssistantContextBadge';

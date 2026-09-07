@@ -367,7 +367,6 @@
   background: var(--syn-color-surface);
 }
 
-
 .syn-workspace-frame {
   display: flex;
   min-width: 0;
