@@ -140,8 +140,11 @@ func TestMarkdownGoldenOutputIsStable(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	actualStr := strings.ReplaceAll(string(actual), "\r\n", "\n")
-	expectedStr := strings.ReplaceAll(string(expected), "\r\n", "\n")
+	// Fix markdown json serialization comparing on windows due to double slash r
+	actualStr := strings.ReplaceAll(string(actual), "\\r\\n", "\\n")
+    actualStr = strings.ReplaceAll(actualStr, "\r\n", "\n")
+	expectedStr := strings.ReplaceAll(string(expected), "\\r\\n", "\\n")
+    expectedStr = strings.ReplaceAll(expectedStr, "\r\n", "\n")
 	if actualStr != expectedStr {
 		t.Fatalf("golden mismatch\nactual:\n%s\nexpected:\n%s", actualStr, expectedStr)
 	}
